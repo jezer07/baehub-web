@@ -6,8 +6,23 @@
     <!-- Main task card -->
     <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
       <!-- Header section -->
-      <div class="p-8 bg-gradient-to-r from-primary-50 to-purple-50">
-        <h1 class="text-3xl font-bold text-neutral-900 mb-3"><%= @task.title %></h1>
+      <div class="p-8 <%= @task.done? ? 'bg-gradient-to-r from-success-50 to-success-100' : 'bg-gradient-to-r from-primary-50 to-purple-50' %>">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-3">
+          <h1 class="text-3xl font-bold text-neutral-900 flex-1"><%= @task.title %></h1>
+          <%= button_to toggle_completion_task_path(@task), method: :patch, class: "#{@task.done? ? 'btn-secondary bg-success-600 text-white hover:bg-success-700' : 'btn-primary'} justify-center flex-shrink-0" do %>
+            <% if @task.done? %>
+              <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              Mark as incomplete
+            <% else %>
+              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" stroke-width="2"/>
+              </svg>
+              Mark as complete
+            <% end %>
+          <% end %>
+        </div>
         <span class="inline-flex items-center px-4 py-2 rounded-full bg-white text-neutral-700 border border-neutral-200 capitalize text-sm font-medium"><%= @task.status.humanize %></span>
       </div>
 

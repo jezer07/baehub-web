@@ -1,0 +1,59 @@
+<%
+  show_link = local_assigns.fetch(:show_link, true)
+  compact = local_assigns.fetch(:compact, false)
+  frame_id = local_assigns.fetch(:frame_id, "task_#{task.id}")
+%>
+
+<%= turbo_frame_tag frame_id do %>
+  <li class="flex flex-col md:flex-row md:items-center gap-3 rounded-2xl border border-neutral-100 <%= compact ? 'bg-neutral-50 px-4 py-3' : 'bg-white px-6 py-4 hover:shadow-md transition-shadow' %>">
+    <div class="flex items-start gap-3 flex-1">
+      <%= button_to toggle_completion_task_path(task), method: :patch, class: "mt-1 flex-shrink-0 p-1 rounded-lg transition-colors #{task.done? ? 'text-success-700 hover:bg-success-50' : 'text-neutral-400 hover:bg-neutral-100'}" do %>
+        <% if task.done? %>
+          <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+        <% else %>
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="12" cy="12" r="9" stroke-width="2"/>
+          </svg>
+        <% end %>
+      <% end %>
+      
+      <div class="flex-1 min-w-0">
+        <% if show_link %>
+          <%= link_to task.title, task_path(task), class: "#{compact ? 'text-base' : 'text-lg'} font-medium text-neutral-900 hover:text-primary-600 #{task.done? ? 'line-through opacity-60' : ''}" %>
+        <% else %>
+          <p class="<%= compact ? 'text-base' : 'text-lg' %> font-medium text-neutral-900 <%= task.done? ? 'line-through opacity-60' : '' %>"><%= task.title %></p>
+        <% end %>
+        <% if !compact && task.description.present? %>
+          <p class="text-sm text-neutral-500 line-clamp-2 mt-1"><%= task.description %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 text-sm text-neutral-500 <%= compact ? 'ml-9 md:ml-0' : '' %>">
+      <% if task.overdue? %>
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-medium">Overdue</span>
+      <% end %>
+      <% if task.due_at.present? %>
+        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full <%= compact ? 'bg-white' : 'bg-neutral-50' %> text-neutral-700 border border-neutral-200">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <%= task.due_at.strftime("%b %d") %>
+        </span>
+      <% end %>
+      <% if task.assignee %>
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full <%= compact ? 'bg-white' : 'bg-neutral-50' %> text-neutral-700 border border-neutral-200">
+          <span class="h-2 w-2 rounded-full bg-primary-500"></span>
+          <%= task.assignee == current_user ? "You" : task.assignee.name %>
+        </span>
+      <% end %>
+      <% if !compact %>
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200 capitalize"><%= task.priority.humanize %></span>
+      <% end %>
+      <span class="inline-flex items-center px-3 py-1 rounded-full <%= compact ? 'bg-white' : 'bg-neutral-50' %> text-neutral-700 border border-neutral-200 capitalize"><%= task.status.humanize %></span>
+    </div>
+  </li>
+<% end %>
+

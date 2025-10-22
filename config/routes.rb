@@ -18,7 +18,10 @@ Rails.application.routes.draw do
       post :join, on: :collection
     end
     resources :invitations, only: %i[create destroy]
-    resources :tasks
+    resources :tasks do
+      patch :toggle_completion, on: :member
+    end
+    resources :events
   end
 
   unauthenticated do
