@@ -1,0 +1,51 @@
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8">
+    <div class="text-center">
+      <h2 class="text-4xl font-bold text-primary-600 mb-2">Join Baehub</h2>
+      <p class="text-neutral-600">Create your account and connect with your partner</p>
+    </div>
+
+    <div class="card">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <div>
+          <%= f.label :name, class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.text_field :name, autofocus: true, class: "input-field" %>
+        </div>
+
+        <div>
+          <%= f.label :email, class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.email_field :email, autocomplete: "email", class: "input-field" %>
+        </div>
+
+        <div>
+          <%= f.label :password, class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.password_field :password, autocomplete: "new-password", class: "input-field" %>
+          <% if @minimum_password_length %>
+            <p class="mt-1 text-sm text-neutral-500">Minimum <%= @minimum_password_length %> characters</p>
+          <% end %>
+        </div>
+
+        <div>
+          <%= f.label :password_confirmation, "Confirm password", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input-field" %>
+        </div>
+
+        <div>
+          <%= f.label :avatar_url, "Avatar URL (optional)", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.text_field :avatar_url, class: "input-field" %>
+          <p class="mt-1 text-sm text-neutral-500">Add a link to your profile picture</p>
+        </div>
+
+        <div>
+          <%= f.submit "Sign up", class: "w-full btn-primary justify-center" %>
+        </div>
+      <% end %>
+
+      <div class="mt-6 text-center">
+        <%= link_to "Already have an account? Sign in", new_session_path(resource_name), class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
+      </div>
+    </div>
+  </div>
+</div>
