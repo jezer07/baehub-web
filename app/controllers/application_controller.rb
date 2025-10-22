@@ -7,15 +7,15 @@ class ApplicationController < ActionController::Base
   protected
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.permit(:sign_up, keys: [:name, :avatar_url])
-    devise_parameter_sanitizer.permit(:account_update, keys: [:name, :avatar_url])
+    devise_parameter_sanitizer.permit(:sign_up, keys: %i[name avatar_url preferred_color timezone])
+    devise_parameter_sanitizer.permit(:account_update, keys: %i[name avatar_url preferred_color timezone])
   end
 
   def after_sign_in_path_for(resource)
-    edit_user_registration_path
+    dashboard_path
   end
 
   def after_sign_out_path_for(resource_or_scope)
-    new_user_session_path
+    root_path
   end
 end

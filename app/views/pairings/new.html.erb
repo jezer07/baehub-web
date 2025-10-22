@@ -1,0 +1,131 @@
+<div class="bg-gradient-to-br from-white via-primary-50/40 to-pink-50/50 py-12">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-neutral-900 mb-2">Pair up with your person</h1>
+      <p class="text-neutral-600">Create your shared space or join with a code. Magic happens once you’re both inside.</p>
+    </div>
+
+    <% if current_user.couple %>
+      <div class="bg-white shadow-xl shadow-primary-900/5 rounded-3xl border border-neutral-100 overflow-hidden">
+        <div class="grid md:grid-cols-2 gap-0">
+          <div class="p-8 border-b md:border-b-0 md:border-r border-neutral-100">
+            <h2 class="text-2xl font-semibold text-neutral-900 mb-4"><%= current_user.couple.name %></h2>
+            <dl class="space-y-3 text-sm text-neutral-600">
+              <div class="flex items-center justify-between">
+                <dt class="font-medium text-neutral-700">Anniversary</dt>
+                <dd><%= current_user.couple.anniversary_on&.strftime("%B %d, %Y") || "Let’s add it soon" %></dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="font-medium text-neutral-700">Primary Timezone</dt>
+                <dd><%= current_user.couple.timezone %></dd>
+              </div>
+              <div>
+                <dt class="font-medium text-neutral-700 mb-1">Story</dt>
+                <dd class="text-neutral-600 leading-relaxed"><%= current_user.couple.story.presence || "Capture the journey that brought you here." %></dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="p-8 bg-neutral-50">
+            <h3 class="text-xl font-semibold text-neutral-900 mb-4">Invite your partner</h3>
+            <%= form_with url: invitations_path, scope: :invitation, class: "space-y-4" do |f| %>
+              <div>
+                <%= f.label :recipient_email, "Partner’s email (optional)", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+                <%= f.email_field :recipient_email, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+                <p class="text-xs text-neutral-500 mt-1">We’ll display the code either way — add email for a quick send.</p>
+              </div>
+              <div>
+                <%= f.label :message, "Add a sweet note", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+                <%= f.text_area :message, rows: 3, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+              </div>
+              <div>
+                <%= f.label :expires_in_hours, "Invite expires in (hours)", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+                <%= f.number_field :expires_in_hours, value: 72, min: 1, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+              </div>
+              <div class="flex justify-end">
+                <%= f.submit "Generate invitation code", class: "btn-primary px-6" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="p-8 bg-white border-t border-neutral-100">
+          <h3 class="text-lg font-semibold text-neutral-900 mb-4">Active invitation codes</h3>
+          <% if @active_invitations.any? %>
+            <div class="space-y-4">
+              <% @active_invitations.each do |invitation| %>
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 text-primary-600 font-semibold text-lg"><%= invitation.code %></span>
+                    <dl class="text-sm text-neutral-600">
+                      <div><span class="font-medium text-neutral-800">Sent:</span> <%= invitation.created_at.strftime("%b %d, %Y %l:%M %p") %></div>
+                      <div><span class="font-medium text-neutral-800">Expires:</span> <%= invitation.expires_at.strftime("%b %d, %Y %l:%M %p") %></div>
+                    </dl>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <% if invitation.recipient_email.present? %>
+                      <span class="text-xs font-medium px-3 py-1 rounded-full bg-primary-50 text-primary-600"><%= invitation.recipient_email %></span>
+                    <% end %>
+                    <%= button_to "Revoke", invitation_path(invitation), method: :delete, class: "btn-secondary px-4 py-2" %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-sm text-neutral-500">No active codes right now—generate one above when you’re ready.</p>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div class="bg-white shadow-xl shadow-primary-900/5 rounded-3xl border border-neutral-100 p-8">
+          <h2 class="text-2xl font-semibold text-neutral-900 mb-2">Create your shared space</h2>
+          <p class="text-neutral-600 mb-6">Name your duo, drop your anniversary, and we’ll spin up a home that feels like you.</p>
+
+          <%= form_with model: @couple, url: pairing_path, class: "space-y-5" do |f| %>
+            <div>
+              <%= f.label :name, "Couple name", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+              <%= f.text_field :name, required: true, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <%= f.label :anniversary_on, "Anniversary", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+                <%= f.date_field :anniversary_on, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+              </div>
+              <div>
+                <%= f.label :timezone, "Timezone", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+                <%= f.time_zone_select :timezone, ActiveSupport::TimeZone.all, { default: @couple.timezone }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+              </div>
+            </div>
+            <div>
+              <%= f.label :story, "Your story (optional)", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+              <%= f.text_area :story, rows: 4, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+            </div>
+            <div class="flex justify-end">
+              <%= f.submit "Create Baehub space", class: "btn-primary px-6" %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="bg-white shadow-xl shadow-primary-900/5 rounded-3xl border border-neutral-100 p-8">
+          <h2 class="text-2xl font-semibold text-neutral-900 mb-2">Have a code already?</h2>
+          <p class="text-neutral-600 mb-6">Enter the invite code your partner shared to link up instantly.</p>
+
+          <%= form_with url: join_pairing_path, scope: :invitation, class: "space-y-5" do |f| %>
+            <div>
+              <%= f.label :code, "Invitation code", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+              <%= f.text_field :code, required: true, maxlength: 8, class: "w-full uppercase tracking-[0.4em] font-mono text-lg rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400 text-center py-3" %>
+            </div>
+            <div class="flex justify-end">
+              <%= f.submit "Join my partner", class: "btn-secondary px-6" %>
+            </div>
+          <% end %>
+
+          <div class="mt-6 p-6 bg-primary-50 rounded-2xl text-primary-700 text-sm leading-relaxed">
+            Save your code once you generate it — they’re single use and expire fast to keep your space secure.
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,167 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-10">
+    <section class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+      <div class="p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wide text-primary-500 mb-2">Shared home</p>
+            <h1 class="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3"><%= @couple.name %></h1>
+            <p class="text-neutral-600 max-w-2xl">
+              Keep your plans, promises, and payments aligned. This dashboard surfaces what’s next so you can spend more time together.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-stretch gap-3">
+            <%= link_to "Pair another device", new_pairing_path, class: "btn-secondary justify-center" %>
+            <%= link_to "Invite your partner", new_pairing_path, class: "btn-primary justify-center" %>
+          </div>
+        </div>
+      </div>
+      <% if @couple.story.present? %>
+        <div class="px-8 py-6 bg-neutral-50 border-t border-neutral-100">
+          <p class="text-sm text-neutral-600 leading-relaxed"><span class="font-semibold text-neutral-800">Your story:</span> <%= @couple.story %></p>
+        </div>
+      <% end %>
+    </section>
+
+    <% if @couple.users.size < 2 %>
+      <div class="rounded-3xl bg-primary-600 text-white p-6 shadow-lg shadow-primary-500/30 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+        <div>
+          <p class="font-semibold text-lg">Still waiting for your person?</p>
+          <p class="text-primary-50">Share the freshest code so they can join — reminders and shared balances work best when you’re both in.</p>
+        </div>
+        <% if @active_invitations.any? %>
+          <div class="flex gap-2">
+            <% @active_invitations.each do |invitation| %>
+              <span class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/15 font-mono text-sm tracking-wider"><%= invitation.code %></span>
+            <% end %>
+          </div>
+        <% else %>
+          <%= link_to "Generate invite", new_pairing_path, class: "btn-secondary bg-white text-primary-700 hover:bg-primary-50 hover:text-primary-800" %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <section class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-semibold text-neutral-900">Shared focus</h2>
+            <p class="text-sm text-neutral-500">Top tasks that keep your rhythm steady</p>
+          </div>
+          <button type="button" class="btn-secondary opacity-70 cursor-not-allowed">Add task (coming soon)</button>
+        </div>
+
+        <% if @tasks.any? %>
+          <ul class="space-y-4">
+            <% @tasks.each do |task| %>
+              <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+                <div>
+                  <p class="text-base font-medium text-neutral-900"><%= task.title %></p>
+                  <% if task.description.present? %>
+                    <p class="text-sm text-neutral-500 line-clamp-2"><%= task.description %></p>
+                  <% end %>
+                </div>
+                <div class="flex items-center gap-3 text-sm text-neutral-500">
+                  <% if task.due_at.present? %>
+                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <%= task.due_at.strftime("%b %d") %>
+                    </span>
+                  <% end %>
+                  <% if task.assignee %>
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200">
+                      <span class="h-2 w-2 rounded-full bg-primary-500"></span>
+                      <%= task.assignee == current_user ? "You" : task.assignee.name %>
+                    </span>
+                  <% end %>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200 capitalize"><%= task.status.humanize %></span>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% else %>
+          <div class="rounded-2xl border border-dashed border-neutral-200 p-8 text-center">
+            <p class="text-neutral-500">No shared tasks yet—add your first to-do and watch the timeline come alive.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8 space-y-8">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-neutral-900">Upcoming moments</h2>
+            <button type="button" class="btn-secondary opacity-70 cursor-not-allowed px-3 py-2">Add event</button>
+          </div>
+          <% if @events.any? %>
+            <ul class="space-y-4">
+              <% @events.each do |event| %>
+                <li class="rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+                  <p class="font-medium text-neutral-900"><%= event.title %></p>
+                  <p class="text-sm text-neutral-500">
+                    <%= event.starts_at.strftime("%b %d • %l:%M %p") %>
+                    <% if event.ends_at.present? %>
+                      – <%= event.ends_at.strftime("%l:%M %p") %>
+                    <% end %>
+                  </p>
+                  <% if event.location.present? %>
+                    <p class="text-xs text-neutral-400 mt-1"><%= event.location %></p>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-sm text-neutral-500">No events on the horizon—drop in your next date night or appointment.</p>
+          <% end %>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold text-neutral-900">Bills & balances</h2>
+            <button type="button" class="btn-secondary opacity-70 cursor-not-allowed px-3 py-2">Log expense</button>
+          </div>
+          <% if @expenses.any? %>
+            <ul class="space-y-4">
+              <% @expenses.each do |expense| %>
+                <li class="rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+                  <p class="font-medium text-neutral-900"><%= expense.title %></p>
+                  <p class="text-sm text-neutral-500 flex items-center justify-between">
+                    <span><%= number_to_currency(expense.amount, unit: expense.currency) %> • <%= expense.split_strategy.humanize %></span>
+                    <span><%= expense.incurred_on.strftime("%b %d") %></span>
+                  </p>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="text-sm text-neutral-500">No expenses yet—split the next bill in a snap.</p>
+          <% end %>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold text-neutral-900">Recent story beats</h2>
+        <button type="button" class="btn-secondary opacity-70 cursor-not-allowed px-3 py-2">View full history</button>
+      </div>
+      <% if @activity_logs.any? %>
+        <ul class="space-y-4">
+          <% @activity_logs.each do |log| %>
+            <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+              <div>
+                <p class="text-neutral-800 font-medium"><%= log.action %></p>
+                <% if log.user %>
+                  <p class="text-sm text-neutral-500">by <%= log.user == current_user ? "you" : log.user.name %></p>
+                <% end %>
+              </div>
+              <div class="text-sm text-neutral-500"><%= log.created_at.strftime("%b %d, %Y %l:%M %p") %></div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-neutral-500">Complete a task, add an event, or invite your partner to start building history.</p>
+      <% end %>
+    </section>
+  </div>
+</div>
