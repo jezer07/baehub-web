@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       post :join, on: :collection
     end
     resources :invitations, only: %i[create destroy]
+    resources :tasks
   end
 
   unauthenticated do

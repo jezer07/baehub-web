@@ -1,0 +1,89 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-8">
+    <!-- Header section -->
+    <section class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <h1 class="text-3xl font-bold text-neutral-900 mb-2">All Tasks</h1>
+          <p class="text-neutral-600">Manage your shared to-dos</p>
+        </div>
+        <div>
+          <%= link_to "Add new task", new_task_path, class: "btn-primary justify-center" %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter section -->
+    <section class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-6">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter tasks</h2>
+      <%= form_with url: tasks_path, method: :get, class: "grid grid-cols-1 md:grid-cols-5 gap-4" do |f| %>
+        <div>
+          <%= f.select :status, [["All statuses", ""]] + Task.statuses.keys.map { |s| [s.humanize, s] }, { selected: params[:status] }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400", name: "status" %>
+        </div>
+        <div>
+          <%= f.collection_select :assignee_id, current_user.couple.users, :id, :name, { include_blank: "All assignees", selected: params[:assignee_id] }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400", name: "assignee_id" %>
+        </div>
+        <div>
+          <%= f.date_field :due_on, class: "w-full rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400", name: "due_on", placeholder: "Filter by due date" %>
+        </div>
+        <div>
+          <%= f.select :sort, [["Sort by", ""], ["Status (Asc)", "status_asc"], ["Due date (Earliest)", "due_at_asc"], ["Due date (Latest)", "due_at_desc"], ["Priority (High)", "priority_desc"]], { selected: params[:sort] }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400", name: "sort" %>
+        </div>
+        <div class="flex gap-3 md:justify-end md:col-span-1">
+          <%= f.submit "Apply", class: "btn-secondary w-full md:w-auto" %>
+          <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? || params[:sort].present? %>
+            <%= link_to "Clear", tasks_path, class: "btn-secondary w-full md:hidden mt-2" %>
+          <% end %>
+        </div>
+      <% end %>
+      <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? %>
+        <div class="mt-4 md:mt-0">
+          <%= link_to "Clear filters", tasks_path, class: "text-sm text-neutral-600 hover:text-primary-600 hidden md:inline-block" %>
+        </div>
+      <% end %>
+    </section>
+
+    <!-- Tasks list section -->
+    <section>
+      <% if @tasks.any? %>
+        <ul class="space-y-4">
+          <% @tasks.each do |task| %>
+            <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-white px-6 py-4 hover:shadow-md transition-shadow">
+              <div>
+                <%= link_to task.title, task_path(task), class: "text-lg font-medium text-neutral-900 hover:text-primary-600" %>
+                <% if task.description.present? %>
+                  <p class="text-sm text-neutral-500 line-clamp-2 mt-1"><%= task.description %></p>
+                <% end %>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-sm text-neutral-500">
+                <% if task.overdue? %>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-medium">Overdue</span>
+                <% end %>
+                <% if task.due_at.present? %>
+                  <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <%= task.due_at.strftime("%b %d") %>
+                  </span>
+                <% end %>
+                <% if task.assignee %>
+                  <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200">
+                    <span class="h-2 w-2 rounded-full bg-primary-500"></span>
+                    <%= task.assignee == current_user ? "You" : task.assignee.name %>
+                  </span>
+                <% end %>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200 capitalize"><%= task.priority.humanize %></span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200 capitalize"><%= task.status.humanize %></span>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <div class="rounded-2xl border border-dashed border-neutral-200 p-12 text-center bg-white">
+          <p class="text-neutral-500">No tasks found. Create your first task to get started!</p>
+        </div>
+      <% end %>
+    </section>
+  </div>
+</div>
