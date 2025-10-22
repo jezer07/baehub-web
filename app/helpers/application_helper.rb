@@ -43,9 +43,10 @@ module ApplicationHelper
     css_classes = "#{size_classes[size]} rounded-full object-cover"
 
     if user.avatar_url.present?
-      image_tag(user.avatar_url, alt: user.name, class: css_classes)
+      image_tag(user.avatar_url, alt: user.name.to_s, class: css_classes)
     else
-      initials = user.name.split.map(&:first).take(2).join.upcase
+      name_for_initials = user.name.to_s.presence || user.email.to_s
+      initials = name_for_initials.split(/[@\s]/).map(&:first).take(2).join.upcase
       placeholder_classes = "#{size_classes[size]} bg-primary-500 text-white rounded-full flex items-center justify-center font-semibold"
       content_tag(:div, initials, class: placeholder_classes)
     end

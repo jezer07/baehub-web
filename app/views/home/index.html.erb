@@ -1,0 +1,33 @@
+<div class="bg-gradient-to-br from-primary-100 via-white to-pink-50">
+  <section class="max-w-5xl mx-auto px-4 py-20 text-center">
+    <div class="inline-flex items-center px-4 py-1 rounded-full bg-white/70 shadow-sm text-primary-600 text-sm font-semibold mb-6">
+      Built for duos who dream together
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-bold text-neutral-900 tracking-tight mb-6">Plan, love, and live in sync.</h1>
+    <p class="text-lg text-neutral-600 max-w-2xl mx-auto mb-10">
+      Baehub wraps to-dos, calendars, reminders, and bill splits into one delightfully designed shared space for couples. Everything you plan together — in one heartbeat.
+    </p>
+    <div class="flex flex-col sm:flex-row justify-center gap-4">
+      <%= link_to "Create your shared space", new_user_registration_path, class: "btn-primary px-8 py-3 text-lg" %>
+      <%= link_to "Already paired? Sign in", new_user_session_path, class: "btn-secondary px-8 py-3 text-lg" %>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 pb-20 grid gap-8 lg:grid-cols-3">
+    <div class="bg-white rounded-3xl shadow-lg shadow-primary-100/70 p-8 border border-primary-50 text-left">
+      <h2 class="text-xl font-semibold text-neutral-900 mb-3">Shared todo flows</h2>
+      <p class="text-neutral-600 mb-4">Capture plans, assign who’s on point, and celebrate every checkmark with confetti-level joy.</p>
+      <div class="text-sm font-medium text-primary-600">Kanban & list views • Private tasks • Gentle nudges</div>
+    </div>
+    <div class="bg-white rounded-3xl shadow-lg shadow-primary-100/70 p-8 border border-primary-50 text-left">
+      <h2 class="text-xl font-semibold text-neutral-900 mb-3">Calendar that cares</h2>
+      <p class="text-neutral-600 mb-4">From date nights to dentist appointments, keep time on your side—recurring events, RSVP ribbons, and color-coded vibes.</p>
+      <div class="text-sm font-medium text-primary-600">Smart reminders • Date night spotlight • Sync-friendly</div>
+    </div>
+    <div class="bg-white rounded-3xl shadow-lg shadow-primary-100/70 p-8 border border-primary-50 text-left">
+      <h2 class="text-xl font-semibold text-neutral-900 mb-3">Bill splits without the ick</h2>
+      <p class="text-neutral-600 mb-4">Log expenses once, split how you like, and settle up with gentle prompts—no spreadsheets required.</p>
+      <div class="text-sm font-medium text-primary-600">Flexible shares • Running balance • Settlement reminders</div>
+    </div>
+  </section>
+</div>
