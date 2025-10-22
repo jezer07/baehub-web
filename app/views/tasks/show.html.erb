@@ -1,0 +1,103 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-4xl mx-auto px-4 space-y-6">
+    <!-- Back link -->
+    <%= link_to "← Back to tasks", tasks_path, class: "text-sm text-neutral-600 hover:text-primary-600 inline-flex items-center gap-1" %>
+
+    <!-- Main task card -->
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+      <!-- Header section -->
+      <div class="p-8 bg-gradient-to-r from-primary-50 to-purple-50">
+        <h1 class="text-3xl font-bold text-neutral-900 mb-3"><%= @task.title %></h1>
+        <span class="inline-flex items-center px-4 py-2 rounded-full bg-white text-neutral-700 border border-neutral-200 capitalize text-sm font-medium"><%= @task.status.humanize %></span>
+      </div>
+
+      <!-- Details section -->
+      <div class="p-8 space-y-6">
+        <!-- Description -->
+        <% if @task.description.present? %>
+          <div class="text-neutral-700 leading-relaxed"><%= @task.description %></div>
+        <% end %>
+
+        <!-- Metadata grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Priority -->
+          <div>
+            <dt class="text-sm font-medium text-neutral-500 mb-1">Priority</dt>
+            <dd>
+              <% priority_colors = { "low" => "neutral", "normal" => "primary", "high" => "orange", "urgent" => "red" } %>
+              <% color_class = "bg-#{priority_colors[@task.priority]}-50 text-#{priority_colors[@task.priority]}-700 border-#{priority_colors[@task.priority]}-200" %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium capitalize border <%= color_class %>">
+                <%= @task.priority.humanize %>
+              </span>
+            </dd>
+          </div>
+
+          <!-- Due date -->
+          <div>
+            <dt class="text-sm font-medium text-neutral-500 mb-1">Due date</dt>
+            <dd class="flex items-center gap-2">
+              <% if @task.due_at.present? %>
+                <span class="text-neutral-700"><%= @task.due_at.strftime("%B %d, %Y at %l:%M %p") %></span>
+                <% if @task.overdue? %>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 text-xs font-medium">Overdue</span>
+                <% end %>
+              <% else %>
+                <span class="text-neutral-600">Not set</span>
+              <% end %>
+            </dd>
+          </div>
+
+          <!-- Assigned to -->
+          <div>
+            <dt class="text-sm font-medium text-neutral-500 mb-1">Assigned to</dt>
+            <dd class="text-neutral-700">
+              <% if @task.assignee %>
+                <%= @task.assignee == current_user ? "You" : @task.assignee.name %>
+              <% else %>
+                <span class="text-neutral-600">Unassigned</span>
+              <% end %>
+            </dd>
+          </div>
+
+          <!-- Created by -->
+          <div>
+            <dt class="text-sm font-medium text-neutral-500 mb-1">Created by</dt>
+            <dd class="text-neutral-700">
+              <%= @task.creator.name %> on <%= @task.created_at.strftime("%b %d, %Y") %>
+            </dd>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <dt class="text-sm font-medium text-neutral-500 mb-1">Status</dt>
+            <dd class="text-neutral-700 capitalize"><%= @task.status.humanize %></dd>
+          </div>
+
+          <!-- Completed at -->
+          <% if @task.completed_at.present? %>
+            <div>
+              <dt class="text-sm font-medium text-neutral-500 mb-1">Completed at</dt>
+              <dd class="text-neutral-700"><%= @task.completed_at.strftime("%b %d, %Y at %l:%M %p") %></dd>
+            </div>
+          <% end %>
+
+          <!-- Private -->
+          <div>
+            <dt class="text-sm font-medium text-neutral-500 mb-1">Private</dt>
+            <dd class="text-neutral-700"><%= @task.is_private ? "Yes" : "No" %></dd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions section -->
+      <div class="px-8 py-6 bg-neutral-50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3 sm:justify-between">
+        <div>
+          <%= link_to "Edit task", edit_task_path(@task), class: "btn-secondary justify-center" %>
+        </div>
+        <div>
+          <%= button_to "Delete task", task_path(@task), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this task?" }, class: "btn-secondary bg-red-600 text-white hover:bg-red-700 justify-center" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
