@@ -55,4 +55,75 @@ module ApplicationHelper
   def user_display_name(user)
     user.name.present? ? user.name : user.email.split('@').first
   end
+
+  def format_event_datetime(datetime, timezone, format: :long)
+    return "Not set" if datetime.blank?
+
+    tz = ActiveSupport::TimeZone[timezone] || ActiveSupport::TimeZone["UTC"]
+    converted_time = datetime.in_time_zone(tz)
+
+    case format
+    when :long
+      tz_abbr = timezone_abbreviation(timezone)
+      converted_time.strftime("%A, %B %-d, %Y at %-I:%M %p #{tz_abbr}")
+    when :short
+      converted_time.strftime("%b %-d, %-I:%M %p")
+    when :date_only
+      converted_time.strftime("%A, %B %-d, %Y")
+    when :time_only
+      converted_time.strftime("%-I:%M %p")
+    else
+      converted_time.to_s
+    end
+  end
+
+  def format_event_date_range(event, timezone)
+    return "Not scheduled" if event.starts_at.blank?
+
+    tz = ActiveSupport::TimeZone[timezone] || ActiveSupport::TimeZone["UTC"]
+    start_time = event.starts_at.in_time_zone(tz)
+    end_time = event.ends_at&.in_time_zone(tz)
+
+    if event.all_day?
+      if event.single_day_event?
+        start_time.strftime("%b %-d")
+      elsif end_time.present?
+        "#{start_time.strftime('%b %-d')} - #{end_time.strftime('%b %-d')}"
+      else
+        start_time.strftime("%b %-d")
+      end
+    else
+      if event.single_day_event?
+        if end_time.present?
+          "#{start_time.strftime('%b %-d, %-I:%M %p')} - #{end_time.strftime('%-I:%M %p')}"
+        else
+          start_time.strftime("%b %-d, %-I:%M %p")
+        end
+      elsif end_time.present?
+        "#{start_time.strftime('%b %-d, %-I:%M %p')} - #{end_time.strftime('%b %-d, %-I:%M %p')}"
+      else
+        start_time.strftime("%b %-d, %-I:%M %p")
+      end
+    end
+  end
+
+  def event_time_badge_class(event)
+    base_classes = "inline-flex items-center px-3 py-1 rounded-full border"
+
+    if event.in_progress?
+      "#{base_classes} bg-success-50 text-success-700 border-success-200 animate-pulse"
+    elsif event.starts_at < Time.current
+      "#{base_classes} bg-gray-50 text-gray-700 border-gray-200"
+    else
+      "#{base_classes} bg-blue-50 text-blue-700 border-blue-200"
+    end
+  end
+
+  def timezone_abbreviation(timezone)
+    tz = ActiveSupport::TimeZone[timezone]
+    return "UTC" if tz.blank?
+
+    time_now = Time.current.in_time_zone(tz)
+    time_now.strftime("%Z")
+  end
 end

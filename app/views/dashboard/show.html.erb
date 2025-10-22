@@ -54,31 +54,7 @@
         <% if @tasks.any? %>
           <ul class="space-y-4">
             <% @tasks.each do |task| %>
-              <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
-                <div>
-                  <p class="text-base font-medium text-neutral-900"><%= task.title %></p>
-                  <% if task.description.present? %>
-                    <p class="text-sm text-neutral-500 line-clamp-2"><%= task.description %></p>
-                  <% end %>
-                </div>
-                <div class="flex items-center gap-3 text-sm text-neutral-500">
-                  <% if task.due_at.present? %>
-                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <%= task.due_at.strftime("%b %d") %>
-                    </span>
-                  <% end %>
-                  <% if task.assignee %>
-                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200">
-                      <span class="h-2 w-2 rounded-full bg-primary-500"></span>
-                      <%= task.assignee == current_user ? "You" : task.assignee.name %>
-                    </span>
-                  <% end %>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-white text-neutral-700 border border-neutral-200 capitalize"><%= task.status.humanize %></span>
-                </div>
-              </li>
+              <%= render "tasks/task_item", task: task, show_link: true, compact: true, frame_id: "dashboard_task_#{task.id}" %>
             <% end %>
           </ul>
         <% else %>
@@ -149,13 +125,37 @@
         <ul class="space-y-4">
           <% @activity_logs.each do |log| %>
             <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
-              <div>
-                <p class="text-neutral-800 font-medium"><%= log.action %></p>
-                <% if log.user %>
-                  <p class="text-sm text-neutral-500">by <%= log.user == current_user ? "you" : log.user.name %></p>
+              <div class="flex items-start gap-3">
+                <% if log.subject_type == 'Task' %>
+                  <svg class="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                <% elsif log.subject_type == 'Event' %>
+                  <svg class="h-5 w-5 text-purple-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                <% elsif log.subject_type == 'Expense' %>
+                  <svg class="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                <% else %>
+                  <svg class="h-5 w-5 text-neutral-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 <% end %>
+                <div>
+                  <p class="text-neutral-800 font-medium">
+                    <%= log.action %>
+                    <% if log.subject_type == 'Task' && log.subject.nil? %>
+                      <span class="text-neutral-400 font-normal">(deleted)</span>
+                    <% end %>
+                  </p>
+                  <% if log.user %>
+                    <p class="text-sm text-neutral-500">by <%= log.user == current_user ? "you" : log.user.name %></p>
+                  <% end %>
+                </div>
               </div>
-              <div class="text-sm text-neutral-500"><%= log.created_at.strftime("%b %d, %Y %l:%M %p") %></div>
+              <div class="text-sm text-neutral-500 ml-8 md:ml-0"><%= log.created_at.strftime("%b %d, %Y %l:%M %p") %></div>
             </li>
           <% end %>
         </ul>

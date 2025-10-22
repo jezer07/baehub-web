@@ -48,35 +48,7 @@
       <% if @tasks.any? %>
         <ul class="space-y-4">
           <% @tasks.each do |task| %>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-white px-6 py-4 hover:shadow-md transition-shadow">
-              <div>
-                <%= link_to task.title, task_path(task), class: "text-lg font-medium text-neutral-900 hover:text-primary-600" %>
-                <% if task.description.present? %>
-                  <p class="text-sm text-neutral-500 line-clamp-2 mt-1"><%= task.description %></p>
-                <% end %>
-              </div>
-              <div class="flex flex-wrap items-center gap-2 text-sm text-neutral-500">
-                <% if task.overdue? %>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-red-50 text-red-700 border border-red-200 font-medium">Overdue</span>
-                <% end %>
-                <% if task.due_at.present? %>
-                  <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <%= task.due_at.strftime("%b %d") %>
-                  </span>
-                <% end %>
-                <% if task.assignee %>
-                  <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200">
-                    <span class="h-2 w-2 rounded-full bg-primary-500"></span>
-                    <%= task.assignee == current_user ? "You" : task.assignee.name %>
-                  </span>
-                <% end %>
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200 capitalize"><%= task.priority.humanize %></span>
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-neutral-50 text-neutral-700 border border-neutral-200 capitalize"><%= task.status.humanize %></span>
-              </div>
-            </li>
+            <%= render "task_item", task: task, show_link: true, compact: false %>
           <% end %>
         </ul>
       <% else %>

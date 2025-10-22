@@ -1,7 +1,7 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
+  before_action :set_task, only: [:show, :edit, :update, :destroy, :toggle_completion]
 
   def index
     @tasks = current_user.couple.tasks
@@ -39,7 +39,7 @@ class TasksController < ApplicationController
 
     Task.transaction do
       if @task.save
-        log_task_activity("created a task", @task)
+        log_task_activity("created task '#{@task.title}'", @task)
         redirect_to(params[:redirect_to].presence || tasks_path, notice: "Task created successfully.")
       else
         flash.now[:alert] = @task.errors.full_messages.to_sentence
@@ -58,7 +58,15 @@ class TasksController < ApplicationController
   def update
     Task.transaction do
       if @task.update(task_params)
-        log_task_activity("updated a task", @task)
+        activity_message = if @task.saved_changes.key?("status")
+          "changed '#{@task.title}' status from #{@task.saved_changes['status'][0].humanize} to #{@task.saved_changes['status'][1].humanize}"
+        elsif @task.saved_changes.key?("assignee_id")
+          "reassigned '#{@task.title}' to #{@task.assignee&.name || 'unassigned'}"
+        else
+          "updated task '#{@task.title}'"
+        end
+        
+        log_task_activity(activity_message, @task)
         redirect_to @task, notice: "Task updated successfully."
       else
         flash.now[:alert] = @task.errors.full_messages.to_sentence
@@ -74,11 +82,30 @@ class TasksController < ApplicationController
   def destroy
     Task.transaction do
       @task.destroy
-      log_task_activity("deleted a task", @task)
+      log_task_activity("deleted task '#{@task.title}'", @task)
       redirect_to tasks_path, notice: "Task deleted successfully."
     end
   rescue StandardError => e
     redirect_to tasks_path, alert: "Error deleting task: #{e.message}"
+  end
+
+  def toggle_completion
+    new_status = @task.done? ? :todo : :done
+    
+    Task.transaction do
+      @task.update!(status: new_status)
+      log_task_activity("marked '#{@task.title}' as #{new_status.to_s.humanize.downcase}", @task)
+      
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: tasks_path, notice: "Task marked as #{new_status.to_s.humanize.downcase}.") }
+        format.turbo_stream
+      end
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.html { redirect_back(fallback_location: tasks_path, alert: "Error updating task: #{e.message}") }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error updating task: #{e.message}" }) }
+    end
   end
 
   private
