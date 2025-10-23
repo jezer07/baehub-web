@@ -1,0 +1,215 @@
+<%
+  view_mode = local_assigns.fetch(:view_mode, "month")
+  current_date = local_assigns.fetch(:current_date, Date.today)
+  couple_timezone = current_user.couple.timezone
+  tz = ActiveSupport::TimeZone[couple_timezone] || ActiveSupport::TimeZone["UTC"]
+  today_in_tz = Time.now.in_time_zone(tz).to_date
+%>
+
+<div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 overflow-hidden" data-calendar-target="calendar">
+  <div class="p-6 border-b border-neutral-100 flex items-center justify-between">
+    <button type="button" class="p-2 rounded-lg hover:bg-neutral-100 transition-colors" data-action="click->calendar#previousPeriod">
+      <svg class="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <div class="text-center">
+      <h2 class="text-xl font-bold text-neutral-900">
+        <% if view_mode == "month" %>
+          <%= current_date.strftime("%B %Y") %>
+        <% elsif view_mode == "week" %>
+          <%= current_date.beginning_of_week.strftime("%b %d") %> - <%= current_date.end_of_week.strftime("%b %d, %Y") %>
+        <% else %>
+          <%= current_date.strftime("%A, %B %d, %Y") %>
+        <% end %>
+      </h2>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button type="button" class="px-3 py-1.5 text-sm rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors" data-action="click->calendar#goToToday">
+        Today
+      </button>
+      <button type="button" class="p-2 rounded-lg hover:bg-neutral-100 transition-colors" data-action="click->calendar#nextPeriod">
+        <svg class="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <% if view_mode == "month" %>
+    <%
+      first_day_of_month = current_date.beginning_of_month
+      last_day_of_month = current_date.end_of_month
+      start_date = first_day_of_month.beginning_of_week(:sunday)
+      end_date = last_day_of_month.end_of_week(:sunday)
+      
+      events_in_period = events.select { |e|
+        event_date_in_tz = e.starts_at.in_time_zone(tz).to_date
+        event_date_in_tz >= start_date && event_date_in_tz <= end_date
+      }
+    %>
+
+    <% if events_in_period.blank? %>
+      <div class="p-12 text-center text-neutral-500">
+        No events in this period
+      </div>
+    <% else %>
+      <div class="grid grid-cols-7 gap-px bg-neutral-200">
+        <% %w[Sun Mon Tue Wed Thu Fri Sat].each do |day| %>
+          <div class="bg-neutral-50 p-2 text-center text-sm font-semibold text-neutral-700">
+            <%= day %>
+          </div>
+        <% end %>
+
+        <%
+          (start_date..end_date).each do |date|
+            is_today = date == today_in_tz
+            is_current_month = date.month == current_date.month
+            day_events = events_in_period.select { |e| 
+              event_date_in_tz = e.starts_at.in_time_zone(tz).to_date
+              event_date_in_tz == date
+            }
+        %>
+          <div class="bg-white p-2 min-h-[100px] relative <%= 'bg-primary-50' if is_today %> <%= 'text-neutral-400' unless is_current_month %>">
+            <div class="text-sm <%= 'font-bold text-primary-600' if is_today %>">
+              <%= date.day %>
+            </div>
+            
+            <div class="mt-1 space-y-1">
+              <% day_events.take(3).each do |event| %>
+                <% bg_color = safe_event_color(event) %>
+                <%= link_to event_path(event), class: "block text-xs px-2 py-1 rounded truncate hover:opacity-80 transition-opacity", style: "background-color: #{bg_color}; color: #{contrasting_text_color(bg_color)}" do %>
+                  <%= event.all_day? ? '' : event.starts_at.in_time_zone(tz).strftime("%I:%M%p") + ' ' %>
+                  <%= event.title %>
+                <% end %>
+              <% end %>
+              
+              <% if day_events.count > 3 %>
+                <div class="text-xs text-neutral-500 px-2">
+                  +<%= day_events.count - 3 %> more
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% elsif view_mode == "week" %>
+    <%
+      week_dates = (current_date.beginning_of_week..current_date.end_of_week).to_a
+      events_in_period = events.select { |e|
+        event_date_in_tz = e.starts_at.in_time_zone(tz).to_date
+        week_dates.include?(event_date_in_tz)
+      }
+    %>
+
+    <% if events_in_period.blank? %>
+      <div class="p-12 text-center text-neutral-500">
+        No events in this period
+      </div>
+    <% else %>
+      <div class="grid grid-cols-8 gap-px bg-neutral-200">
+        <div class="bg-neutral-50"></div>
+        
+        <% week_dates.each do |date| %>
+          <div class="bg-neutral-50 p-2 text-center">
+            <div class="text-xs text-neutral-500"><%= date.strftime("%a") %></div>
+            <div class="text-sm font-semibold <%= 'text-primary-600' if date == today_in_tz %>">
+              <%= date.day %>
+            </div>
+          </div>
+        <% end %>
+
+        <% (0..23).each do |hour| %>
+          <div class="bg-neutral-50 p-2 text-xs text-neutral-500 text-right border-t border-neutral-200">
+            <%= hour.to_s.rjust(2, '0') %>:00
+          </div>
+          
+          <% week_dates.each do |date| %>
+            <%
+              hour_events = events_in_period.select { |e|
+                event_start_in_tz = e.starts_at.in_time_zone(tz)
+                event_end_in_tz = e.ends_at ? e.ends_at.in_time_zone(tz) : event_start_in_tz
+                event_date_in_tz = event_start_in_tz.to_date
+                
+                event_date_in_tz == date && 
+                event_start_in_tz.hour <= hour && 
+                event_end_in_tz.hour >= hour
+              }
+            %>
+            <div class="bg-white p-1 min-h-[60px] border-t border-neutral-200 relative">
+              <% hour_events.each do |event| %>
+                <% event_start_in_tz = event.starts_at.in_time_zone(tz) %>
+                <% event_end_in_tz = event.ends_at ? event.ends_at.in_time_zone(tz) : nil %>
+                <% bg_color = safe_event_color(event) %>
+                <%= link_to event_path(event), class: "block text-xs px-2 py-1 rounded mb-1 truncate hover:opacity-80 transition-opacity", style: "background-color: #{bg_color}; color: #{contrasting_text_color(bg_color)}" do %>
+                  <%= event_start_in_tz.strftime("%I:%M%p") %>
+                  <% if event_end_in_tz %>
+                    - <%= event_end_in_tz.strftime("%I:%M%p") %>
+                  <% end %>
+                  <br>
+                  <%= event.title %>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <%
+      events_in_period = events.select { |e|
+        event_date_in_tz = e.starts_at.in_time_zone(tz).to_date
+        event_date_in_tz == current_date
+      }
+    %>
+
+    <% if events_in_period.blank? %>
+      <div class="p-12 text-center text-neutral-500">
+        No events in this period
+      </div>
+    <% else %>
+      <div class="grid grid-cols-2 gap-px bg-neutral-200">
+        <% (0..23).each do |hour| %>
+          <div class="bg-neutral-50 p-2 text-xs text-neutral-500 text-right border-t border-neutral-200">
+            <%= hour.to_s.rjust(2, '0') %>:00
+          </div>
+          
+          <%
+            hour_events = events_in_period.select { |e|
+              event_start_in_tz = e.starts_at.in_time_zone(tz)
+              event_end_in_tz = e.ends_at ? e.ends_at.in_time_zone(tz) : event_start_in_tz
+              
+              event_start_in_tz.hour <= hour && 
+              event_end_in_tz.hour >= hour
+            }
+          %>
+          <div class="bg-white p-2 min-h-[80px] border-t border-neutral-200">
+            <% hour_events.each do |event| %>
+              <% event_start_in_tz = event.starts_at.in_time_zone(tz) %>
+              <% event_end_in_tz = event.ends_at ? event.ends_at.in_time_zone(tz) : nil %>
+              <% bg_color = safe_event_color(event) %>
+              <%= link_to event_path(event), class: "block text-sm px-3 py-2 rounded mb-2 hover:opacity-80 transition-opacity", style: "background-color: #{bg_color}; color: #{contrasting_text_color(bg_color)}" do %>
+                <div class="font-medium">
+                  <%= event_start_in_tz.strftime("%I:%M%p") %>
+                  <% if event_end_in_tz %>
+                    - <%= event_end_in_tz.strftime("%I:%M%p") %>
+                  <% end %>
+                </div>
+                <div><%= event.title %></div>
+                <% if event.location.present? %>
+                  <div class="text-xs mt-1 opacity-80"><%= event.location %></div>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+

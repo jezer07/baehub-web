@@ -10,6 +10,10 @@ class Event < ApplicationRecord
   validates :description, length: { maximum: 2000 }, allow_blank: true
   validates :starts_at, presence: true
   validate :ends_after_start
+  validate :valid_color_format
+  validate :valid_recurrence_rule_format
+
+  before_validation :normalize_color
 
   scope :future, -> { where("starts_at >= ?", Time.current.beginning_of_day) }
   scope :current_week, -> { where(starts_at: Time.current.beginning_of_week..Time.current.end_of_week) }
@@ -19,6 +23,8 @@ class Event < ApplicationRecord
   scope :past, -> { where("starts_at < ?", Time.current).order(starts_at: :desc) }
   scope :all_day_events, -> { where(all_day: true) }
   scope :timed_events, -> { where(all_day: false) }
+  scope :recurring, -> { where.not(recurrence_rule: nil) }
+  scope :non_recurring, -> { where(recurrence_rule: nil) }
 
   def duration_in_hours
     return nil if ends_at.blank?
@@ -67,6 +73,137 @@ class Event < ApplicationRecord
     end
   end
 
+  def recurring?
+    recurrence_rule.present?
+  end
+
+  def parse_recurrence_rule
+    return nil if recurrence_rule.blank?
+
+    parts = recurrence_rule.split(":")
+    return nil unless parts.size == 3
+
+    {
+      frequency: parts[0],
+      interval: parts[1].to_i,
+      end_date: parts[2]
+    }
+  end
+
+  def recurrence_end_date
+    parsed = parse_recurrence_rule
+    return nil if parsed.nil? || parsed[:end_date] == "never"
+
+    Date.parse(parsed[:end_date])
+  rescue ArgumentError
+    nil
+  end
+
+  def generate_occurrences(start_date, end_date, limit: 100)
+    return [] unless recurring?
+
+    parsed = parse_recurrence_rule
+    return [] if parsed.nil?
+
+    occurrences = []
+    current_date = starts_at.to_date
+    frequency = parsed[:frequency]
+    interval = parsed[:interval]
+    rule_end_date = recurrence_end_date
+
+    while occurrences.size < limit && current_date <= end_date
+      if current_date >= start_date
+        occurrences << current_date
+      end
+
+      break if rule_end_date.present? && current_date >= rule_end_date
+
+      case frequency
+      when "daily"
+        current_date += interval.days
+      when "weekly"
+        current_date += (interval * 7).days
+      when "monthly"
+        current_date = current_date.next_month(interval)
+      when "yearly"
+        current_date = current_date.next_year(interval)
+      else
+        break
+      end
+    end
+
+    occurrences
+  end
+
+  def next_occurrence(from_date = Date.today)
+    return nil unless recurring?
+
+    parsed = parse_recurrence_rule
+    return nil if parsed.nil?
+
+    current_date = starts_at.to_date
+    frequency = parsed[:frequency]
+    interval = parsed[:interval]
+    rule_end_date = recurrence_end_date
+
+    while current_date <= (from_date + 5.years)
+      if current_date > from_date
+        return current_date if rule_end_date.nil? || current_date <= rule_end_date
+        return nil
+      end
+
+      case frequency
+      when "daily"
+        current_date += interval.days
+      when "weekly"
+        current_date += (interval * 7).days
+      when "monthly"
+        current_date = current_date.next_month(interval)
+      when "yearly"
+        current_date = current_date.next_year(interval)
+      else
+        break
+      end
+    end
+
+    nil
+  end
+
+  def recurrence_summary
+    return "" unless recurring?
+
+    parsed = parse_recurrence_rule
+    return "" if parsed.nil?
+
+    frequency = parsed[:frequency]
+    interval = parsed[:interval]
+    end_date = parsed[:end_date]
+
+    frequency_text = case frequency
+    when "daily"
+      interval == 1 ? "Every day" : "Every #{interval} days"
+    when "weekly"
+      interval == 1 ? "Every week" : "Every #{interval} weeks"
+    when "monthly"
+      interval == 1 ? "Every month" : "Every #{interval} months"
+    when "yearly"
+      interval == 1 ? "Every year" : "Every #{interval} years"
+    else
+      "Unknown frequency"
+    end
+
+    if end_date != "never"
+      begin
+        formatted_end_date = Date.parse(end_date).strftime("%b %d, %Y")
+        "#{frequency_text} until #{formatted_end_date}"
+      rescue ArgumentError
+        frequency_text
+      end
+    else
+      frequency_text
+    end
+  end
+
   private
 
   def ends_after_start
@@ -74,5 +211,58 @@ class Event < ApplicationRecord
     return if ends_at >= starts_at
 
     errors.add(:ends_at, "must occur after the start time")
+  end
+
+  def normalize_color
+    return if color.blank?
+
+    self.color = color.strip
+    self.color = "##{color}" if color.match?(/\A[0-9a-fA-F]{6}\z/)
+  end
+
+  def valid_color_format
+    return if color.blank?
+
+    valid_hex = color.match?(/\A#[0-9a-fA-F]{6}\z/)
+    valid_rgb = color.match?(/\Argb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)\z/)
+    valid_rgba = color.match?(/\Argba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|1|0?\.\d+)\s*\)\z/)
+
+    unless valid_hex || valid_rgb || valid_rgba
+      errors.add(:color, "must be a valid hex color (#RRGGBB), rgb(R, G, B), or rgba(R, G, B, A)")
+    end
+  end
+
+  def valid_recurrence_rule_format
+    return if recurrence_rule.blank?
+
+    parts = recurrence_rule.split(":")
+    unless parts.size == 3
+      errors.add(:recurrence_rule, "must be in format 'frequency:interval:end_date'")
+      return
+    end
+
+    frequency = parts[0]
+    interval = parts[1]
+    end_date = parts[2]
+
+    valid_frequencies = ["daily", "weekly", "monthly", "yearly"]
+    unless valid_frequencies.include?(frequency)
+      errors.add(:recurrence_rule, "frequency must be one of: #{valid_frequencies.join(', ')}")
+    end
+
+    unless interval.match?(/\A\d+\z/) && interval.to_i > 0
+      errors.add(:recurrence_rule, "interval must be a positive integer")
+    end
+
+    unless end_date == "never" || valid_date?(end_date)
+      errors.add(:recurrence_rule, "end date must be 'never' or a valid date")
+    end
+  end
+
+  def valid_date?(date_string)
+    Date.parse(date_string)
+    true
+  rescue ArgumentError
+    false
   end
 end

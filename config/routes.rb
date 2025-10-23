@@ -21,7 +21,10 @@ Rails.application.routes.draw do
     resources :tasks do
       patch :toggle_completion, on: :member
     end
-    resources :events
+    resources :events do
+      resources :event_responses, only: [:create, :update], path: "responses"
+    end
+    resources :expenses
   end
 
   unauthenticated do
