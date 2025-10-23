@@ -1,0 +1,92 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-8">
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <h1 class="text-3xl font-bold text-neutral-900 mb-2">All Expenses</h1>
+          <p class="text-neutral-600">Track and split your shared expenses</p>
+        </div>
+        <div>
+          <%= link_to "Add new expense", new_expense_path, class: "btn-primary justify-center" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-6">
+      <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter expenses</h2>
+      <%= form_with url: expenses_path, method: :get, class: "grid grid-cols-1 md:grid-cols-5 gap-4" do |f| %>
+        <div>
+          <%= f.label :start_date, "From", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.date_field :start_date, value: params[:start_date], class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+        </div>
+
+        <div>
+          <%= f.label :end_date, "To", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.date_field :end_date, value: params[:end_date], class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+        </div>
+
+        <div>
+          <%= f.label :spender_id, "Spender", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.collection_select :spender_id, current_user.couple.users, :id, :email, { include_blank: "All spenders", selected: params[:spender_id] }, class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+        </div>
+
+        <div>
+          <%= f.label :settled, "Status", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+          <%= f.select :settled, options_for_select([["All expenses", ""], ["Unsettled", "false"], ["Settled", "true"]], params[:settled]), {}, class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+        </div>
+
+        <div>
+          <%= f.submit "Apply filters", class: "btn-secondary md:self-end" %>
+        </div>
+      <% end %>
+
+      <% if params[:start_date].present? || params[:end_date].present? || params[:spender_id].present? || params[:settled].present? %>
+        <%= link_to "Clear filters", expenses_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-4 inline-block" %>
+      <% end %>
+    </div>
+
+    <% if @expenses.any? %>
+      <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <div class="text-sm text-green-700 font-medium mb-1">Total expenses</div>
+            <div class="text-2xl font-bold text-green-900"><%= @expenses.count %></div>
+          </div>
+          <div>
+            <div class="text-sm text-green-700 font-medium mb-1">Total amount</div>
+            <div class="text-2xl font-bold text-green-900">
+              <% @expenses.group_by(&:currency).each do |currency, expenses_group| %>
+                <% total_cents = expenses_group.sum(&:amount_cents) %>
+                <% currency_data = currency_options_for_select.find { |_label, code| code == currency } %>
+                <% unit = currency_data ? currency_data[0].match(/\((.+)\)/)[1] : currency %>
+                <div><%= number_to_currency(total_cents / 100.0, unit: unit, format: "%u%n") %> <%= currency %></div>
+              <% end %>
+            </div>
+          </div>
+          <div>
+            <div class="text-sm text-green-700 font-medium mb-1">Unsettled</div>
+            <div class="text-2xl font-bold text-green-900"><%= @expenses.where(settled_at: nil).count %></div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="space-y-4">
+        <% @expenses.each do |expense| %>
+          <li>
+            <%= render "expense_item", expense: expense, show_link: true, compact: false %>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <div class="bg-white rounded-2xl border-2 border-dashed border-neutral-200 p-12 text-center">
+        <svg class="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-neutral-900 mb-2">No expenses found</h3>
+        <p class="text-neutral-600 mb-6">Add your first expense to start tracking!</p>
+        <%= link_to "Add new expense", new_expense_path, class: "btn-primary inline-flex" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

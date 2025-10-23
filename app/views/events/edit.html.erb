@@ -1,0 +1,13 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-2xl mx-auto px-4">
+    <%= link_to "← Back to event", event_path(@event), class: "text-sm text-neutral-600 hover:text-primary-600 inline-flex items-center gap-1 mb-6" %>
+
+    <h1 class="text-3xl font-bold text-neutral-900 mb-2">Edit event</h1>
+    <p class="text-neutral-600 mb-8"><%= @event.title %></p>
+
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <%= render "form", event: @event %>
+    </div>
+  </div>
+</div>
+

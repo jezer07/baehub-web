@@ -1,0 +1,22 @@
+<div id="event_rsvp_section" class="border-t border-neutral-100 pt-6 mt-6">
+  <h3 class="text-lg font-semibold text-neutral-900 mb-4">Your RSVP</h3>
+  
+  <div class="flex items-center gap-3 mb-4">
+    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium <%= event_response.status_badge_class %>">
+      <%= event_response.status.humanize %>
+    </span>
+    <% if event_response.responded_at.present? %>
+      <span class="text-sm text-neutral-600">
+        <%= local_assigns[:action_text] || "Responded" %> on <%= event_response.responded_at.strftime('%b %d, %Y at %l:%M %p') %>
+      </span>
+    <% end %>
+  </div>
+  
+  <p class="text-sm text-neutral-600 mb-3">Want to change your response?</p>
+  <div class="flex gap-3">
+    <%= button_to "Accept", event_event_response_path(event, event_response), method: :patch, params: { status: 'accepted' }, class: "btn-primary flex-1 justify-center" %>
+    <%= button_to "Maybe", event_event_response_path(event, event_response), method: :patch, params: { status: 'pending' }, class: "px-6 py-3 rounded-xl font-medium text-neutral-700 bg-neutral-100 hover:bg-neutral-200 transition-colors justify-center flex items-center flex-1" %>
+    <%= button_to "Decline", event_event_response_path(event, event_response), method: :patch, params: { status: 'declined' }, class: "btn-secondary flex-1 justify-center" %>
+  </div>
+</div>
+

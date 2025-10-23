@@ -126,4 +126,106 @@ module ApplicationHelper
     time_now = Time.current.in_time_zone(tz)
     time_now.strftime("%Z")
   end
+
+  def contrasting_text_color(bg_color)
+    rgb = parse_color_to_rgb(bg_color)
+    return "#111111" if rgb.nil?
+
+    luminance = calculate_relative_luminance(rgb)
+    luminance > 0.5 ? "#000000" : "#ffffff"
+  end
+
+  def safe_event_color(event)
+    return "#e5e7eb" if event.color.blank?
+    
+    rgb = parse_color_to_rgb(event.color)
+    return "#e5e7eb" if rgb.nil?
+    
+    event.color
+  end
+
+  def expense_status_badge_class(expense)
+    if expense.settled?
+      "inline-flex items-center px-3 py-1 rounded-full bg-success-50 text-success-700 border border-success-200 text-xs font-medium"
+    else
+      "inline-flex items-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200 text-xs font-medium"
+    end
+  end
+
+  def expense_split_icon(split_strategy)
+    case split_strategy.to_s
+    when "equal"
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>'.html_safe
+    when "percentage"
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+      </svg>'.html_safe
+    when "custom_amounts"
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+      </svg>'.html_safe
+    else
+      '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>'.html_safe
+    end
+  end
+
+  def format_expense_share(share)
+    if share.share_type == :percentage
+      "#{share.percentage}% (#{share.formatted_amount})"
+    else
+      share.formatted_amount
+    end
+  end
+
+  def currency_options_for_select
+    [
+      ["USD ($)", "USD"],
+      ["EUR (€)", "EUR"],
+      ["GBP (£)", "GBP"],
+      ["JPY (¥)", "JPY"],
+      ["CAD (C$)", "CAD"],
+      ["AUD (A$)", "AUD"]
+    ]
+  end
+
+  private
+
+  def parse_color_to_rgb(color)
+    return nil if color.blank?
+
+    if color.match?(/\A#[0-9a-fA-F]{6}\z/)
+      r = color[1..2].to_i(16)
+      g = color[3..4].to_i(16)
+      b = color[5..6].to_i(16)
+      [r, g, b]
+    elsif color.match?(/\Argba?\(/)
+      matches = color.match(/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?\)/)
+      return nil unless matches
+      
+      r = matches[1].to_i
+      g = matches[2].to_i
+      b = matches[3].to_i
+      [r, g, b]
+    else
+      nil
+    end
+  end
+
+  def calculate_relative_luminance(rgb)
+    r, g, b = rgb.map do |channel|
+      normalized = channel / 255.0
+      if normalized <= 0.03928
+        normalized / 12.92
+      else
+        ((normalized + 0.055) / 1.055) ** 2.4
+      end
+    end
+
+    0.2126 * r + 0.7152 * g + 0.0722 * b
+  end
 end

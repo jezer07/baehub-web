@@ -1,0 +1,13 @@
+<%= turbo_stream.replace "event_rsvp_section" do %>
+  <%= render "event_responses/rsvp_section", event: @event, event_response: @event_response, action_text: "Responded" %>
+<% end %>
+
+<%= turbo_stream.prepend "flash-messages" do %>
+  <div data-controller="flash" class="fixed top-4 right-4 z-50 max-w-md">
+    <div class="rounded-xl border shadow-lg p-4 <%= flash_class(:notice) %> flex items-center gap-3">
+      <%= flash_icon(:notice).html_safe %>
+      <p class="text-sm font-medium">RSVP updated successfully!</p>
+    </div>
+  </div>
+<% end %>
+

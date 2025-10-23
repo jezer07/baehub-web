@@ -33,6 +33,9 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# Ignore Kamal secrets
+/.kamal/secrets
+
 # Ignore Tailwind CSS build artifacts
 /app/assets/builds/*
 !/app/assets/builds/.keep

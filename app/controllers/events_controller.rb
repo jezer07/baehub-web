@@ -2,9 +2,10 @@ class EventsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
   before_action :set_event, only: [:show, :edit, :update, :destroy]
+  before_action :build_recurrence_rule, only: [:create, :update]
 
   def index
-    @events = current_user.couple.events
+    @events = current_user.couple.events.includes(:event_responses, :creator)
     @events = @events.by_category(params[:category]) if params[:category].present?
     
     if params[:start_date].present? && params[:end_date].present?
@@ -37,6 +38,16 @@ class EventsController < ApplicationController
     else
       @events = @events.order(starts_at: :asc)
     end
+
+    @current_date = if params[:date].present?
+      begin
+        Date.parse(params[:date])
+      rescue ArgumentError
+        Date.today
+      end
+    else
+      Date.today
+    end
   end
 
   def show
@@ -54,6 +65,11 @@ class EventsController < ApplicationController
   def create
     @event = current_user.couple.events.build(event_params)
     @event.creator = current_user
+    
+    if @recurrence_rule_to_assign
+      @event.recurrence_rule = @recurrence_rule_to_assign
+    end
+    
     normalize_event_times
 
     Event.transaction do
@@ -81,7 +97,13 @@ class EventsController < ApplicationController
 
     Event.transaction do
       if @event.save
-        activity_message = if @event.saved_changes.key?("starts_at") || @event.saved_changes.key?("ends_at")
+        activity_message = if @event.saved_changes.key?("recurrence_rule")
+          if @event.recurrence_rule.present?
+            "set event '#{@event.title}' to recur #{@event.recurrence_summary.downcase}"
+          else
+            "removed recurrence from event '#{@event.title}'"
+          end
+        elsif @event.saved_changes.key?("starts_at") || @event.saved_changes.key?("ends_at")
           formatted_date = @event.starts_at.in_time_zone(current_user.couple.timezone).strftime("%B %-d, %Y")
           "rescheduled event '#{@event.title}' to #{formatted_date}"
         elsif @event.saved_changes.key?("all_day")
@@ -126,7 +148,7 @@ class EventsController < ApplicationController
   end
 
   def set_event
-    @event = current_user.couple.events.find(params[:id])
+    @event = current_user.couple.events.includes(:event_responses, :creator).find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to events_path, alert: "Event not found."
     return
@@ -159,6 +181,36 @@ class EventsController < ApplicationController
       @event.ends_at = @event.ends_at.in_time_zone(couple_timezone).end_of_day
     else
       @event.ends_at = @event.starts_at.in_time_zone(couple_timezone).end_of_day
+    end
+  end
+
+  def build_recurrence_rule
+    return unless params[:event]
+
+    recurring = params[:event][:recurring]
+    frequency = params[:event].delete(:recurrence_frequency)
+    interval = params[:event].delete(:recurrence_interval)
+    end_date = params[:event].delete(:recurrence_end_date)
+
+    if recurring == '0'
+      @recurrence_rule_to_assign = nil
+      @event.recurrence_rule = nil if @event
+      return
+    end
+
+    if frequency.present?
+      interval = interval.presence || "1"
+      end_date = end_date.presence || "never"
+      built_rule = "#{frequency}:#{interval}:#{end_date}"
+      
+      if @event
+        @event.recurrence_rule = built_rule
+      else
+        @recurrence_rule_to_assign = built_rule
+      end
+    else
+      @recurrence_rule_to_assign = nil
+      @event.recurrence_rule = nil if @event
     end
   end
 end

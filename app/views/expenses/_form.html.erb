@@ -1,0 +1,134 @@
+<%= form_with model: expense, class: "space-y-5", data: { controller: "expense-form" } do |f| %>
+  <% if expense.errors.any? %>
+    <div class="bg-error-50 border border-error-200 rounded-xl p-4">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-error-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        <div class="flex-1">
+          <h3 class="text-sm font-medium text-error-800 mb-2">
+            <%= pluralize(expense.errors.count, "error") %> prevented this expense from being saved:
+          </h3>
+          <ul class="list-disc list-inside text-sm text-error-700 space-y-1">
+            <% expense.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :title, "Expense title", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+    <%= f.text_field :title, autofocus: true, placeholder: "e.g., Dinner at restaurant", class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+  </div>
+
+  <div>
+    <%= f.label :amount, "Amount", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+    <div class="flex gap-3">
+      <%= f.number_field :amount, value: expense.amount_cents ? (expense.amount_cents / 100.0) : nil, step: 0.01, min: 0.01, required: true, class: "flex-1 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", placeholder: "0.00", data: { expense_form_target: "amountInput", action: "input->expense-form#convertAmountToCents" } %>
+      <%= f.hidden_field :amount_cents, data: { expense_form_target: "amountCentsInput" } %>
+      <%= f.select :currency, options_for_select(currency_options_for_select, expense.currency || "USD"), {}, class: "w-32 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", data: { expense_form_target: "currencySelect", action: "change->expense-form#onCurrencyChange" } %>
+    </div>
+  </div>
+
+  <div>
+    <%= f.label :incurred_on, "Date incurred", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+    <%= f.date_field :incurred_on, value: expense.incurred_on || Date.today, required: true, class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+  </div>
+
+  <div>
+    <%= f.label :notes, "Notes (optional)", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+    <%= f.text_area :notes, rows: 3, placeholder: "Add any additional details", class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all resize-none" %>
+  </div>
+
+  <div>
+    <%= f.label :spender_id, "Paid by", class: "block text-sm font-medium text-neutral-700 mb-2" %>
+    <%= f.collection_select :spender_id, couple_users, :id, ->(user) { user_display_name(user) }, { selected: expense.spender_id || current_user.id }, class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+  </div>
+
+  <div>
+    <%= f.label :split_strategy, "How to split this expense?", class: "block text-sm font-medium text-neutral-700 mb-3" %>
+    <div class="space-y-3">
+      <label class="flex items-start gap-3 p-4 rounded-xl border border-neutral-200 hover:bg-neutral-50 cursor-pointer transition-colors">
+        <%= f.radio_button :split_strategy, "equal", checked: expense.split_strategy.nil? || expense.split_strategy == "equal", class: "mt-1", data: { action: "change->expense-form#updateSplitFields" } %>
+        <div class="flex-1">
+          <div class="font-medium text-neutral-900">Split equally</div>
+          <div class="text-sm text-neutral-600">Split equally between both of you</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 p-4 rounded-xl border border-neutral-200 hover:bg-neutral-50 cursor-pointer transition-colors">
+        <%= f.radio_button :split_strategy, "percentage", class: "mt-1", data: { action: "change->expense-form#updateSplitFields" } %>
+        <div class="flex-1">
+          <div class="font-medium text-neutral-900">Split by percentage</div>
+          <div class="text-sm text-neutral-600">Split by percentage</div>
+        </div>
+      </label>
+
+      <label class="flex items-start gap-3 p-4 rounded-xl border border-neutral-200 hover:bg-neutral-50 cursor-pointer transition-colors">
+        <%= f.radio_button :split_strategy, "custom_amounts", class: "mt-1", data: { action: "change->expense-form#updateSplitFields" } %>
+        <div class="flex-1">
+          <div class="font-medium text-neutral-900">Split by custom amounts</div>
+          <div class="text-sm text-neutral-600">Split by custom amounts</div>
+        </div>
+      </label>
+    </div>
+  </div>
+
+  <div data-expense-form-target="splitFields" class="space-y-4">
+    <div data-expense-form-target="equalFields" class="<%= 'hidden' unless expense.split_strategy.nil? || expense.split_strategy == 'equal' %>">
+      <div class="bg-primary-50 rounded-xl p-4 border border-primary-200">
+        <p class="text-sm text-primary-900 mb-2">The expense will be divided equally between both users</p>
+        <div class="text-sm font-medium text-primary-800" data-expense-form-target="equalSplitDisplay">
+          Each person owes: <span data-expense-form-target="equalAmount">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-expense-form-target="percentageFields" class="<%= 'hidden' unless expense.split_strategy == 'percentage' %> space-y-4">
+      <p class="text-sm text-neutral-600 mb-3">Percentages must add up to 100%</p>
+      <% couple_users.each_with_index do |user, index| %>
+        <%= f.fields_for :shares, index: index do |share_fields| %>
+          <%= share_fields.hidden_field :user_id, value: user.id %>
+          <div>
+            <%= share_fields.label :percentage, user_display_name(user), class: "block text-sm font-medium text-neutral-700 mb-2" %>
+            <div class="flex items-center gap-3">
+              <%= share_fields.number_field :percentage, min: 0, max: 100, step: 0.01, placeholder: "50", class: "flex-1 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", data: { action: "input->expense-form#validatePercentages" } %>
+              <span class="text-neutral-600">%</span>
+            </div>
+            <p class="text-sm text-neutral-500 mt-1">Amount: <span data-expense-form-target="percentageAmount">$0.00</span></p>
+          </div>
+        <% end %>
+      <% end %>
+      <div data-expense-form-target="percentageValidation" class="hidden">
+        <p class="text-sm text-error-600"></p>
+      </div>
+    </div>
+
+    <div data-expense-form-target="customAmountsFields" class="<%= 'hidden' unless expense.split_strategy == 'custom_amounts' %> space-y-4">
+      <p class="text-sm text-neutral-600 mb-3">Amounts must add up to total expense</p>
+      <% couple_users.each_with_index do |user, index| %>
+        <%= f.fields_for :shares, index: index do |share_fields| %>
+          <%= share_fields.hidden_field :user_id, value: user.id %>
+          <div>
+            <%= share_fields.label :amount, user_display_name(user), class: "block text-sm font-medium text-neutral-700 mb-2" %>
+            <div class="flex items-center gap-3">
+              <span class="text-neutral-600" data-expense-form-target="customAmountPrefix">$</span>
+              <%= share_fields.number_field :amount, min: 0, step: 0.01, placeholder: "0.00", class: "flex-1 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", data: { action: "input->expense-form#validateCustomAmounts" } %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+      <div data-expense-form-target="customAmountsValidation" class="hidden">
+        <p class="text-sm text-error-600"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end pt-4">
+    <%= f.submit class: "btn-primary px-6", data: { expense_form_target: "submitButton" } %>
+  </div>
+<% end %>
+
