@@ -1,0 +1,68 @@
+<%
+  balance_data ||= local_assigns[:balance_data]
+  couple ||= local_assigns[:couple]
+%>
+
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-6 mb-6">
+  <div class="mb-4">
+    <h3 class="text-lg font-semibold text-blue-900">Current Balance</h3>
+    <p class="text-sm text-blue-700">Based on unsettled expenses</p>
+  </div>
+
+  <% if balance_data[:summary].any? %>
+    <div class="space-y-3">
+      <% balance_data[:summary].each do |summary_item| %>
+        <% 
+          currency = summary_item[:currency]
+          debtor = summary_item[:debtor]
+          creditor = summary_item[:creditor]
+          amount_cents = summary_item[:amount_cents]
+          formatted_amount = Expense.new(amount_cents: amount_cents, currency: currency).formatted_amount
+        %>
+        <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-blue-200">
+          <div class="flex items-center gap-3 flex-1">
+            <%= user_avatar(debtor, size: 'small') %>
+            <div class="flex-1">
+              <div class="font-medium text-neutral-900">
+                <% if debtor == current_user %>
+                  You owe
+                <% else %>
+                  <%= user_display_name(debtor) %> owes
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 px-4">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+            <div class="text-xl font-bold text-blue-900"><%= formatted_amount %></div>
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </div>
+
+          <div class="flex items-center gap-3 flex-1 justify-end">
+            <div class="flex-1 text-right">
+              <div class="font-medium text-neutral-900">
+                <% if creditor == current_user %>
+                  You
+                <% else %>
+                  <%= user_display_name(creditor) %>
+                <% end %>
+              </div>
+            </div>
+            <%= user_avatar(creditor, size: 'small') %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-4">
+      <p class="text-success-700 font-medium">All settled up! 🎉</p>
+      <p class="text-sm text-success-600 mt-1">No outstanding balances</p>
+    </div>
+  <% end %>
+</div>
+

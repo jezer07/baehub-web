@@ -3,6 +3,7 @@
   compact = local_assigns.fetch(:compact, false)
 %>
 
+<%= turbo_frame_tag "expense_#{expense.id}" do %>
 <div class="flex flex-col md:flex-row md:items-center gap-3 rounded-2xl border border-neutral-100 <%= compact ? 'bg-neutral-50 px-4 py-3' : 'bg-white px-6 py-4 hover:shadow-md transition-shadow' %>">
   <div class="flex items-center gap-4 flex-1">
     <div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary-100 to-purple-100 flex items-center justify-center flex-shrink-0">
@@ -45,6 +46,10 @@
       <% end %>
     </span>
 
+    <% unless expense.settled? %>
+      <%= button_to "Settle", settle_expense_path(expense), method: :patch, class: "inline-flex items-center px-3 py-1 rounded-lg bg-success-600 text-white text-xs font-medium hover:bg-success-700 transition-colors", data: { turbo_confirm: "Mark as settled?", turbo: false } %>
+    <% end %>
+
     <span class="inline-flex items-center px-3 py-1 rounded-full bg-neutral-100 text-neutral-700 text-xs font-medium">
       <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -70,4 +75,5 @@
     <% end %>
   </div>
 </div>
+<% end %>
 

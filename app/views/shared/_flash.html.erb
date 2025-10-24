@@ -1,0 +1,12 @@
+<%
+  type ||= local_assigns[:type]
+  message ||= local_assigns[:message]
+%>
+
+<div data-controller="flash" class="fixed top-4 right-4 z-50 max-w-md">
+  <div class="rounded-xl border shadow-lg p-4 <%= flash_class(type) %> flex items-center gap-3">
+    <%= flash_icon(type) %>
+    <p class="text-sm font-medium"><%= message %></p>
+  </div>
+</div>
+

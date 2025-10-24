@@ -1,4 +1,5 @@
 <div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div id="flash-messages"></div>
   <div class="max-w-6xl mx-auto px-4 space-y-8">
     <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -77,6 +78,32 @@
           </li>
         <% end %>
       </ul>
+
+      <% if @expenses.settled.any? %>
+        <div class="mt-8">
+          <h2 class="text-xl font-semibold text-neutral-900 mb-4">Settlement History</h2>
+          <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+            <ul class="space-y-3">
+              <% @expenses.settled.order(settled_at: :desc).limit(10).each do |expense| %>
+                <li class="flex items-center justify-between p-3 rounded-lg hover:bg-neutral-50 transition-colors">
+                  <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <%= link_to expense.title, expense_path(expense), class: "font-medium text-neutral-900 hover:text-primary-600" %>
+                      <div class="text-sm text-neutral-500">
+                        <%= expense.formatted_amount %> • Settled on <%= expense.settled_at.strftime("%b %d, %Y") %>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="text-xs text-success-700 bg-success-50 px-2 py-1 rounded-full">Settled</span>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      <% end %>
     <% else %>
       <div class="bg-white rounded-2xl border-2 border-dashed border-neutral-200 p-12 text-center">
         <svg class="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
