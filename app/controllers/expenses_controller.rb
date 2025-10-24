@@ -1,7 +1,7 @@
 class ExpensesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
-  before_action :set_expense, only: [:show, :edit, :update, :destroy]
+  before_action :set_expense, only: [:show, :edit, :update, :destroy, :settle]
 
   def index
     @expenses = current_user.couple.expenses.includes(:spender, :expense_shares)
@@ -114,6 +114,31 @@ class ExpensesController < ApplicationController
     end
   end
 
+  def settle
+    if @expense.settled?
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: expense_path(@expense), notice: "Expense is already settled.") }
+        format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :notice, message: "Expense is already settled." }) }
+      end
+      return
+    end
+    
+    Expense.transaction do
+      @expense.update!(settled_at: Time.current)
+      log_expense_activity("settled expense '#{@expense.title}' for #{@expense.formatted_amount}", @expense)
+      
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: expense_path(@expense), notice: "Expense marked as settled.") }
+        format.turbo_stream
+      end
+    end
+  rescue StandardError => e
+    respond_to do |format|
+      format.html { redirect_back(fallback_location: expense_path(@expense), alert: "Error settling expense: #{e.message}") }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error settling expense: #{e.message}" }) }
+    end
+  end
+
   private
 
   def ensure_couple!
@@ -129,7 +154,11 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
-    params.require(:expense).permit(:title, :amount_cents, :currency, :incurred_on, :notes, :split_strategy, :spender_id, shares: [:user_id, :amount_cents, :percentage])
+    params.require(:expense).permit(:title, :amount_cents, :currency, :incurred_on, :notes, :split_strategy, :spender_id)
+  end
+
+  def shares_params
+    params.require(:expense).permit(shares: [:user_id, :amount_cents, :percentage])[:shares]
   end
 
   def calculate_and_create_shares
@@ -144,7 +173,7 @@ class ExpensesController < ApplicationController
         @expense.expense_shares.create!(user: user, amount_cents: share_amount)
       end
     when "percentage"
-      shares_data = Array(expense_params[:shares]).map { |s| s.respond_to?(:to_unsafe_h) ? s.to_unsafe_h : s }.map(&:symbolize_keys)
+      shares_data = Array(shares_params).map { |s| s.respond_to?(:to_unsafe_h) ? s.to_unsafe_h : s }.map(&:symbolize_keys)
       total_percentage = shares_data.sum { |s| s[:percentage].to_f }
 
       if (total_percentage - 100.0).abs > 0.01
@@ -159,7 +188,7 @@ class ExpensesController < ApplicationController
         )
       end
     when "custom_amounts"
-      shares_data = Array(expense_params[:shares]).map { |s| s.respond_to?(:to_unsafe_h) ? s.to_unsafe_h : s }.map(&:symbolize_keys)
+      shares_data = Array(shares_params).map { |s| s.respond_to?(:to_unsafe_h) ? s.to_unsafe_h : s }.map(&:symbolize_keys)
       total_amount = shares_data.sum { |s| s[:amount_cents].to_i }
 
       if total_amount != @expense.amount_cents

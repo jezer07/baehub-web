@@ -1,0 +1,33 @@
+<%= turbo_stream.replace "expense_#{@expense.id}" do %>
+  <%= render "expenses/expense_item", expense: @expense, show_link: true, compact: false %>
+<% end %>
+
+<%= turbo_stream.replace "expense_header" do %>
+  <div id="expense_header" class="p-8 bg-gradient-to-r from-success-50 to-success-100">
+    <h1 class="text-3xl font-bold text-neutral-900 mb-3"><%= @expense.title %></h1>
+    <div class="text-4xl font-bold text-neutral-900 mb-3"><%= @expense.formatted_amount %></div>
+    <div class="flex items-center gap-3 mb-2">
+      <span class="<%= expense_status_badge_class(@expense) %>">
+        Settled
+      </span>
+    </div>
+    <p class="text-neutral-700">Incurred on <%= @expense.incurred_on.strftime("%B %d, %Y") %></p>
+  </div>
+<% end %>
+
+<%= turbo_stream.replace "expense_actions" do %>
+  <div id="expense_actions" class="px-8 py-6 bg-neutral-50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3 sm:justify-between">
+    <%= link_to "Edit expense", edit_expense_path(@expense), class: "btn-secondary justify-center" %>
+    <%= button_to "Delete expense", expense_path(@expense), method: :delete, data: { turbo_confirm: "Are you sure? This will delete the expense and all split records." }, class: "btn-secondary bg-error-600 text-white hover:bg-error-700 justify-center" %>
+  </div>
+<% end %>
+
+<%= turbo_stream.prepend "flash-messages" do %>
+  <div data-controller="flash" class="fixed top-4 right-4 z-50 max-w-md">
+    <div class="rounded-xl border shadow-lg p-4 <%= flash_class(:notice) %> flex items-center gap-3">
+      <%= flash_icon(:notice) %>
+      <p class="text-sm font-medium">Expense marked as settled!</p>
+    </div>
+  </div>
+<% end %>
+

@@ -1,4 +1,5 @@
 <div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12 relative z-0" data-controller="task-modal event-modal expense-modal">
+  <div id="flash-messages"></div>
   <div class="max-w-6xl mx-auto px-4 space-y-10 relative z-10">
     <section class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
       <div class="p-8">
@@ -86,6 +87,7 @@
             <h2 class="text-xl font-semibold text-neutral-900">Bills & balances</h2>
             <button type="button" class="btn-primary px-3 py-2" data-action="click->expense-modal#open">Log expense</button>
           </div>
+          <%= render "expenses/balance_summary", balance_data: @balance_data, couple: @couple %>
           <% if @expenses.any? %>
             <ul class="space-y-4">
               <% @expenses.each do |expense| %>
@@ -119,6 +121,10 @@
                   </svg>
                 <% elsif log.subject_type == 'EventResponse' %>
                   <svg class="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                <% elsif log.subject_type == 'Expense' && log.action.include?('settled') %>
+                  <svg class="h-5 w-5 text-success-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 <% elsif log.subject_type == 'Expense' %>

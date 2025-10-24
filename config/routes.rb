@@ -24,7 +24,9 @@ Rails.application.routes.draw do
     resources :events do
       resources :event_responses, only: [:create, :update], path: "responses"
     end
-    resources :expenses
+    resources :expenses do
+      patch :settle, on: :member
+    end
   end
 
   unauthenticated do
