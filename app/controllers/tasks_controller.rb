@@ -1,7 +1,7 @@
 class TasksController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
-  before_action :set_task, only: [:show, :edit, :update, :destroy, :toggle_completion]
+  before_action :set_task, only: [ :show, :edit, :update, :destroy, :toggle_completion ]
 
   def index
     @tasks = current_user.couple.tasks
@@ -65,7 +65,6 @@ class TasksController < ApplicationController
         else
           "updated task '#{@task.title}'"
         end
-        
         log_task_activity(activity_message, @task)
         redirect_to @task, notice: "Task updated successfully."
       else
@@ -91,11 +90,9 @@ class TasksController < ApplicationController
 
   def toggle_completion
     new_status = @task.done? ? :todo : :done
-    
     Task.transaction do
       @task.update!(status: new_status)
       log_task_activity("marked '#{@task.title}' as #{new_status.to_s.humanize.downcase}", @task)
-      
       respond_to do |format|
         format.html { redirect_back(fallback_location: tasks_path, notice: "Task marked as #{new_status.to_s.humanize.downcase}.") }
         format.turbo_stream
@@ -114,14 +111,14 @@ class TasksController < ApplicationController
     return if current_user.couple
 
     redirect_to new_pairing_path, alert: "Create your shared space before managing tasks."
-    return
+    nil
   end
 
   def set_task
     @task = current_user.couple.tasks.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to tasks_path, alert: "Task not found."
-    return
+    nil
   end
 
   def task_params

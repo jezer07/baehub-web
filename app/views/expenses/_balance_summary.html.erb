@@ -27,35 +27,13 @@
                 <% if debtor == current_user %>
                   You owe
                 <% else %>
-                  <%= user_display_name(debtor) %> owes
+                  <%= user_display_name(debtor) %> owes you
                 <% end %>
+                <div class="text-xl font-bold text-blue-900"><%= formatted_amount %></div>
               </div>
             </div>
           </div>
-
-          <div class="flex items-center gap-3 px-4">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-            <div class="text-xl font-bold text-blue-900"><%= formatted_amount %></div>
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-          </div>
-
-          <div class="flex items-center gap-3 flex-1 justify-end">
-            <div class="flex-1 text-right">
-              <div class="font-medium text-neutral-900">
-                <% if creditor == current_user %>
-                  You
-                <% else %>
-                  <%= user_display_name(creditor) %>
-                <% end %>
-              </div>
-            </div>
-            <%= user_avatar(creditor, size: 'small') %>
-          </div>
-        </div>
+         </div>
       <% end %>
     </div>
   <% else %>
