@@ -1,4 +1,6 @@
 class Expense < ApplicationRecord
+  include CurrencySymbol
+
   belongs_to :couple
   belongs_to :spender, class_name: "User"
 
@@ -10,25 +12,16 @@ class Expense < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 140 }
   validates :amount_cents, numericality: { greater_than: 0 }
-  validates :currency, presence: true, length: { is: 3 }
   validates :incurred_on, presence: true
 
   validate :spender_belongs_to_couple
 
-  before_validation :normalize_currency
-
-  scope :settled, -> { where.not(settled_at: nil) }
-  scope :unsettled, -> { where(settled_at: nil) }
   scope :by_spender, ->(spender_id) { where(spender_id: spender_id) if spender_id.present? }
   scope :between_dates, ->(start_date, end_date) { where(incurred_on: start_date..end_date) if start_date.present? && end_date.present? }
   scope :recent, -> { order(incurred_on: :desc, created_at: :desc) }
 
   def amount
     amount_cents / 100.0
-  end
-
-  def settled?
-    settled_at.present?
   end
 
   def formatted_amount
@@ -54,23 +47,7 @@ class Expense < ApplicationRecord
     end
   end
 
-  def currency_symbol
-    case currency
-    when "USD" then "$"
-    when "EUR" then "€"
-    when "GBP" then "£"
-    when "JPY" then "¥"
-    when "CAD" then "C$"
-    when "AUD" then "A$"
-    else currency
-    end
-  end
-
   private
-
-  def normalize_currency
-    self.currency = currency.to_s.upcase.presence || "USD"
-  end
 
   def spender_belongs_to_couple
     return if spender.blank? || couple.blank?

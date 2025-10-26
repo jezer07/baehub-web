@@ -85,11 +85,11 @@
           </div>
           <%= render "expenses/balance_summary", balance_data: @balance_data, couple: @couple %>
           <% if @expenses.any? %>
-            <ul class="space-y-4">
+            <div class="max-h-80 overflow-y-auto">
               <% @expenses.each do |expense| %>
                 <%= render "expenses/expense_item", expense: expense, show_link: true, compact: true %>
               <% end %>
-            </ul>
+            </div>
           <% else %>
             <p class="text-sm text-neutral-500">No expenses yet—split the next bill in a snap.</p>
           <% end %>

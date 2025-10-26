@@ -6,7 +6,7 @@ class DashboardController < ApplicationController
     @couple = current_user.couple
     @tasks = @couple.tasks.shared.order(:status, :due_at).limit(6).includes(:assignee, :creator)
     @events = @couple.events.future.order(:starts_at).limit(4).includes(:event_responses, :creator)
-    @expenses = @couple.expenses.unsettled.order(incurred_on: :desc).limit(4).includes(:spender, :expense_shares)
+    @expenses = @couple.expenses.order(incurred_on: :desc).limit(4).includes(:spender, :expense_shares)
     @balance_data = @couple.calculate_balance
     @activity_logs = @couple.activity_logs.recent
     @active_invitations = @couple.invitations.active
