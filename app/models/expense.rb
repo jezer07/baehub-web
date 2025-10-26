@@ -17,18 +17,12 @@ class Expense < ApplicationRecord
 
   before_validation :normalize_currency
 
-  scope :settled, -> { where.not(settled_at: nil) }
-  scope :unsettled, -> { where(settled_at: nil) }
   scope :by_spender, ->(spender_id) { where(spender_id: spender_id) if spender_id.present? }
   scope :between_dates, ->(start_date, end_date) { where(incurred_on: start_date..end_date) if start_date.present? && end_date.present? }
   scope :recent, -> { order(incurred_on: :desc, created_at: :desc) }
 
   def amount
     amount_cents / 100.0
-  end
-
-  def settled?
-    settled_at.present?
   end
 
   def formatted_amount

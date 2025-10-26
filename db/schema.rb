@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_22_153419) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_26_070349) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -88,7 +88,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_22_153419) do
     t.string "currency", default: "USD", null: false
     t.date "incurred_on", null: false
     t.text "notes"
-    t.datetime "settled_at"
     t.integer "spender_id", null: false
     t.string "split_strategy", default: "equal", null: false
     t.string "title", null: false
@@ -132,6 +131,24 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_22_153419) do
     t.index ["recipient_id"], name: "index_reminders_on_recipient_id"
     t.index ["remindable_type", "remindable_id"], name: "index_reminders_on_remindable"
     t.index ["sender_id"], name: "index_reminders_on_sender_id"
+  end
+
+  create_table "settlements", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.integer "couple_id", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", limit: 3, default: "USD", null: false
+    t.text "notes"
+    t.integer "payee_id", null: false
+    t.integer "payer_id", null: false
+    t.date "settled_on", null: false
+    t.datetime "updated_at", null: false
+    t.index ["couple_id", "settled_on"], name: "index_settlements_on_couple_id_and_settled_on"
+    t.index ["couple_id"], name: "index_settlements_on_couple_id"
+    t.index ["payee_id", "settled_on"], name: "index_settlements_on_payee_id_and_settled_on"
+    t.index ["payee_id"], name: "index_settlements_on_payee_id"
+    t.index ["payer_id", "settled_on"], name: "index_settlements_on_payer_id_and_settled_on"
+    t.index ["payer_id"], name: "index_settlements_on_payer_id"
   end
 
   create_table "tasks", force: :cascade do |t|
@@ -194,6 +211,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_22_153419) do
   add_foreign_key "reminders", "couples"
   add_foreign_key "reminders", "users", column: "recipient_id"
   add_foreign_key "reminders", "users", column: "sender_id"
+  add_foreign_key "settlements", "couples"
+  add_foreign_key "settlements", "users", column: "payee_id"
+  add_foreign_key "settlements", "users", column: "payer_id"
   add_foreign_key "tasks", "couples"
   add_foreign_key "tasks", "users", column: "assignee_id"
   add_foreign_key "tasks", "users", column: "creator_id"

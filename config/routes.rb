@@ -22,11 +22,10 @@ Rails.application.routes.draw do
       patch :toggle_completion, on: :member
     end
     resources :events do
-      resources :event_responses, only: [:create, :update], path: "responses"
+      resources :event_responses, only: [ :create, :update ], path: "responses"
     end
-    resources :expenses do
-      patch :settle, on: :member
-    end
+    resources :expenses
+    resources :settlements, only: [ :index, :new, :create, :show, :edit, :update, :destroy ]
   end
 
   unauthenticated do
