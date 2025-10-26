@@ -1,7 +1,7 @@
 class ExpensesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
-  before_action :set_expense, only: [:show, :edit, :update, :destroy, :settle]
+  before_action :set_expense, only: [ :show, :edit, :update, :destroy, :settle ]
 
   def index
     @expenses = current_user.couple.expenses.includes(:spender, :expense_shares)
@@ -74,7 +74,6 @@ class ExpensesController < ApplicationController
     begin
       Expense.transaction do
         @expense.expense_shares.destroy_all
-        
         if @expense.update(expense_params)
           if calculate_and_create_shares
             log_expense_activity("updated expense '#{@expense.title}'", @expense)
@@ -102,7 +101,7 @@ class ExpensesController < ApplicationController
 
   def destroy
     expense_title = @expense.title
-    
+
     begin
       Expense.transaction do
         log_expense_activity("deleted expense '#{expense_title}'", @expense)
@@ -122,11 +121,9 @@ class ExpensesController < ApplicationController
       end
       return
     end
-    
     Expense.transaction do
       @expense.update!(settled_at: Time.current)
       log_expense_activity("settled expense '#{@expense.title}' for #{@expense.formatted_amount}", @expense)
-      
       respond_to do |format|
         format.html { redirect_back(fallback_location: expense_path(@expense), notice: "Expense marked as settled.") }
         format.turbo_stream
@@ -158,7 +155,12 @@ class ExpensesController < ApplicationController
   end
 
   def shares_params
-    params.require(:expense).permit(shares: [:user_id, :amount_cents, :percentage])[:shares]
+    shares_hash = params.require(:expense)[:shares]
+    return [] unless shares_hash
+
+    shares_hash.values.map do |share|
+      share.permit(:user_id, :amount_cents, :percentage).to_h.symbolize_keys
+    end
   end
 
   def calculate_and_create_shares
@@ -175,6 +177,8 @@ class ExpensesController < ApplicationController
     when "percentage"
       shares_data = Array(shares_params).map { |s| s.respond_to?(:to_unsafe_h) ? s.to_unsafe_h : s }.map(&:symbolize_keys)
       total_percentage = shares_data.sum { |s| s[:percentage].to_f }
+
+      Rails.logger.info("total percentage: #{total_percentage}")
 
       if (total_percentage - 100.0).abs > 0.01
         @expense.errors.add(:base, "Percentages must sum to 100%")
@@ -217,4 +221,3 @@ class ExpensesController < ApplicationController
     )
   end
 end
-

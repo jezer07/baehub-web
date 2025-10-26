@@ -54,6 +54,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # ERB/HTML formatting [https://github.com/threedaymonk/htmlbeautifier]
+  gem "htmlbeautifier", require: false
 end
 
 group :development do
