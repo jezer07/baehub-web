@@ -29,6 +29,7 @@ class ExpensesController < ApplicationController
     @expense = current_user.couple.expenses.build
     @expense.spender = current_user
     @expense.incurred_on = Date.today
+    @expense.currency = current_user.couple.default_currency
     @couple_users = current_user.couple.users.to_a
   end
 

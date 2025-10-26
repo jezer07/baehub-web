@@ -13,17 +13,24 @@
             <dl class="space-y-3 text-sm text-neutral-600">
               <div class="flex items-center justify-between">
                 <dt class="font-medium text-neutral-700">Anniversary</dt>
-                <dd><%= current_user.couple.anniversary_on&.strftime("%B %d, %Y") || "Let’s add it soon" %></dd>
+                <dd><%= current_user.couple.anniversary_on&.strftime("%B %d, %Y") || "Let's add it soon" %></dd>
               </div>
               <div class="flex items-center justify-between">
                 <dt class="font-medium text-neutral-700">Primary Timezone</dt>
                 <dd><%= current_user.couple.timezone %></dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="font-medium text-neutral-700">Default Currency</dt>
+                <dd><%= current_user.couple.default_currency %></dd>
               </div>
               <div>
                 <dt class="font-medium text-neutral-700 mb-1">Story</dt>
                 <dd class="text-neutral-600 leading-relaxed"><%= current_user.couple.story.presence || "Capture the journey that brought you here." %></dd>
               </div>
             </dl>
+            <div class="mt-4">
+              <%= link_to "Edit Settings", edit_settings_path, class: "text-sm text-primary-600 hover:text-primary-700 font-medium inline-flex items-center gap-1" %>
+            </div>
           </div>
 
           <div class="p-8 bg-neutral-50">
@@ -96,6 +103,11 @@
                 <%= f.label :timezone, "Timezone", class: "block text-sm font-medium text-neutral-700 mb-1" %>
                 <%= f.time_zone_select :timezone, ActiveSupport::TimeZone.all, { default: @couple.timezone }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
               </div>
+            </div>
+            <div>
+              <%= f.label :default_currency, "Default Currency", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+              <%= f.select :default_currency, currency_options_for_select, { selected: "USD" }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
+              <p class="text-xs text-neutral-500 mt-1">This currency will be used as the default for all expenses.</p>
             </div>
             <div>
               <%= f.label :story, "Your story (optional)", class: "block text-sm font-medium text-neutral-700 mb-1" %>

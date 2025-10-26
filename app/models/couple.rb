@@ -10,9 +10,11 @@ class Couple < ApplicationRecord
   validates :name, presence: true, length: { minimum: 2, maximum: 80 }
   validates :slug, presence: true, uniqueness: true
   validates :timezone, presence: true
+  validates :default_currency, presence: true, length: { is: 3 }
 
   before_validation :assign_slug, on: :create
   before_validation :normalize_timezone
+  before_validation :normalize_default_currency
 
   def to_param
     slug
@@ -99,5 +101,9 @@ class Couple < ApplicationRecord
 
   def normalize_timezone
     self.timezone = timezone.presence || "UTC"
+  end
+
+  def normalize_default_currency
+    self.default_currency = default_currency.to_s.upcase.presence || "USD"
   end
 end

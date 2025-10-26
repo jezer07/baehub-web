@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     resource :pairing, only: %i[new create], controller: "pairings" do
       post :join, on: :collection
     end
+    resource :settings, only: %i[edit update], controller: "settings"
     resources :invitations, only: %i[create destroy]
     resources :tasks do
       patch :toggle_completion, on: :member

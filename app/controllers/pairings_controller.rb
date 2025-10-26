@@ -61,7 +61,7 @@ class PairingsController < ApplicationController
   private
 
   def couple_params
-    params.require(:couple).permit(:name, :anniversary_on, :timezone, :story)
+    params.require(:couple).permit(:name, :anniversary_on, :timezone, :story, :default_currency)
   end
 
   def join_params

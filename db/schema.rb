@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_22_153419) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_26_000001) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -29,6 +29,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_22_153419) do
   create_table "couples", force: :cascade do |t|
     t.date "anniversary_on"
     t.datetime "created_at", null: false
+    t.string "default_currency", default: "USD", null: false
     t.string "name", null: false
     t.string "slug", null: false
     t.text "story"

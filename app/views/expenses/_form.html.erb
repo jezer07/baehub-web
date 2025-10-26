@@ -29,7 +29,7 @@
     <div class="flex gap-3">
       <%= f.number_field :amount, value: expense.amount_cents ? (expense.amount_cents / 100.0) : nil, step: 0.01, min: 0.01, required: true, class: "flex-1 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", placeholder: "0.00", data: { expense_form_target: "amountInput", action: "input->expense-form#convertAmountToCents" } %>
       <%= f.hidden_field :amount_cents, data: { expense_form_target: "amountCentsInput" } %>
-      <%= f.select :currency, options_for_select(currency_options_for_select, expense.currency || "USD"), {}, class: "w-32 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", data: { expense_form_target: "currencySelect", action: "change->expense-form#onCurrencyChange" } %>
+      <%= f.select :currency, options_for_select(currency_options_for_select, expense.currency || expense.couple&.default_currency || "USD"), {}, class: "w-32 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all", data: { expense_form_target: "currencySelect", action: "change->expense-form#onCurrencyChange" } %>
     </div>
   </div>
 
