@@ -1,0 +1,21 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-2xl mx-auto px-4">
+    <%= link_to "← Back to expenses", expenses_path, class: "text-sm text-neutral-600 hover:text-primary-600 inline-flex items-center gap-1 mb-6" %>
+
+    <h1 class="text-3xl font-bold text-neutral-900 mb-2">Edit Payment</h1>
+    <p class="text-neutral-600 mb-8">Update the settlement details</p>
+
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <%= render "form", settlement: @settlement, couple_users: @couple_users, partner: @partner %>
+
+      <div class="mt-6 pt-6 border-t border-neutral-200">
+        <%= button_to "Delete Payment",
+            settlement_path(@settlement),
+            method: :delete,
+            form: { data: { turbo_confirm: "Are you sure you want to delete this settlement? This will affect your balance calculations." } },
+            class: "w-full px-6 py-3 border-2 border-red-300 text-red-700 rounded-xl font-semibold hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all" %>
+      </div>
+    </div>
+  </div>
+</div>
+
