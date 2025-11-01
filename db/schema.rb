@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_26_070349) do
+ActiveRecord::Schema[8.1].define(version: 2025_10_26_070352) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -29,6 +29,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_26_070349) do
   create_table "couples", force: :cascade do |t|
     t.date "anniversary_on"
     t.datetime "created_at", null: false
+    t.string "default_currency", limit: 3, default: "USD", null: false
     t.string "name", null: false
     t.string "slug", null: false
     t.text "story"
@@ -85,7 +86,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_26_070349) do
     t.integer "amount_cents", null: false
     t.integer "couple_id", null: false
     t.datetime "created_at", null: false
-    t.string "currency", default: "USD", null: false
     t.date "incurred_on", null: false
     t.text "notes"
     t.integer "spender_id", null: false
@@ -137,7 +137,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_26_070349) do
     t.integer "amount_cents", null: false
     t.integer "couple_id", null: false
     t.datetime "created_at", null: false
-    t.string "currency", limit: 3, default: "USD", null: false
     t.text "notes"
     t.integer "payee_id", null: false
     t.integer "payer_id", null: false
@@ -183,6 +182,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_26_070349) do
     t.string "last_sign_in_ip"
     t.string "name", null: false
     t.string "preferred_color"
+    t.boolean "prefers_dark_mode", default: false, null: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"

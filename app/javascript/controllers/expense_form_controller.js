@@ -11,17 +11,34 @@ export default class extends Controller {
     "equalAmount",
     "percentageValidation",
     "customAmountsValidation",
-    "currencySelect",
     "submitButton",
     "percentageAmount",
     "customAmountPrefix"
   ]
 
   static values = {
-    totalAmount: Number
+    totalAmount: Number,
+    currencySymbols: Object,
+    defaultCurrency: String
   }
 
   connect() {
+    if (!this.hasCurrencySymbolsValue) {
+      this.currencySymbolsValue = {
+        "USD": "$",
+        "EUR": "€",
+        "GBP": "£",
+        "JPY": "¥",
+        "CAD": "C$",
+        "AUD": "A$",
+        "PHP": "₱"
+      }
+    }
+
+    if (!this.hasDefaultCurrencyValue) {
+      this.defaultCurrencyValue = "USD"
+    }
+
     this.updateSplitFields()
     this.convertAmountToCents()
     this.updateCurrencySymbols()
@@ -149,32 +166,14 @@ export default class extends Controller {
   }
 
   getSelectedCurrency() {
-    if (!this.hasCurrencySelectTarget) return "USD"
-    return this.currencySelectTarget.value || "USD"
-  }
-
-  onCurrencyChange() {
-    this.updateCurrencySymbols()
-    this.calculateEqualSplit()
-    
-    if (this.getSelectedStrategy() === "percentage") {
-      this.validatePercentages()
-    } else if (this.getSelectedStrategy() === "custom_amounts") {
-      this.validateCustomAmounts()
-    }
+    return this.defaultCurrencyValue || "USD"
   }
 
   updateCurrencySymbols() {
     const currency = this.getSelectedCurrency()
-    const symbolMap = {
-      "USD": "$",
-      "EUR": "€",
-      "GBP": "£",
-      "JPY": "¥",
-      "CAD": "C$",
-      "AUD": "A$"
-    }
-    const symbol = symbolMap[currency] || "$"
+    const symbols = this.currencySymbolsValue || {}
+    const fallbackSymbol = symbols[this.defaultCurrencyValue] || "$"
+    const symbol = symbols[currency] || fallbackSymbol || "$"
 
     this.customAmountPrefixTargets.forEach((prefix) => {
       prefix.textContent = symbol
@@ -209,4 +208,3 @@ export default class extends Controller {
     target.classList.add("hidden")
   }
 }
-

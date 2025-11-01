@@ -22,7 +22,6 @@ class SettlementsTest < ApplicationSystemTestCase
       spender: @user_a,
       title: "Test Expense",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -58,8 +57,6 @@ class SettlementsTest < ApplicationSystemTestCase
     
     fill_in "settlement_amount_dollars", with: "30.00"
     
-    select "USD ($)", from: "settlement_currency"
-    
     fill_in "settlement_settled_on", with: Date.today
     
     fill_in "settlement_notes", with: "Partial payment"
@@ -77,7 +74,6 @@ class SettlementsTest < ApplicationSystemTestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 3000,
-      currency: "USD",
       settled_on: Date.today,
       notes: "Original payment"
     )
@@ -105,7 +101,6 @@ class SettlementsTest < ApplicationSystemTestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 5000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -120,42 +115,6 @@ class SettlementsTest < ApplicationSystemTestCase
     
     assert_text "User B owes you"
     assert_text "$50.00"
-  end
-
-  test "multi-currency settlement" do
-    eur_expense = @couple.expenses.create!(
-      spender: @user_b,
-      title: "EUR Expense",
-      amount_cents: 8000,
-      currency: "EUR",
-      incurred_on: Date.today,
-      split_strategy: :equal
-    )
-    eur_expense.expense_shares.create!(user: @user_a, percentage: 50)
-    eur_expense.expense_shares.create!(user: @user_b, percentage: 50)
-    
-    visit expenses_path
-    
-    assert_text "User B owes you"
-    assert_text "$50.00"
-    
-    assert_text "You owe User B"
-    assert_text "€40.00"
-    
-    visit new_settlement_path(payer_id: @user_a.id, payee_id: @user_b.id, amount: "40.00", currency: "EUR")
-    
-    assert_field "settlement_amount_dollars", with: "40.00"
-    assert_selector("select#settlement_currency option[selected]", text: "EUR (€)")
-    
-    click_button "Record Payment"
-    
-    assert_text "Settlement recorded successfully"
-    
-    within ".bg-gradient-to-r.from-blue-50" do
-      assert_text "User B owes you"
-      assert_text "$50.00"
-      assert_no_text "€40.00"
-    end
   end
 
   test "overpayment scenario balance flips" do
@@ -183,16 +142,11 @@ class SettlementsTest < ApplicationSystemTestCase
     assert_text "prevented this settlement from being saved"
   end
 
-  test "settlement form shows currency selector" do
+  test "settlement form displays shared currency symbol" do
+    @couple.update!(default_currency: "PHP")
     visit new_settlement_path
-    
-    assert_selector "select#settlement_currency"
-    assert_text "Currency"
-    
-    currencies = ["USD ($)", "EUR (€)", "GBP (£)", "JPY (¥)", "CAD (C$)", "AUD (A$)"]
-    currencies.each do |currency|
-      assert_selector "option", text: currency
-    end
+
+    assert_selector "#settlement_currency_symbol", text: "₱"
   end
 
   test "edit form shows update payment button" do
@@ -200,7 +154,6 @@ class SettlementsTest < ApplicationSystemTestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 3000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -222,7 +175,6 @@ class SettlementsTest < ApplicationSystemTestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 3000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -241,4 +193,3 @@ class SettlementsTest < ApplicationSystemTestCase
     end
   end
 end
-

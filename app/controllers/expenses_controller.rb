@@ -166,7 +166,7 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
-    params.require(:expense).permit(:title, :amount_cents, :currency, :incurred_on, :notes, :split_strategy, :spender_id)
+    params.require(:expense).permit(:title, :amount_cents, :incurred_on, :notes, :split_strategy, :spender_id)
   end
 
   def shares_params

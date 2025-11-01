@@ -174,17 +174,6 @@ module ApplicationHelper
     end
   end
 
-  def currency_options_for_select
-    [
-      ["USD ($)", "USD"],
-      ["EUR (€)", "EUR"],
-      ["GBP (£)", "GBP"],
-      ["JPY (¥)", "JPY"],
-      ["CAD (C$)", "CAD"],
-      ["AUD (A$)", "AUD"]
-    ]
-  end
-
   def transaction_impact_for_user(transaction, user)
     case transaction[:type]
     when :expense
@@ -192,7 +181,7 @@ module ApplicationHelper
     when :settlement
       settlement_impact_for_user(transaction[:object], user)
     else
-      { impact_cents: 0, currency: "USD" }
+      { impact_cents: 0, currency: CurrencyCatalog.default_code }
     end
   end
 
@@ -206,7 +195,8 @@ module ApplicationHelper
       -user_share_cents
     end
 
-    { impact_cents: impact_cents, currency: expense.currency }
+    currency_code = expense.couple&.default_currency || CurrencyCatalog.default_code
+    { impact_cents: impact_cents, currency: currency_code }
   end
 
   def settlement_impact_for_user(settlement, user)
@@ -218,22 +208,15 @@ module ApplicationHelper
       0
     end
 
-    { impact_cents: impact_cents, currency: settlement.currency }
+    currency_code = settlement.couple&.default_currency || CurrencyCatalog.default_code
+    { impact_cents: impact_cents, currency: currency_code }
   end
 
   def format_impact_badge(impact_cents, currency)
     return "" if impact_cents == 0
 
     amount = (impact_cents.abs / 100.0)
-    symbol = case currency
-    when "USD" then "$"
-    when "EUR" then "€"
-    when "GBP" then "£"
-    when "JPY" then "¥"
-    when "CAD" then "C$"
-    when "AUD" then "A$"
-    else currency
-    end
+    symbol = CurrencyCatalog.symbol_for(currency)
 
     formatted_amount = "#{symbol}#{'%.2f' % amount}"
     

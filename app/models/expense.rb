@@ -10,12 +10,9 @@ class Expense < ApplicationRecord
 
   validates :title, presence: true, length: { maximum: 140 }
   validates :amount_cents, numericality: { greater_than: 0 }
-  validates :currency, presence: true, length: { is: 3 }
   validates :incurred_on, presence: true
 
   validate :spender_belongs_to_couple
-
-  before_validation :normalize_currency
 
   scope :by_spender, ->(spender_id) { where(spender_id: spender_id) if spender_id.present? }
   scope :between_dates, ->(start_date, end_date) { where(incurred_on: start_date..end_date) if start_date.present? && end_date.present? }
@@ -49,22 +46,10 @@ class Expense < ApplicationRecord
   end
 
   def currency_symbol
-    case currency
-    when "USD" then "$"
-    when "EUR" then "€"
-    when "GBP" then "£"
-    when "JPY" then "¥"
-    when "CAD" then "C$"
-    when "AUD" then "A$"
-    else currency
-    end
+    couple&.default_currency_symbol || CurrencyCatalog.symbol_for(CurrencyCatalog.default_code)
   end
 
   private
-
-  def normalize_currency
-    self.currency = currency.to_s.upcase.presence || "USD"
-  end
 
   def spender_belongs_to_couple
     return if spender.blank? || couple.blank?

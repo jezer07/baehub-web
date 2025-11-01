@@ -17,11 +17,11 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       password_confirmation: "password123",
       couple: @couple
     )
+    @couple.update!(default_currency: "EUR")
     @settlement = @couple.settlements.create!(
       payer: @user,
       payee: @partner,
       amount_cents: 5000,
-      currency: "USD",
       settled_on: Date.today,
       notes: "Test settlement"
     )
@@ -39,7 +39,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       payer: @user,
       payee: @partner,
       amount_cents: 3000,
-      currency: "USD",
       settled_on: Date.today - 5
     )
     
@@ -47,7 +46,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       payer: @partner,
       payee: @user,
       amount_cents: 2000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -63,7 +61,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       payer: @user,
       payee: @partner,
       amount_cents: 3000,
-      currency: "USD",
       settled_on: Date.today - 10
     )
     
@@ -90,7 +87,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       payer_id: @partner.id,
       payee_id: @user.id,
       amount: "50.00",
-      currency: "EUR"
     }
     
     assert_response :success
@@ -98,7 +94,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     assert_equal @partner.id, settlement.payer_id
     assert_equal @user.id, settlement.payee_id
     assert_equal 50.0, settlement.amount_dollars
-    assert_equal "EUR", settlement.currency
   end
 
   test "new action auto-selects partner when only payer is specified" do
@@ -126,7 +121,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
           payer_id: @user.id,
           payee_id: @partner.id,
           amount_dollars: 75.50,
-          currency: "USD",
           settled_on: Date.today,
           notes: "New settlement"
         }
@@ -143,7 +137,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         payer_id: @user.id,
         payee_id: @partner.id,
         amount_dollars: 123.45,
-        currency: "USD",
         settled_on: Date.today
       }
     }
@@ -159,7 +152,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
           payer_id: @user.id,
           payee_id: @partner.id,
           amount_dollars: 50.00,
-          currency: "USD",
           settled_on: Date.today
         }
       }
@@ -176,7 +168,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
           payer_id: @user.id,
           payee_id: @partner.id,
           amount_dollars: nil,
-          currency: "USD",
           settled_on: Date.today
         }
       }
@@ -193,7 +184,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
           payer_id: @user.id,
           payee_id: @user.id,
           amount_dollars: 50.00,
-          currency: "USD",
           settled_on: Date.today
         }
       }
@@ -218,7 +208,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
           payer_id: other_user.id,
           payee_id: @partner.id,
           amount_dollars: 50.00,
-          currency: "USD",
           settled_on: Date.today
         }
       }
@@ -239,7 +228,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     patch settlement_path(@settlement), params: {
       settlement: {
         amount_dollars: 100.00,
-        currency: "EUR",
         notes: "Updated notes"
       }
     }
@@ -249,8 +237,8 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     
     @settlement.reload
     assert_equal 10000, @settlement.amount_cents
-    assert_equal "EUR", @settlement.currency
     assert_equal "Updated notes", @settlement.notes
+    assert_equal @couple.default_currency_symbol, @settlement.currency_symbol
   end
 
   test "update action activity log is created for update" do
@@ -346,7 +334,6 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       payer: other_user,
       payee: other_partner,
       amount_cents: 3000,
-      currency: "USD",
       settled_on: Date.today
     )
     

@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     end
     resources :expenses
     resources :settlements, only: [ :index, :new, :create, :show, :edit, :update, :destroy ]
+    resource :settings, only: [ :show, :update ]
   end
 
   unauthenticated do

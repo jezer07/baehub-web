@@ -81,7 +81,7 @@ class SettlementsController < ApplicationController
   end
 
   def settlement_params
-    params.require(:settlement).permit(:payer_id, :payee_id, :amount_cents, :currency, :settled_on, :notes)
+    params.require(:settlement).permit(:payer_id, :payee_id, :amount_cents, :settled_on, :notes)
   end
 
   def log_settlement_activity(action, settlement)

@@ -24,7 +24,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Groceries",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -48,7 +47,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Groceries",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -59,7 +57,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_b,
       title: "Dinner",
       amount_cents: 8_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -82,7 +79,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Groceries",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -93,7 +89,6 @@ class CoupleTest < ActiveSupport::TestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 3_000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -112,7 +107,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Groceries",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -123,7 +117,6 @@ class CoupleTest < ActiveSupport::TestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 5_000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -137,7 +130,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Groceries",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -148,7 +140,6 @@ class CoupleTest < ActiveSupport::TestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 10_000,
-      currency: "USD",
       settled_on: Date.today
     )
     
@@ -162,46 +153,24 @@ class CoupleTest < ActiveSupport::TestCase
     assert_equal 5_000, summary[:amount_cents]
   end
 
-  test "calculate_balance multi-currency handling" do
-    expense_usd = @couple.expenses.create!(
+  test "calculate_balance summary uses couple default currency" do
+    @couple.update!(default_currency: "PHP")
+
+    expense = @couple.expenses.create!(
       spender: @user_a,
       title: "Groceries",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
-    expense_usd.expense_shares.create!(user: @user_a, percentage: 50)
-    expense_usd.expense_shares.create!(user: @user_b, percentage: 50)
-    
-    expense_eur = @couple.expenses.create!(
-      spender: @user_b,
-      title: "Concert tickets",
-      amount_cents: 8_000,
-      currency: "EUR",
-      incurred_on: Date.today,
-      split_strategy: :equal
-    )
-    expense_eur.expense_shares.create!(user: @user_a, percentage: 50)
-    expense_eur.expense_shares.create!(user: @user_b, percentage: 50)
-    
+    expense.expense_shares.create!(user: @user_a, percentage: 50)
+    expense.expense_shares.create!(user: @user_b, percentage: 50)
+
     balance_data = @couple.calculate_balance
-    
-    assert_equal 2, balance_data[:summary].length
-    assert_equal 2, balance_data[:balances_by_currency].keys.length
-    assert balance_data[:balances_by_currency].key?("USD")
-    assert balance_data[:balances_by_currency].key?("EUR")
-    
-    usd_summary = balance_data[:summary].find { |s| s[:currency] == "USD" }
-    eur_summary = balance_data[:summary].find { |s| s[:currency] == "EUR" }
-    
-    assert_equal @user_b, usd_summary[:debtor]
-    assert_equal @user_a, usd_summary[:creditor]
-    assert_equal 5_000, usd_summary[:amount_cents]
-    
-    assert_equal @user_a, eur_summary[:debtor]
-    assert_equal @user_b, eur_summary[:creditor]
-    assert_equal 4_000, eur_summary[:amount_cents]
+
+    assert_equal 1, balance_data[:summary].length
+    summary = balance_data[:summary].first
+    assert_equal "PHP", summary[:currency]
   end
 
   test "calculate_balance complex scenario with multiple expenses and settlements" do
@@ -209,7 +178,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Rent",
       amount_cents: 100_000,
-      currency: "USD",
       incurred_on: Date.today - 5,
       split_strategy: :equal
     )
@@ -220,7 +188,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_b,
       title: "Utilities",
       amount_cents: 20_000,
-      currency: "USD",
       incurred_on: Date.today - 3,
       split_strategy: :equal
     )
@@ -231,7 +198,6 @@ class CoupleTest < ActiveSupport::TestCase
       payer: @user_b,
       payee: @user_a,
       amount_cents: 30_000,
-      currency: "USD",
       settled_on: Date.today - 1
     )
     
@@ -239,7 +205,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Groceries",
       amount_cents: 15_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :equal
     )
@@ -269,7 +234,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Shared subscription",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :percentage
     )
@@ -291,7 +255,6 @@ class CoupleTest < ActiveSupport::TestCase
       spender: @user_a,
       title: "Shared items",
       amount_cents: 10_000,
-      currency: "USD",
       incurred_on: Date.today,
       split_strategy: :custom_amounts
     )
@@ -323,5 +286,16 @@ class CoupleTest < ActiveSupport::TestCase
     assert_equal 0, balance_data[:summary].length
     assert_equal({}, balance_data[:balances_by_currency])
   end
-end
 
+  test "default currency normalizes to supported code" do
+    @couple.default_currency = "eur"
+    @couple.save!
+
+    assert_equal "EUR", @couple.reload.default_currency
+  end
+
+  test "invalid default currency is rejected" do
+    assert_not @couple.update(default_currency: "ABC")
+    assert_includes @couple.errors[:default_currency], "is not included in the list"
+  end
+end

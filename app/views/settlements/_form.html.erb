@@ -1,3 +1,8 @@
+<%
+  currency_code = current_user.couple&.default_currency || CurrencyCatalog.default_code
+  currency_symbol = CurrencyCatalog.symbol_for(currency_code)
+%>
+
 <%= form_with(model: settlement, local: true, class: "space-y-6") do |form| %>
   <% if settlement.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -61,7 +66,7 @@
         Amount
       </label>
       <div class="relative">
-        <span id="currency_prefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-lg">$</span>
+        <span id="settlement_currency_symbol" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-lg"><%= currency_symbol %></span>
         <%= form.number_field :amount_dollars,
             step: 0.01,
             placeholder: "0.00",
@@ -69,50 +74,8 @@
             required: true,
             min: 0.01 %>
       </div>
-      <p class="mt-1 text-xs text-neutral-500">Enter the payment amount in dollars</p>
+      <p class="mt-1 text-xs text-neutral-500">Enter the payment amount in your shared currency.</p>
     </div>
-    <!-- Currency -->
-    <div>
-      <label for="settlement_currency" class="block text-sm font-medium text-neutral-700 mb-2">
-        Currency
-      </label>
-      <%= form.select :currency,
-          currency_options_for_select,
-          { selected: settlement.currency || "USD" },
-          class: "w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
-          required: true %>
-      <p class="mt-1 text-xs text-neutral-500">Select the currency for this payment</p>
-    </div>
-    <script>
-      (function() {
-        const currencySymbolMap = {
-          'USD': '$',
-          'EUR': '€',
-          'GBP': '£',
-          'JPY': '¥',
-          'CAD': 'C$',
-          'AUD': 'A$'
-        };
-
-        const updateCurrencyPrefix = function() {
-          const currencySelect = document.querySelector('#settlement_currency');
-          const prefixElement = document.querySelector('#currency_prefix');
-          if (currencySelect && prefixElement) {
-            const selectedCurrency = currencySelect.value;
-            prefixElement.textContent = currencySymbolMap[selectedCurrency] || selectedCurrency;
-          }
-        };
-
-        const currencySelect = document.querySelector('#settlement_currency');
-        if (currencySelect) {
-          currencySelect.addEventListener('change', updateCurrencyPrefix);
-        }
-
-        updateCurrencyPrefix();
-        
-        document.addEventListener('turbo:load', updateCurrencyPrefix);
-      })();
-    </script>
     <!-- Date -->
     <div>
       <label for="settlement_settled_on" class="block text-sm font-medium text-neutral-700 mb-2">
