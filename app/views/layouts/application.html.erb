@@ -43,6 +43,7 @@
                 <%= link_to "Tasks", tasks_path, class: "text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
                 <%= link_to "Events", events_path, class: "text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
                 <%= link_to "Expenses", expenses_path, class: "text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
+                <%= link_to "Settings", settings_path, class: "text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
                 <span class="text-neutral-700 px-3 py-2 text-sm">Welcome, <%= current_user.name %></span>
                 <%= link_to "Edit Account", edit_user_registration_path, class: "text-neutral-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-colors" %>
                 <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "btn-primary" %>
@@ -77,8 +78,9 @@
               <%= link_to "Tasks", tasks_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
               <%= link_to "Events", events_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
               <%= link_to "Expenses", expenses_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
+              <%= link_to "Settings", settings_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
               <%= link_to "Edit Account", edit_user_registration_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
-              <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "block w-full text-left text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
+              <%= button_to "Sign Out", destroy_user_session_path, method: :delete, class: "w-full btn-primary justify-center", data: { action: "click->mobile-menu#close" } %>
             <% else %>
               <%= link_to "Sign In", new_user_session_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>
               <%= link_to "Sign Up", new_user_registration_path, class: "block text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 px-3 py-2 rounded-md text-base font-medium transition-colors", data: { action: "click->mobile-menu#close" } %>

@@ -144,14 +144,6 @@ module ApplicationHelper
     event.color
   end
 
-  def expense_status_badge_class(expense)
-    if expense.settled?
-      "inline-flex items-center px-3 py-1 rounded-full bg-success-50 text-success-700 border border-success-200 text-xs font-medium"
-    else
-      "inline-flex items-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200 text-xs font-medium"
-    end
-  end
-
   def expense_split_icon(split_strategy)
     case split_strategy.to_s
     when "equal"
@@ -182,15 +174,61 @@ module ApplicationHelper
     end
   end
 
-  def currency_options_for_select
-    [
-      ["USD ($)", "USD"],
-      ["EUR (€)", "EUR"],
-      ["GBP (£)", "GBP"],
-      ["JPY (¥)", "JPY"],
-      ["CAD (C$)", "CAD"],
-      ["AUD (A$)", "AUD"]
-    ]
+  def transaction_impact_for_user(transaction, user)
+    case transaction[:type]
+    when :expense
+      expense_impact_for_user(transaction[:object], user)
+    when :settlement
+      settlement_impact_for_user(transaction[:object], user)
+    else
+      { impact_cents: 0, currency: CurrencyCatalog.default_code }
+    end
+  end
+
+  def expense_impact_for_user(expense, user)
+    user_share = expense.expense_shares.find { |share| share.user_id == user.id }
+    user_share_cents = user_share&.calculated_amount || 0
+
+    impact_cents = if expense.spender_id == user.id
+      expense.amount_cents - user_share_cents
+    else
+      -user_share_cents
+    end
+
+    currency_code = expense.couple&.default_currency || CurrencyCatalog.default_code
+    { impact_cents: impact_cents, currency: currency_code }
+  end
+
+  def settlement_impact_for_user(settlement, user)
+    impact_cents = if settlement.payer_id == user.id
+      -settlement.amount_cents
+    elsif settlement.payee_id == user.id
+      settlement.amount_cents
+    else
+      0
+    end
+
+    currency_code = settlement.couple&.default_currency || CurrencyCatalog.default_code
+    { impact_cents: impact_cents, currency: currency_code }
+  end
+
+  def format_impact_badge(impact_cents, currency)
+    return "" if impact_cents == 0
+
+    amount = (impact_cents.abs / 100.0)
+    symbol = CurrencyCatalog.symbol_for(currency)
+
+    formatted_amount = "#{symbol}#{'%.2f' % amount}"
+    
+    if impact_cents > 0
+      badge_class = "text-xs font-semibold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-200"
+      sign = "+"
+    else
+      badge_class = "text-xs font-semibold text-red-700 bg-red-50 px-3 py-1 rounded-full border border-red-200"
+      sign = "−"
+    end
+
+    content_tag(:span, "#{sign}#{formatted_amount}", class: badge_class)
   end
 
   private
