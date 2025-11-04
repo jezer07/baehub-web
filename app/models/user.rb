@@ -10,6 +10,8 @@ class User < ApplicationRecord
   has_many :created_events, class_name: "Event", foreign_key: :creator_id, dependent: :nullify, inverse_of: :creator
   has_many :event_responses, dependent: :destroy
   has_many :expenses_paid, class_name: "Expense", foreign_key: :spender_id, dependent: :nullify, inverse_of: :spender
+  has_many :settlements_made, class_name: "Settlement", foreign_key: :payer_id, dependent: :nullify, inverse_of: :payer
+  has_many :settlements_received, class_name: "Settlement", foreign_key: :payee_id, dependent: :nullify, inverse_of: :payee
   has_many :reminders_sent, class_name: "Reminder", foreign_key: :sender_id, dependent: :nullify, inverse_of: :sender
   has_many :reminders_received, class_name: "Reminder", foreign_key: :recipient_id, dependent: :nullify, inverse_of: :recipient
   has_many :expense_shares, dependent: :destroy

@@ -1,0 +1,58 @@
+<% content_for :title, "Settings" %>
+
+<div class="max-w-5xl mx-auto px-4 py-10 space-y-8">
+  <div>
+    <h1 class="text-3xl font-bold text-neutral-900">Settings</h1>
+    <p class="text-sm text-neutral-500 mt-2">Adjust your shared preferences and explore upcoming features.</p>
+  </div>
+
+  <%= form_with url: settings_path, method: :patch, scope: :settings, class: "space-y-8" do |form| %>
+    <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+      <div class="px-6 py-5 border-b border-neutral-100 bg-neutral-50">
+        <h2 class="text-xl font-semibold text-neutral-900">Financial preferences</h2>
+        <p class="text-sm text-neutral-500 mt-1">Set how new expenses and settlements should behave by default.</p>
+      </div>
+      <div class="p-6 space-y-6">
+        <%= form.fields_for :couple, @couple do |couple_fields| %>
+          <div class="space-y-2">
+            <%= couple_fields.label :default_currency, "Default currency", class: "block text-sm font-medium text-neutral-700" %>
+            <%= couple_fields.select :default_currency,
+                  CurrencyCatalog.options_for_select,
+                  { selected: @couple.default_currency },
+                  class: "w-full md:w-64 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
+            <p class="text-xs text-neutral-500">New expenses and settlements will pre-fill with this currency.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+      <div class="px-6 py-5 border-b border-neutral-100 bg-neutral-50">
+        <h2 class="text-xl font-semibold text-neutral-900">Appearance</h2>
+        <p class="text-sm text-neutral-500 mt-1">Dark mode is on the roadmap—set your preference now and we&apos;ll remember it.</p>
+      </div>
+      <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+        <div>
+          <p class="text-base font-medium text-neutral-900">Dark mode</p>
+          <p class="text-sm text-neutral-500 mt-1">Toggle your preference today. The visual update will roll out in a future release.</p>
+        </div>
+        <%= form.fields_for :user, @user do |user_fields| %>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-neutral-500">Off</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <%= user_fields.check_box :prefers_dark_mode, class: "sr-only peer" %>
+              <span class="w-12 h-6 bg-neutral-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-primary-300 peer-checked:bg-primary-500 transition-colors"></span>
+              <span class="absolute top-0.5 left-0.5 h-5 w-5 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-6"></span>
+              <span class="sr-only">Enable dark mode</span>
+            </label>
+            <span class="text-sm text-neutral-500">On</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex justify-end">
+      <%= form.submit "Save changes", class: "btn-primary px-6 py-3" %>
+    </div>
+  <% end %>
+</div>

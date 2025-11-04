@@ -1,0 +1,15 @@
+one:
+  couple: one
+  payer: one
+  payee: two
+  amount_cents: 1000
+  settled_on: 2025-10-26
+  notes: MyText
+
+two:
+  couple: one
+  payer: two
+  payee: one
+  amount_cents: 500
+  settled_on: 2025-10-25
+  notes: MyText

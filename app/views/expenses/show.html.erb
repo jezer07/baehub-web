@@ -4,14 +4,9 @@
     <%= link_to "← Back to expenses", expenses_path, class: "text-sm text-neutral-600 hover:text-primary-600 inline-flex items-center gap-1" %>
 
     <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
-      <div id="expense_header" class="p-8 <%= @expense.settled? ? 'bg-gradient-to-r from-success-50 to-success-100' : 'bg-gradient-to-r from-yellow-50 to-amber-50' %>">
+      <div id="expense_header" class="p-8 bg-gradient-to-r from-blue-50 to-indigo-50">
         <h1 class="text-3xl font-bold text-neutral-900 mb-3"><%= @expense.title %></h1>
         <div class="text-4xl font-bold text-neutral-900 mb-3"><%= @expense.formatted_amount %></div>
-        <div class="flex items-center gap-3 mb-2">
-          <span class="<%= expense_status_badge_class(@expense) %>">
-            <%= @expense.settled? ? "Settled" : "Unsettled" %>
-          </span>
-        </div>
         <p class="text-neutral-700">Incurred on <%= @expense.incurred_on.strftime("%B %d, %Y") %></p>
       </div>
 
@@ -46,16 +41,6 @@
 
           <div class="flex items-start gap-3">
             <svg class="w-5 h-5 text-neutral-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            <div>
-              <div class="text-sm font-medium text-neutral-500">Currency</div>
-              <div class="text-neutral-900"><%= @expense.currency %> (<%= @expense.currency_symbol %>)</div>
-            </div>
-          </div>
-
-          <div class="flex items-start gap-3">
-            <svg class="w-5 h-5 text-neutral-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
             <div>
@@ -63,18 +48,6 @@
               <div class="text-neutral-900"><%= @expense.incurred_on.strftime("%B %d, %Y") %></div>
             </div>
           </div>
-
-          <% if @expense.settled? %>
-            <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 text-success-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <div>
-                <div class="text-sm font-medium text-neutral-500">Settled date</div>
-                <div class="text-neutral-900"><%= @expense.settled_at.strftime("%B %d, %Y at %I:%M %p") %></div>
-              </div>
-            </div>
-          <% end %>
         </div>
 
         <div class="border-t border-neutral-100 pt-6 mt-6">
@@ -111,12 +84,8 @@
 
       <div id="expense_actions" class="px-8 py-6 bg-neutral-50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3 sm:justify-between">
         <%= link_to "Edit expense", edit_expense_path(@expense), class: "btn-secondary justify-center" %>
-        <% unless @expense.settled? %>
-          <%= button_to "Mark as settled", settle_expense_path(@expense), method: :patch, class: "btn-primary justify-center", data: { turbo_confirm: "Mark this expense as settled? This action cannot be undone." } %>
-        <% end %>
         <%= button_to "Delete expense", expense_path(@expense), method: :delete, data: { turbo_confirm: "Are you sure? This will delete the expense and all split records." }, class: "btn-secondary bg-error-600 text-white hover:bg-error-700 justify-center" %>
       </div>
     </div>
   </div>
 </div>
-

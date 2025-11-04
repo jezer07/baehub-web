@@ -1,11 +1,16 @@
 class ExpensesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
-  before_action :set_expense, only: [ :show, :edit, :update, :destroy, :settle ]
+  before_action :set_expense, only: [ :show, :edit, :update, :destroy ]
 
   def index
+    @balance_data = current_user.couple.calculate_balance
+
     @expenses = current_user.couple.expenses.includes(:spender, :expense_shares)
                            .order(incurred_on: :desc)
+
+    start_date = nil
+    end_date = nil
 
     if params[:start_date].present? && params[:end_date].present?
       start_date = Date.parse(params[:start_date]) rescue nil
@@ -17,9 +22,40 @@ class ExpensesController < ApplicationController
       @expenses = @expenses.by_spender(params[:spender_id])
     end
 
-    if params[:settled].present?
-      @expenses = params[:settled] == "true" ? @expenses.settled : @expenses.unsettled
+    recent_expenses_for_history = @expenses.includes(:spender, expense_shares: :user)
+                                          .order(incurred_on: :desc, created_at: :desc)
+                                          .limit(20)
+
+    @settlements = current_user.couple.settlements.includes(:payer, :payee)
+                              .order(settled_on: :desc, created_at: :desc)
+
+    if start_date && end_date
+      @settlements = @settlements.where(settled_on: start_date..end_date)
     end
+
+    @settlements = @settlements.limit(20)
+
+    transactions_from_expenses = recent_expenses_for_history.map do |expense|
+      {
+        type: :expense,
+        date: expense.incurred_on,
+        created_at: expense.created_at,
+        object: expense
+      }
+    end
+
+    transactions_from_settlements = @settlements.map do |settlement|
+      {
+        type: :settlement,
+        date: settlement.settled_on,
+        created_at: settlement.created_at,
+        object: settlement
+      }
+    end
+
+    @transactions = (transactions_from_expenses + transactions_from_settlements)
+      .sort_by { |t| [-t[:date].to_time.to_i, -t[:created_at].to_i] }
+      .take(20)
   end
 
   def show
@@ -113,29 +149,6 @@ class ExpensesController < ApplicationController
     end
   end
 
-  def settle
-    if @expense.settled?
-      respond_to do |format|
-        format.html { redirect_back(fallback_location: expense_path(@expense), notice: "Expense is already settled.") }
-        format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :notice, message: "Expense is already settled." }) }
-      end
-      return
-    end
-    Expense.transaction do
-      @expense.update!(settled_at: Time.current)
-      log_expense_activity("settled expense '#{@expense.title}' for #{@expense.formatted_amount}", @expense)
-      respond_to do |format|
-        format.html { redirect_back(fallback_location: expense_path(@expense), notice: "Expense marked as settled.") }
-        format.turbo_stream
-      end
-    end
-  rescue StandardError => e
-    respond_to do |format|
-      format.html { redirect_back(fallback_location: expense_path(@expense), alert: "Error settling expense: #{e.message}") }
-      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error settling expense: #{e.message}" }) }
-    end
-  end
-
   private
 
   def ensure_couple!
@@ -151,7 +164,7 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
-    params.require(:expense).permit(:title, :amount_cents, :currency, :incurred_on, :notes, :split_strategy, :spender_id)
+    params.require(:expense).permit(:title, :amount_cents, :incurred_on, :notes, :split_strategy, :spender_id)
   end
 
   def shares_params
