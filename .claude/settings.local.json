@@ -7,7 +7,10 @@
       "Bash(git push:*)",
       "Bash(git remote add:*)",
       "Read(//Users/jezer/**)",
-      "Bash(lazygit:*)"
+      "Bash(lazygit:*)",
+      "WebFetch(domain:resend.com)",
+      "Bash(bin/kamal setup:*)",
+      "Bash(docker buildx prune:*)"
     ],
     "deny": [],
     "ask": []
