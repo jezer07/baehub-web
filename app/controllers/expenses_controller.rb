@@ -22,10 +22,6 @@ class ExpensesController < ApplicationController
       @expenses = @expenses.by_spender(params[:spender_id])
     end
 
-    recent_expenses_for_history = @expenses.includes(:spender, expense_shares: :user)
-                                          .order(incurred_on: :desc, created_at: :desc)
-                                          .limit(20)
-
     @settlements = current_user.couple.settlements.includes(:payer, :payee)
                               .order(settled_on: :desc, created_at: :desc)
 
@@ -33,9 +29,11 @@ class ExpensesController < ApplicationController
       @settlements = @settlements.where(settled_on: start_date..end_date)
     end
 
-    @settlements = @settlements.limit(20)
+    if params[:spender_id].present?
+      @settlements = @settlements.where(payer_id: params[:spender_id])
+    end
 
-    transactions_from_expenses = recent_expenses_for_history.map do |expense|
+    transactions_from_expenses = @expenses.map do |expense|
       {
         type: :expense,
         date: expense.incurred_on,
@@ -55,7 +53,6 @@ class ExpensesController < ApplicationController
 
     @transactions = (transactions_from_expenses + transactions_from_settlements)
       .sort_by { |t| [-t[:date].to_time.to_i, -t[:created_at].to_i] }
-      .take(20)
   end
 
   def show
