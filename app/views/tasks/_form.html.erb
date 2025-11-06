@@ -51,11 +51,6 @@
     <%= f.collection_select :assignee_id, current_user.couple.users, :id, :name, { include_blank: "Unassigned" }, class: "w-full rounded-xl border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-primary-400" %>
   </div>
 
-  <div class="flex items-center gap-2">
-    <%= f.check_box :is_private, class: "rounded border-neutral-300 text-primary-600 focus:ring-primary-500" %>
-    <%= f.label :is_private, "Keep this task private", class: "text-sm text-neutral-700" %>
-  </div>
-
   <% if local_assigns[:redirect_to].present? %>
     <%= hidden_field_tag :redirect_to, local_assigns[:redirect_to] %>
   <% end %>

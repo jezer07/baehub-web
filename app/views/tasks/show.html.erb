@@ -95,12 +95,6 @@
               <dd class="text-neutral-700"><%= @task.completed_at.strftime("%b %d, %Y at %l:%M %p") %></dd>
             </div>
           <% end %>
-
-          <!-- Private -->
-          <div>
-            <dt class="text-sm font-medium text-neutral-500 mb-1">Private</dt>
-            <dd class="text-neutral-700"><%= @task.is_private ? "Yes" : "No" %></dd>
-          </div>
         </div>
       </div>
 

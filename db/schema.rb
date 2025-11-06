@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_10_26_070352) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_07_020056) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -158,7 +158,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_10_26_070352) do
     t.integer "creator_id", null: false
     t.text "description"
     t.datetime "due_at"
-    t.boolean "is_private", default: false, null: false
     t.integer "priority", default: 0, null: false
     t.integer "status", default: 0, null: false
     t.string "title", null: false

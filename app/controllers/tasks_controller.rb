@@ -122,7 +122,7 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.require(:task).permit(:title, :description, :status, :priority, :due_at, :is_private, :assignee_id)
+    params.require(:task).permit(:title, :description, :status, :priority, :due_at, :assignee_id)
   end
 
   def log_task_activity(action, task)

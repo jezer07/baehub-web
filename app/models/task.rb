@@ -15,7 +15,6 @@ class Task < ApplicationRecord
   validate :assignee_in_same_couple
   validate :cannot_transition_from_archived
 
-  scope :shared, -> { where(is_private: false) }
   scope :assigned_to, ->(user_id) { where(assignee_id: user_id) }
   scope :upcoming, -> { where("due_at IS NULL OR due_at >= ?", Time.current.beginning_of_day) }
   scope :by_status, ->(status) { where(status: status) if status.present? }
