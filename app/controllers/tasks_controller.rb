@@ -75,24 +75,12 @@ class TasksController < ApplicationController
           format.turbo_stream
         end
       else
-        respond_to do |format|
-          format.html do
-            flash.now[:alert] = @task.errors.full_messages.to_sentence
-            render :edit, status: :unprocessable_entity
-          end
-          format.turbo_stream { render :edit, status: :unprocessable_entity }
-        end
+        render_edit_with_errors
       end
     end
   rescue StandardError => e
     @task.errors.add(:base, e.message)
-    respond_to do |format|
-      format.html do
-        flash.now[:alert] = @task.errors.full_messages.to_sentence
-        render :edit, status: :unprocessable_entity
-      end
-      format.turbo_stream { render :edit, status: :unprocessable_entity }
-    end
+    render_edit_with_errors
   end
 
   def destroy
@@ -156,5 +144,15 @@ class TasksController < ApplicationController
       subject: task,
       metadata: { origin: "tasks" }
     )
+  end
+
+  def render_edit_with_errors
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = @task.errors.full_messages.to_sentence
+        render :edit, status: :unprocessable_entity
+      end
+      format.turbo_stream { render :edit, status: :unprocessable_entity }
+    end
   end
 end
