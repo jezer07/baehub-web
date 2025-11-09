@@ -13,19 +13,19 @@
           <h3 class="text-lg font-semibold text-neutral-800 border-b pb-2">Profile Information</h3>
 
           <div>
-            <%= f.label :name, class: "block text-sm font-medium text-neutral-700 mb-2" %>
-            <%= f.text_field :name, autofocus: true, class: "input-field" %>
+            <%= f.label :name, class: "form-label" %>
+            <%= f.text_field :name, autofocus: true, class: "form-control w-full px-4 py-3" %>
           </div>
 
           <div>
-            <%= f.label :email, class: "block text-sm font-medium text-neutral-700 mb-2" %>
-            <%= f.email_field :email, autocomplete: "email", class: "input-field" %>
+            <%= f.label :email, class: "form-label" %>
+            <%= f.email_field :email, autocomplete: "email", class: "form-control w-full px-4 py-3" %>
           </div>
 
           <div>
-            <%= f.label :avatar_url, "Avatar URL", class: "block text-sm font-medium text-neutral-700 mb-2" %>
-            <%= f.text_field :avatar_url, class: "input-field" %>
-            <p class="mt-1 text-sm text-neutral-500">Add a link to your profile picture</p>
+            <%= f.label :avatar_url, "Avatar URL", class: "form-label" %>
+            <%= f.text_field :avatar_url, class: "form-control w-full px-4 py-3" %>
+            <p class="form-help">Add a link to your profile picture</p>
           </div>
         </div>
 
@@ -34,16 +34,16 @@
           <p class="text-sm text-neutral-500">Leave password fields blank if you don't want to change it</p>
 
           <div>
-            <%= f.label :password, "New password", class: "block text-sm font-medium text-neutral-700 mb-2" %>
-            <%= f.password_field :password, autocomplete: "new-password", class: "input-field" %>
+            <%= f.label :password, "New password", class: "form-label" %>
+            <%= f.password_field :password, autocomplete: "new-password", class: "form-control w-full px-4 py-3" %>
             <% if @minimum_password_length %>
-              <p class="mt-1 text-sm text-neutral-500">Minimum <%= @minimum_password_length %> characters</p>
+              <p class="form-help">Minimum <%= @minimum_password_length %> characters</p>
             <% end %>
           </div>
 
           <div>
-            <%= f.label :password_confirmation, "Confirm new password", class: "block text-sm font-medium text-neutral-700 mb-2" %>
-            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input-field" %>
+            <%= f.label :password_confirmation, "Confirm new password", class: "form-label" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control w-full px-4 py-3" %>
           </div>
         </div>
 
@@ -52,8 +52,8 @@
           <p class="text-sm text-neutral-500">We need your current password to confirm your changes</p>
 
           <div>
-            <%= f.label :current_password, class: "block text-sm font-medium text-neutral-700 mb-2" %>
-            <%= f.password_field :current_password, autocomplete: "current-password", class: "input-field" %>
+            <%= f.label :current_password, class: "form-label" %>
+            <%= f.password_field :current_password, autocomplete: "current-password", class: "form-control w-full px-4 py-3" %>
           </div>
         </div>
 
@@ -65,7 +65,7 @@
       <div class="mt-8 pt-8 border-t border-neutral-200">
         <h3 class="text-lg font-semibold text-neutral-800 mb-4">Delete Account</h3>
         <p class="text-sm text-neutral-600 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-        <%= button_to "Delete my account", registration_path(resource_name), data: { turbo_method: :delete, turbo_confirm: "Are you sure? This action cannot be undone." }, class: "inline-flex items-center px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors" %>
+        <%= button_to "Delete my account", registration_path(resource_name), data: { turbo_method: :delete, turbo_confirm: "Are you sure? This action cannot be undone." }, class: "btn-danger" %>
       </div>
     </div>
 

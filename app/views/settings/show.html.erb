@@ -15,12 +15,12 @@
       <div class="p-6 space-y-6">
         <%= form.fields_for :couple, @couple do |couple_fields| %>
           <div class="space-y-2">
-            <%= couple_fields.label :default_currency, "Default currency", class: "block text-sm font-medium text-neutral-700" %>
+            <%= couple_fields.label :default_currency, "Default currency", class: "form-label" %>
             <%= couple_fields.select :default_currency,
                   CurrencyCatalog.options_for_select,
                   { selected: @couple.default_currency },
-                  class: "w-full md:w-64 px-4 py-3 rounded-xl border border-neutral-200 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all" %>
-            <p class="text-xs text-neutral-500">New expenses and settlements will pre-fill with this currency.</p>
+                  class: "form-control w-full md:w-64 px-4 py-3" %}
+            <p class="form-help">New expenses and settlements will pre-fill with this currency.</p>
           </div>
         <% end %>
       </div>
@@ -52,7 +52,7 @@
     </div>
 
     <div class="flex justify-end">
-      <%= form.submit "Save changes", class: "btn-primary px-6 py-3" %>
+      <%= form.submit "Save changes", class: "btn-primary" %>
     </div>
   <% end %>
 </div>

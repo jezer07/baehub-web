@@ -7,6 +7,22 @@ module.exports = {
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
   ],
+  safelist: [
+    'form-control',
+    'form-checkbox',
+    'form-radio',
+    'form-label',
+    'form-help',
+    'form-hint',
+    'form-error-wrapper',
+    'form-error-title',
+    'form-error-list',
+    'btn-primary',
+    'btn-secondary',
+    'btn-danger',
+    'btn-ghost',
+    'card',
+  ],
   theme: {
     extend: {
       colors: {

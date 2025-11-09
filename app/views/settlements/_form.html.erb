@@ -5,11 +5,11 @@
 
 <%= form_with(model: settlement, local: true, class: "space-y-6") do |form| %>
   <% if settlement.errors.any? %>
-    <div class="bg-red-50 border border-red-200 rounded-xl p-4">
-      <h3 class="text-sm font-semibold text-red-800 mb-2">
+    <div class="form-error-wrapper">
+      <h3 class="form-error-title">
         <%= pluralize(settlement.errors.count, "error") %> prevented this settlement from being saved:
       </h3>
-      <ul class="list-disc list-inside text-sm text-red-700 space-y-1">
+      <ul class="form-error-list">
         <% settlement.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -19,16 +19,16 @@
   <div class="space-y-6">
     <%= form.hidden_field :payee_id, id: "settlement_payee_id", value: settlement.payer_id == current_user.id ? partner.id : current_user.id %>
     <div class="bg-blue-50 rounded-xl p-4 border border-blue-200">
-      <label class="block text-sm font-medium text-neutral-700 mb-3">Who paid whom?</label>
+      <label class="form-label">Who paid whom?</label>
       <div class="space-y-3">
-        <label class="flex items-center p-3 bg-white rounded-lg border-2 border-neutral-200 cursor-pointer hover:border-primary-400 transition-colors">
-          <%= form.radio_button :payer_id, current_user.id, checked: settlement.payer_id == current_user.id, class: "text-primary-600 focus:ring-primary-500" %>
+        <label class="flex items-center p-3 bg-white rounded-xl border-2 border-neutral-300 cursor-pointer hover:border-primary-500 transition-all duration-200">
+          <%= form.radio_button :payer_id, current_user.id, checked: settlement.payer_id == current_user.id, class: "form-radio" %>
           <span class="ml-3 text-sm font-medium text-neutral-900">
             I paid <%= partner.name %>
           </span>
         </label>
-        <label class="flex items-center p-3 bg-white rounded-lg border-2 border-neutral-200 cursor-pointer hover:border-primary-400 transition-colors">
-          <%= form.radio_button :payer_id, partner.id, checked: settlement.payer_id == partner.id, class: "text-primary-600 focus:ring-primary-500" %>
+        <label class="flex items-center p-3 bg-white rounded-xl border-2 border-neutral-300 cursor-pointer hover:border-primary-500 transition-all duration-200">
+          <%= form.radio_button :payer_id, partner.id, checked: settlement.payer_id == partner.id, class: "form-radio" %>
           <span class="ml-3 text-sm font-medium text-neutral-900">
             <%= partner.name %> paid me
           </span>
@@ -62,7 +62,7 @@
     </script>
     <!-- Amount -->
     <div>
-      <label for="settlement_amount_dollars" class="block text-sm font-medium text-neutral-700 mb-2">
+      <label for="settlement_amount_dollars" class="form-label">
         Amount
       </label>
       <div class="relative">
@@ -70,38 +70,38 @@
         <%= form.number_field :amount_dollars,
             step: 0.01,
             placeholder: "0.00",
-            class: "w-full pl-8 pr-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-lg",
+            class: "form-control w-full pl-8 pr-4 py-3 text-lg",
             required: true,
             min: 0.01 %>
       </div>
-      <p class="mt-1 text-xs text-neutral-500">Enter the payment amount in your shared currency.</p>
+      <p class="form-help">Enter the payment amount in your shared currency.</p>
     </div>
     <!-- Date -->
     <div>
-      <label for="settlement_settled_on" class="block text-sm font-medium text-neutral-700 mb-2">
+      <label for="settlement_settled_on" class="form-label">
         Date
       </label>
       <%= form.date_field :settled_on,
-          class: "w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
+          class: "form-control w-full px-4 py-3",
           required: true %>
     </div>
     <!-- Notes (Optional) -->
     <div>
-      <label for="settlement_notes" class="block text-sm font-medium text-neutral-700 mb-2">
+      <label for="settlement_notes" class="form-label">
         Notes <span class="text-neutral-400 font-normal">(optional)</span>
       </label>
       <%= form.text_area :notes,
           rows: 3,
           placeholder: "Add any notes about this payment...",
-          class: "w-full px-4 py-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none" %>
+          class: "form-control w-full px-4 py-3" %>
     </div>
     <!-- Actions -->
     <div class="flex gap-3 pt-4">
       <%= form.submit settlement.new_record? ? "Record Payment" : "Update Payment",
-          class: "flex-1 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all shadow-lg shadow-primary-600/30" %>
+          class: "btn-primary flex-1" %>
       <%= link_to "Cancel",
           expenses_path,
-          class: "px-6 py-3 border-2 border-neutral-300 text-neutral-700 rounded-xl font-semibold hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 transition-all" %>
+          class: "btn-secondary" %>
     </div>
   </div>
 <% end %>

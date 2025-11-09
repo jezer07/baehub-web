@@ -10,9 +10,9 @@
         <%= render "devise/shared/error_messages", resource: resource %>
 
         <div>
-          <%= f.label :email, class: "block text-sm font-medium text-neutral-700 mb-2" %>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input-field" %>
-          <p class="mt-1 text-sm text-neutral-500">Enter your email address and we'll send you instructions to reset your password</p>
+          <%= f.label :email, class: "form-label" %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control w-full px-4 py-3" %>
+          <p class="form-help">Enter your email address and we'll send you instructions to reset your password</p>
         </div>
 
         <div>
@@ -20,9 +20,8 @@
         </div>
       <% end %>
 
-      <div class="mt-6 text-center space-y-2">
-        <%= link_to "← Back to sign in", new_session_path(resource_name), class: "text-sm text-primary-600 hover:text-primary-700 block" %>
-        <%= link_to "Don't have an account? Sign up", new_registration_path(resource_name), class: "text-sm text-primary-600 hover:text-primary-700 block" %>
+      <div class="mt-6">
+        <%= render "devise/shared/links" %>
       </div>
     </div>
   </div>
