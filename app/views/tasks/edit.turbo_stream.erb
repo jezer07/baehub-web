@@ -1,0 +1,3 @@
+<%= turbo_stream.replace "task_#{@task.id}" do %>
+  <%= render "task_item_form", task: @task, frame_id: "task_#{@task.id}" %>
+<% end %>

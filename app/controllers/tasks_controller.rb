@@ -53,6 +53,10 @@ class TasksController < ApplicationController
   end
 
   def edit
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def update
@@ -66,26 +70,45 @@ class TasksController < ApplicationController
           "updated task '#{@task.title}'"
         end
         log_task_activity(activity_message, @task)
-        redirect_to @task, notice: "Task updated successfully."
+        respond_to do |format|
+          format.html { redirect_to @task, notice: "Task updated successfully." }
+          format.turbo_stream
+        end
       else
-        flash.now[:alert] = @task.errors.full_messages.to_sentence
-        render :edit, status: :unprocessable_entity
+        respond_to do |format|
+          format.html do
+            flash.now[:alert] = @task.errors.full_messages.to_sentence
+            render :edit, status: :unprocessable_entity
+          end
+          format.turbo_stream { render :edit, status: :unprocessable_entity }
+        end
       end
     end
   rescue StandardError => e
     @task.errors.add(:base, e.message)
-    flash.now[:alert] = @task.errors.full_messages.to_sentence
-    render :edit, status: :unprocessable_entity
+    respond_to do |format|
+      format.html do
+        flash.now[:alert] = @task.errors.full_messages.to_sentence
+        render :edit, status: :unprocessable_entity
+      end
+      format.turbo_stream { render :edit, status: :unprocessable_entity }
+    end
   end
 
   def destroy
     Task.transaction do
       @task.destroy
       log_task_activity("deleted task '#{@task.title}'", @task)
-      redirect_to tasks_path, notice: "Task deleted successfully."
+      respond_to do |format|
+        format.html { redirect_to tasks_path, notice: "Task deleted successfully." }
+        format.turbo_stream
+      end
     end
   rescue StandardError => e
-    redirect_to tasks_path, alert: "Error deleting task: #{e.message}"
+    respond_to do |format|
+      format.html { redirect_to tasks_path, alert: "Error deleting task: #{e.message}" }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error deleting task: #{e.message}" }) }
+    end
   end
 
   def toggle_completion

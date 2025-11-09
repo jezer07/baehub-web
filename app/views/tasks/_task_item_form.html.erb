@@ -1,0 +1,59 @@
+<%
+  frame_id = local_assigns.fetch(:frame_id, "task_#{task.id}")
+%>
+
+<%= turbo_frame_tag frame_id do %>
+  <li class="flex flex-col gap-4 rounded-2xl border border-primary-200 bg-primary-50 px-6 py-4" data-controller="task-item" data-task-item-task-id-value="<%= task.id %>" data-task-item-frame-id-value="<%= frame_id %>">
+    <% if task.errors.any? %>
+      <div class="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+        <p class="text-sm font-medium text-red-800">
+          <%= pluralize(task.errors.count, "error") %> prohibited this from being saved:
+        </p>
+        <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+          <% task.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: task, class: "space-y-4" do |f| %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <%= f.label :title, "Task title", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+          <%= f.text_field :title, required: true, autofocus: true, class: "w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+        </div>
+
+        <div class="md:col-span-2">
+          <%= f.label :description, "Description (optional)", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+          <%= f.text_area :description, rows: 3, class: "w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :status, "Status", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+          <%= f.select :status, Task.statuses.keys.map { |s| [s.humanize, s] }, {}, class: "w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :priority, "Priority", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+          <%= f.select :priority, Task.priorities.keys.map { |p| [p.humanize, p] }, {}, class: "w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :due_at, "Due date (optional)", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+          <%= f.datetime_local_field :due_at, class: "w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+        </div>
+
+        <div>
+          <%= f.label :assignee_id, "Assign to (optional)", class: "block text-sm font-medium text-neutral-700 mb-1" %>
+          <%= f.collection_select :assignee_id, current_user.couple.users, :id, :name, { include_blank: "Unassigned" }, class: "w-full px-3 py-2 text-sm border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" %>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <%= link_to "Cancel", task_path(task), data: { turbo_frame: frame_id }, class: "px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors" %>
+        <%= f.submit "Save changes", class: "px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors" %>
+      </div>
+    <% end %>
+  </li>
+<% end %>
