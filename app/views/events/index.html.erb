@@ -36,19 +36,19 @@
             ["Past", "past"],
             ["This week", "this_week"],
             ["Future", "future"]
-          ], params[:filter]), {}, class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400 focus:ring-opacity-20 transition-colors" %>
+          ], params[:filter]), {}, class: "form-control w-full px-4 py-3" %>
         </div>
 
         <div>
-          <%= f.text_field :category, value: params[:category], placeholder: "Filter by category", class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400 focus:ring-opacity-20 transition-colors" %>
+          <%= f.text_field :category, value: params[:category], placeholder: "Filter by category", class: "form-control w-full px-4 py-3" %>
         </div>
 
         <div>
-          <%= f.date_field :start_date, value: params[:start_date], placeholder: "Start date", class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400 focus:ring-opacity-20 transition-colors" %>
+          <%= f.date_field :start_date, value: params[:start_date], placeholder: "Start date", class: "form-control w-full px-4 py-3" %>
         </div>
 
         <div>
-          <%= f.date_field :end_date, value: params[:end_date], placeholder: "End date", class: "w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-400 focus:ring-opacity-20 transition-colors" %>
+          <%= f.date_field :end_date, value: params[:end_date], placeholder: "End date", class: "form-control w-full px-4 py-3" %>
         </div>
 
         <div class="md:col-span-4">
