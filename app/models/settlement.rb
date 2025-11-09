@@ -62,5 +62,4 @@ class Settlement < ApplicationRecord
       errors.add(:payee, "must belong to the couple")
     end
   end
-
 end

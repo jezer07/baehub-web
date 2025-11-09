@@ -52,7 +52,7 @@ class ExpensesController < ApplicationController
     end
 
     @transactions = (transactions_from_expenses + transactions_from_settlements)
-      .sort_by { |t| [-t[:date].to_time.to_i, -t[:created_at].to_i] }
+      .sort_by { |t| [ -t[:date].to_time.to_i, -t[:created_at].to_i ] }
   end
 
   def show

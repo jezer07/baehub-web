@@ -14,7 +14,7 @@ end
 
 class ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
-  
+
   teardown do
     Warden.test_reset!
   end

@@ -1,13 +1,13 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
-  before_action :set_event, only: [:show, :edit, :update, :destroy]
-  before_action :build_recurrence_rule, only: [:create, :update]
+  before_action :set_event, only: [ :show, :edit, :update, :destroy ]
+  before_action :build_recurrence_rule, only: [ :create, :update ]
 
   def index
     @events = current_user.couple.events.includes(:event_responses, :creator)
     @events = @events.by_category(params[:category]) if params[:category].present?
-    
+
     if params[:start_date].present? && params[:end_date].present?
       begin
         start_date = params[:start_date].to_date
@@ -56,7 +56,7 @@ class EventsController < ApplicationController
   def new
     @event = current_user.couple.events.build
     @event.creator = current_user
-    
+
     default_start_time = Time.current.in_time_zone(current_user.couple.timezone).change(min: 0, sec: 0) + 1.hour
     @event.starts_at = default_start_time
     @event.ends_at = default_start_time + 1.hour
@@ -65,11 +65,11 @@ class EventsController < ApplicationController
   def create
     @event = current_user.couple.events.build(event_params)
     @event.creator = current_user
-    
+
     if @recurrence_rule_to_assign
       @event.recurrence_rule = @recurrence_rule_to_assign
     end
-    
+
     normalize_event_times
 
     Event.transaction do
@@ -144,14 +144,14 @@ class EventsController < ApplicationController
     return if current_user.couple
 
     redirect_to new_pairing_path, alert: "Create your shared space before managing events."
-    return
+    nil
   end
 
   def set_event
     @event = current_user.couple.events.includes(:event_responses, :creator).find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to events_path, alert: "Event not found."
-    return
+    nil
   end
 
   def event_params
@@ -172,7 +172,7 @@ class EventsController < ApplicationController
     return unless @event.all_day
 
     couple_timezone = current_user.couple.timezone
-    
+
     if @event.starts_at.present?
       @event.starts_at = @event.starts_at.in_time_zone(couple_timezone).beginning_of_day
     end
@@ -192,7 +192,7 @@ class EventsController < ApplicationController
     interval = params[:event].delete(:recurrence_interval)
     end_date = params[:event].delete(:recurrence_end_date)
 
-    if recurring == '0'
+    if recurring == "0"
       @recurrence_rule_to_assign = nil
       @event.recurrence_rule = nil if @event
       return
@@ -202,7 +202,7 @@ class EventsController < ApplicationController
       interval = interval.presence || "1"
       end_date = end_date.presence || "never"
       built_rule = "#{frequency}:#{interval}:#{end_date}"
-      
+
       if @event
         @event.recurrence_rule = built_rule
       else
@@ -214,4 +214,3 @@ class EventsController < ApplicationController
     end
   end
 end
-

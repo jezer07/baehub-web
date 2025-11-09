@@ -93,7 +93,7 @@ class Couple < ApplicationRecord
 
         pos_net = user_balances[positive_balance_user_id][:net].abs
         neg_net = user_balances[negative_balance_user_id][:net].abs
-        amount_cents = [pos_net, neg_net].min
+        amount_cents = [ pos_net, neg_net ].min
 
         summary << {
           currency: currency,

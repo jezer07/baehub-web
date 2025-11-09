@@ -2,11 +2,11 @@ class EventResponsesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
   before_action :set_event
-  before_action :set_event_response, only: [:update]
+  before_action :set_event_response, only: [ :update ]
 
   def create
     status_param = event_response_params[:status]
-    
+
     unless EventResponse.statuses.key?(status_param)
       respond_to do |format|
         format.html { redirect_to event_path(@event), alert: "Invalid RSVP status." }
@@ -43,7 +43,7 @@ class EventResponsesController < ApplicationController
 
   def update
     status_param = event_response_params[:status]
-    
+
     unless EventResponse.statuses.key?(status_param)
       respond_to do |format|
         format.html { redirect_to event_path(@event), alert: "Invalid RSVP status." }
@@ -83,26 +83,26 @@ class EventResponsesController < ApplicationController
     return if current_user.couple
 
     redirect_to new_pairing_path, alert: "Create your shared space before managing events."
-    return
+    nil
   end
 
   def set_event
     @event = current_user.couple.events.find(params[:event_id])
   rescue ActiveRecord::RecordNotFound
     redirect_to events_path, alert: "Event not found."
-    return
+    nil
   end
 
   def set_event_response
     @event_response = @event.event_responses.find(params[:id])
-    
+
     unless @event_response.user_id == current_user.id
       redirect_to event_path(@event), alert: "You can only manage your own responses."
-      return
+      nil
     end
   rescue ActiveRecord::RecordNotFound
     redirect_to event_path(@event), alert: "Response not found."
-    return
+    nil
   end
 
   def event_response_params
@@ -119,4 +119,3 @@ class EventResponsesController < ApplicationController
     )
   end
 end
-

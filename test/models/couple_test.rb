@@ -27,15 +27,15 @@ class CoupleTest < ActiveSupport::TestCase
       incurred_on: Date.today,
       split_strategy: :equal
     )
-    
+
     expense.expense_shares.create!(user: @user_a, percentage: 50)
     expense.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_b, summary[:debtor]
     assert_equal @user_a, summary[:creditor]
     assert_equal 5_000, summary[:amount_cents]
@@ -52,7 +52,7 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense_a.expense_shares.create!(user: @user_a, percentage: 50)
     expense_a.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     expense_b = @couple.expenses.create!(
       spender: @user_b,
       title: "Dinner",
@@ -62,12 +62,12 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense_b.expense_shares.create!(user: @user_a, percentage: 50)
     expense_b.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_b, summary[:debtor]
     assert_equal @user_a, summary[:creditor]
     assert_equal 1_000, summary[:amount_cents]
@@ -84,19 +84,19 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense.expense_shares.create!(user: @user_a, percentage: 50)
     expense.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     @couple.settlements.create!(
       payer: @user_b,
       payee: @user_a,
       amount_cents: 3_000,
       settled_on: Date.today
     )
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_b, summary[:debtor]
     assert_equal @user_a, summary[:creditor]
     assert_equal 2_000, summary[:amount_cents]
@@ -112,16 +112,16 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense.expense_shares.create!(user: @user_a, percentage: 50)
     expense.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     @couple.settlements.create!(
       payer: @user_b,
       payee: @user_a,
       amount_cents: 5_000,
       settled_on: Date.today
     )
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 0, balance_data[:summary].length
   end
 
@@ -135,19 +135,19 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense.expense_shares.create!(user: @user_a, percentage: 50)
     expense.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     @couple.settlements.create!(
       payer: @user_b,
       payee: @user_a,
       amount_cents: 10_000,
       settled_on: Date.today
     )
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_a, summary[:debtor]
     assert_equal @user_b, summary[:creditor]
     assert_equal 5_000, summary[:amount_cents]
@@ -183,7 +183,7 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense_1.expense_shares.create!(user: @user_a, percentage: 50)
     expense_1.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     expense_2 = @couple.expenses.create!(
       spender: @user_b,
       title: "Utilities",
@@ -193,14 +193,14 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense_2.expense_shares.create!(user: @user_a, percentage: 50)
     expense_2.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     @couple.settlements.create!(
       payer: @user_b,
       payee: @user_a,
       amount_cents: 30_000,
       settled_on: Date.today - 1
     )
-    
+
     expense_3 = @couple.expenses.create!(
       spender: @user_a,
       title: "Groceries",
@@ -210,12 +210,12 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense_3.expense_shares.create!(user: @user_a, percentage: 50)
     expense_3.expense_shares.create!(user: @user_b, percentage: 50)
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_b, summary[:debtor]
     assert_equal @user_a, summary[:creditor]
     assert_equal 17_500, summary[:amount_cents]
@@ -224,7 +224,7 @@ class CoupleTest < ActiveSupport::TestCase
 
   test "calculate_balance empty state with no expenses or settlements" do
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 0, balance_data[:summary].length
     assert_equal({}, balance_data[:balances_by_currency])
   end
@@ -239,12 +239,12 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense.expense_shares.create!(user: @user_a, percentage: 70)
     expense.expense_shares.create!(user: @user_b, percentage: 30)
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_b, summary[:debtor]
     assert_equal @user_a, summary[:creditor]
     assert_equal 3_000, summary[:amount_cents]
@@ -260,12 +260,12 @@ class CoupleTest < ActiveSupport::TestCase
     )
     expense.expense_shares.create!(user: @user_a, amount_cents: 6_000)
     expense.expense_shares.create!(user: @user_b, amount_cents: 4_000)
-    
+
     balance_data = @couple.calculate_balance
-    
+
     assert_equal 1, balance_data[:summary].length
     summary = balance_data[:summary].first
-    
+
     assert_equal @user_b, summary[:debtor]
     assert_equal @user_a, summary[:creditor]
     assert_equal 4_000, summary[:amount_cents]
@@ -280,9 +280,9 @@ class CoupleTest < ActiveSupport::TestCase
       password_confirmation: "password123",
       couple: single_couple
     )
-    
+
     balance_data = single_couple.calculate_balance
-    
+
     assert_equal 0, balance_data[:summary].length
     assert_equal({}, balance_data[:balances_by_currency])
   end

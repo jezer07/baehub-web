@@ -19,7 +19,7 @@ class Task < ApplicationRecord
   scope :upcoming, -> { where("due_at IS NULL OR due_at >= ?", Time.current.beginning_of_day) }
   scope :by_status, ->(status) { where(status: status) if status.present? }
   scope :recent, -> { order(created_at: :desc) }
-  scope :by_due_date, -> { order(Arel.sql('CASE WHEN due_at IS NULL THEN 1 ELSE 0 END, due_at ASC')) }
+  scope :by_due_date, -> { order(Arel.sql("CASE WHEN due_at IS NULL THEN 1 ELSE 0 END, due_at ASC")) }
 
   before_save :sync_completion_timestamp
 

@@ -40,7 +40,7 @@ class Event < ApplicationRecord
 
   def in_progress?
     return false if ends_at.blank?
-    
+
     current_time = Time.current
     current_time >= starts_at && current_time <= ends_at
   end
@@ -245,7 +245,7 @@ class Event < ApplicationRecord
     interval = parts[1]
     end_date = parts[2]
 
-    valid_frequencies = ["daily", "weekly", "monthly", "yearly"]
+    valid_frequencies = [ "daily", "weekly", "monthly", "yearly" ]
     unless valid_frequencies.include?(frequency)
       errors.add(:recurrence_rule, "frequency must be one of: #{valid_frequencies.join(', ')}")
     end

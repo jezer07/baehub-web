@@ -5,7 +5,7 @@ class ExpenseShare < ApplicationRecord
   validates :expense, uniqueness: { scope: :user_id }, if: -> { user_id.present? }
   validates :percentage, numericality: { greater_than: 0, less_than_or_equal_to: 100 }, if: -> { percentage.present? }
   validates :amount_cents, numericality: { greater_than: 0 }, if: -> { amount_cents.present? }
-  
+
   validate :value_presence
   validate :user_in_same_couple
 
