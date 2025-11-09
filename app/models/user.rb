@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :reminders_received, class_name: "Reminder", foreign_key: :recipient_id, dependent: :nullify, inverse_of: :recipient
   has_many :expense_shares, dependent: :destroy
   has_many :activity_logs, dependent: :nullify
+  has_many :api_tokens, dependent: :destroy
 
   enum :role, { partner: "partner", solo: "solo" }, default: :partner, validate: true
 

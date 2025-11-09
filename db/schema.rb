@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_07_020056) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_09_051725) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -24,6 +24,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_07_020056) do
     t.index ["couple_id"], name: "index_activity_logs_on_couple_id"
     t.index ["subject_type", "subject_id"], name: "index_activity_logs_on_subject"
     t.index ["user_id"], name: "index_activity_logs_on_user_id"
+  end
+
+  create_table "api_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "device_info"
+    t.datetime "expires_at"
+    t.datetime "last_used_at"
+    t.string "token", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["expires_at"], name: "index_api_tokens_on_expires_at"
+    t.index ["token"], name: "index_api_tokens_on_token", unique: true
+    t.index ["user_id"], name: "index_api_tokens_on_user_id"
   end
 
   create_table "couples", force: :cascade do |t|
@@ -197,6 +210,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_07_020056) do
 
   add_foreign_key "activity_logs", "couples"
   add_foreign_key "activity_logs", "users"
+  add_foreign_key "api_tokens", "users"
   add_foreign_key "event_responses", "events"
   add_foreign_key "event_responses", "users"
   add_foreign_key "events", "couples"
