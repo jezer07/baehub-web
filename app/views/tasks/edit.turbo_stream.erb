@@ -1,3 +1,7 @@
-<%= turbo_stream.replace "task_#{@task.id}" do %>
-  <%= render "task_item_form", task: @task, frame_id: "task_#{@task.id}" %>
+<%
+  frame_id = request.headers["Turbo-Frame"] || "task_#{@task.id}"
+%>
+
+<%= turbo_stream.replace frame_id do %>
+  <%= render "task_item_form", task: @task, frame_id: frame_id %>
 <% end %>

@@ -1,0 +1,5 @@
+one:
+  name: Test Couple
+  slug: testcouple
+  default_currency: USD
+  timezone: UTC

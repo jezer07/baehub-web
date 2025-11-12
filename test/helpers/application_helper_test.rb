@@ -1,8 +1,6 @@
 require "test_helper"
 
-class ApplicationHelperTest < ActiveSupport::TestCase
-  include ApplicationHelper
-
+class ApplicationHelperTest < ActionView::TestCase
   self.use_transactional_tests = false
 
   def setup

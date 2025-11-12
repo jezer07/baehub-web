@@ -1,11 +1,13 @@
 one:
   email: user_one@example.com
   name: User One
-  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  encrypted_password: "$2a$04$N4QdHdNE3rGKMa.ZSUQKGO0NhvT3PvLc/nH0zTQRGPQu0R3/N0t6K"
   role: partner
+  couple: one
 
 two:
   email: user_two@example.com
   name: User Two
-  encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
+  encrypted_password: "$2a$04$N4QdHdNE3rGKMa.ZSUQKGO0NhvT3PvLc/nH0zTQRGPQu0R3/N0t6K"
   role: partner
+  couple: one

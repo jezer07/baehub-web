@@ -130,12 +130,12 @@ class Couple < ApplicationRecord
 
   def normalize_default_currency
     normalized = default_currency.to_s.upcase
-    normalized = CurrencyCatalog.default_code if normalized.blank?
 
-    unless CurrencyCatalog.codes.include?(normalized)
-      normalized = CurrencyCatalog.default_code
+    if normalized.blank?
+      self.default_currency = CurrencyCatalog.default_code
+    elsif CurrencyCatalog.codes.include?(normalized)
+      self.default_currency = normalized
     end
-
-    self.default_currency = normalized
+    # Don't auto-correct invalid currencies - let validation handle them
   end
 end

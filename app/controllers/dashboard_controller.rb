@@ -19,4 +19,5 @@ class DashboardController < ApplicationController
 
     redirect_to new_pairing_path, notice: "Let’s link you with your person before exploring the dashboard."
   end
+
 end

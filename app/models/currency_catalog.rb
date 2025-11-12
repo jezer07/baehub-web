@@ -1,3 +1,4 @@
+# encoding: utf-8
 module CurrencyCatalog
   SUPPORTED_CURRENCIES = {
     "USD" => { symbol: "$" },

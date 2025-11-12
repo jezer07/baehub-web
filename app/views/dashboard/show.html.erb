@@ -49,9 +49,9 @@
         </div>
 
         <% if @tasks.any? %>
-          <ul class="space-y-4">
+          <ul class="space-y-6">
             <% @tasks.each do |task| %>
-              <%= render "tasks/task_item", task: task, show_link: true, compact: true, frame_id: "dashboard_task_#{task.id}" %>
+              <%= render "tasks/task_item", task: task, compact: false, frame_id: "dashboard_task_#{task.id}" %>
             <% end %>
           </ul>
         <% else %>

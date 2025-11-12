@@ -1,0 +1,19 @@
+one:
+  expense: one
+  user: one
+  percentage: 50.0
+
+two:
+  expense: one
+  user: two
+  percentage: 50.0
+
+three:
+  expense: two
+  user: one
+  percentage: 50.0
+
+four:
+  expense: two
+  user: two
+  percentage: 50.0

@@ -1,0 +1,15 @@
+one:
+  couple: one
+  spender: one
+  title: Test Expense One
+  amount_cents: 5000
+  incurred_on: 2025-10-26
+  split_strategy: equal
+
+two:
+  couple: one
+  spender: two
+  title: Test Expense Two
+  amount_cents: 3000
+  incurred_on: 2025-10-25
+  split_strategy: equal

@@ -1,1 +1,5 @@
-<%= turbo_stream.remove "task_#{@task.id}" %>
+<%
+  frame_id = request.headers["Turbo-Frame"] || "task_#{@task.id}"
+%>
+
+<%= turbo_stream.remove frame_id %>

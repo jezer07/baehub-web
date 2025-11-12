@@ -6,7 +6,7 @@
 <%= turbo_stream.replace frame_id do %>
   <%= render partial: "task_item", locals: {
     task: @task,
-    show_link: true,
+    show_link: false,
     compact: is_dashboard,
     frame_id: frame_id
   } %>

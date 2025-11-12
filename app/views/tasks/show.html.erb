@@ -1,3 +1,10 @@
+<% if turbo_frame_request? %>
+  <%
+    frame_id = request.headers["Turbo-Frame"] || "task_#{@task.id}"
+    is_dashboard = frame_id.start_with?("dashboard_")
+  %>
+  <%= render "task_item", task: @task, compact: is_dashboard, frame_id: frame_id %>
+<% else %>
 <div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
   <div class="max-w-4xl mx-auto px-4 space-y-6">
     <!-- Back link -->
@@ -110,3 +117,4 @@
     </div>
   </div>
 </div>
+<% end %>

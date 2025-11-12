@@ -46,9 +46,9 @@
     <!-- Tasks list section -->
     <section>
       <% if @tasks.any? %>
-        <ul class="space-y-4">
+        <ul class="space-y-6">
           <% @tasks.each do |task| %>
-            <%= render "task_item", task: task, show_link: true, compact: false %>
+            <%= render "task_item", task: task, compact: false %>
           <% end %>
         </ul>
       <% else %>
