@@ -27,57 +27,44 @@
   </div>
 
   <div class="flex items-center gap-2">
-    <%= f.check_box :all_day, class: "form-checkbox", data: { action: "change->event-form#toggleAllDay" } %>
+    <%= f.check_box :all_day, class: "form-checkbox", data: { action: "change->event-form#toggleAllDay", event_form_target: "allDayCheckbox" } %>
     <label class="text-sm font-medium text-neutral-700">
       All-day event
     </label>
   </div>
 
-  <div>
+  <div data-event-form-target="startTimeWrapper" class="<%= 'hidden' if event.all_day? %>">
     <label class="form-label">
       Starts at
     </label>
-    <%= f.datetime_local_field :starts_at, class: "form-control w-full px-4 py-3", data: { event_form_target: "startTime" } %>
+    <%= f.datetime_local_field :starts_at, class: "form-control w-full px-4 py-3", data: { event_form_target: "startTime" }, disabled: event.all_day? %>
   </div>
 
-  <div>
+  <div data-event-form-target="startDateWrapper" class="<%= 'hidden' unless event.all_day? %>">
+    <label class="form-label">
+      Event date
+    </label>
+    <%= f.date_field :starts_at, class: "form-control w-full px-4 py-3", data: { event_form_target: "startDateOnly" }, disabled: !event.all_day? %>
+  </div>
+
+  <div data-event-form-target="endTimeWrapper" class="<%= 'hidden' if event.all_day? %>">
     <label class="form-label">
       Ends at (optional)
     </label>
-    <%= f.datetime_local_field :ends_at, class: "form-control w-full px-4 py-3", data: { event_form_target: "endTime" } %>
+    <%= f.datetime_local_field :ends_at, class: "form-control w-full px-4 py-3", data: { event_form_target: "endTime" }, disabled: event.all_day? %>
+  </div>
+
+  <div data-event-form-target="endDateWrapper" class="<%= 'hidden' unless event.all_day? %>">
+    <label class="form-label">
+      End date (optional)
+    </label>
+    <%= f.date_field :ends_at, class: "form-control w-full px-4 py-3", data: { event_form_target: "endDateOnly" }, disabled: !event.all_day? %>
   </div>
 
   <p class="form-help">
     Times are in <%= current_user.couple.timezone %>
   </p>
 
-  <div>
-    <label class="form-label">
-      Location (optional)
-    </label>
-    <%= f.text_field :location, class: "form-control w-full px-4 py-3", placeholder: "Enter location" %>
-  </div>
-
-  <div>
-    <label class="form-label">
-      Category (optional)
-    </label>
-    <%= f.text_field :category, class: "form-control w-full px-4 py-3", placeholder: "e.g., Date night, Appointment, Anniversary" %>
-  </div>
-
-  <div>
-    <label class="form-label">
-      Color (optional)
-    </label>
-    <%= f.color_field :color, class: "form-control w-full h-12 px-2" %>
-  </div>
-
-  <div class="flex items-center gap-2">
-    <%= f.check_box :requires_response, class: "form-checkbox" %>
-    <label class="text-sm font-medium text-neutral-700">
-      Requires RSVP from partner
-    </label>
-  </div>
 
   <div class="flex items-center gap-2">
     <%= f.check_box :recurring, checked: event.recurring?, class: "form-checkbox", data: { action: "change->event-form#toggleRecurrence", event_form_target: "recurringCheckbox" } %>
@@ -115,4 +102,3 @@
     <%= f.submit class: "btn-primary" %>
   </div>
 <% end %>
-

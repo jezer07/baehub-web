@@ -6,6 +6,8 @@ class ApplicationHelperTest < ActionView::TestCase
   def setup
   end
 
+  DummyEvent = Struct.new(:color)
+
   test "contrasting_text_color returns black for light backgrounds" do
     assert_equal "#000000", contrasting_text_color("#ffffff")
     assert_equal "#000000", contrasting_text_color("#ffff00")
@@ -43,24 +45,18 @@ class ApplicationHelperTest < ActionView::TestCase
   end
 
   test "safe_event_color returns event color when valid" do
-    event = Event.new(color: "#ff0000")
+    event = DummyEvent.new("#ff0000")
     assert_equal "#ff0000", safe_event_color(event)
   end
 
   test "safe_event_color returns fallback when color is blank" do
-    event = Event.new(color: nil)
-    assert_equal "#e5e7eb", safe_event_color(event)
-
-    event = Event.new(color: "")
-    assert_equal "#e5e7eb", safe_event_color(event)
+    assert_equal "#e5e7eb", safe_event_color(DummyEvent.new(nil))
+    assert_equal "#e5e7eb", safe_event_color(DummyEvent.new(""))
   end
 
   test "safe_event_color returns fallback for invalid colors" do
-    event = Event.new(color: "invalid")
-    assert_equal "#e5e7eb", safe_event_color(event)
-
-    event = Event.new(color: "blue")
-    assert_equal "#e5e7eb", safe_event_color(event)
+    assert_equal "#e5e7eb", safe_event_color(DummyEvent.new("invalid"))
+    assert_equal "#e5e7eb", safe_event_color(DummyEvent.new("blue"))
   end
 
   test "transaction_impact_for_user with expense transaction type" do

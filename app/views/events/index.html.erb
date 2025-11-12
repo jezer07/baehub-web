@@ -28,7 +28,7 @@
         </button>
       </div>
 
-      <%= form_with url: events_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4 mt-4" do |f| %>
+      <%= form_with url: events_path, method: :get, class: "grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" do |f| %>
         <div>
           <%= f.select :filter, options_for_select([
             ["All events", ""],
@@ -40,10 +40,6 @@
         </div>
 
         <div>
-          <%= f.text_field :category, value: params[:category], placeholder: "Filter by category", class: "form-control w-full px-4 py-3" %>
-        </div>
-
-        <div>
           <%= f.date_field :start_date, value: params[:start_date], placeholder: "Start date", class: "form-control w-full px-4 py-3" %>
         </div>
 
@@ -51,18 +47,18 @@
           <%= f.date_field :end_date, value: params[:end_date], placeholder: "End date", class: "form-control w-full px-4 py-3" %>
         </div>
 
-        <div class="md:col-span-4">
+        <div class="md:col-span-3">
           <%= f.submit "Apply filters", class: "btn-secondary md:self-end" %>
         </div>
       <% end %>
 
-      <% if params[:filter].present? || params[:category].present? || params[:start_date].present? || params[:end_date].present? %>
+      <% if params[:filter].present? || params[:start_date].present? || params[:end_date].present? %>
         <%= link_to "Clear filters", events_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-2 inline-block" %>
       <% end %>
     </div>
 
     <div data-calendar-target="calendarView" class="hidden">
-      <%= render "calendar", events: @events, view_mode: params[:view] || "month", current_date: @current_date %>
+      <%= render "calendar", events: @calendar_events, view_mode: params[:view] || "month", current_date: @current_date %>
     </div>
 
     <div data-calendar-target="listView">
@@ -81,4 +77,3 @@
     </div>
   </div>
 </div>
-

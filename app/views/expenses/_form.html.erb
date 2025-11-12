@@ -97,15 +97,23 @@
     <div data-expense-form-target="percentageFields" class="<%= 'hidden' unless expense.split_strategy == 'percentage' %> space-y-4">
       <p class="form-hint mb-3">Percentages must add up to 100%</p>
       <% couple_users.each_with_index do |user, index| %>
+        <% existing_share = expense.expense_shares.find { |share| share.user_id == user.id } %>
         <%= f.fields_for :shares, index: index do |share_fields| %>
           <%= share_fields.hidden_field :user_id, value: user.id %>
           <div>
             <%= share_fields.label :percentage, user_display_name(user), class: "form-label" %>
             <div class="flex items-center gap-3">
-              <%= share_fields.number_field :percentage, min: 0, max: 100, step: 0.01, placeholder: "50", class: "form-control flex-1 px-4 py-3", data: { action: "input->expense-form#validatePercentages" } %>
+              <%= share_fields.number_field :percentage,
+                                           min: 0,
+                                           max: 100,
+                                           step: 0.01,
+                                           placeholder: "50",
+                                           value: existing_share&.percentage,
+                                           class: "form-control flex-1 px-4 py-3",
+                                           data: { action: "input->expense-form#validatePercentages" } %>
               <span class="text-neutral-600">%</span>
             </div>
-            <p class="form-help">Amount: <span data-expense-form-target="percentageAmount"><%= "#{initial_currency_symbol}0.00" %></span></p>
+            <p class="form-help">Amount: <span data-expense-form-target="percentageAmount"><%= existing_share&.percentage.present? ? existing_share.formatted_amount : "#{initial_currency_symbol}0.00" %></span></p>
           </div>
         <% end %>
       <% end %>
@@ -117,13 +125,20 @@
     <div data-expense-form-target="customAmountsFields" class="<%= 'hidden' unless expense.split_strategy == 'custom_amounts' %> space-y-4">
       <p class="form-hint mb-3">Amounts must add up to total expense</p>
       <% couple_users.each_with_index do |user, index| %>
+        <% existing_share = expense.expense_shares.find { |share| share.user_id == user.id } %>
         <%= f.fields_for :shares, index: index do |share_fields| %>
           <%= share_fields.hidden_field :user_id, value: user.id %>
           <div>
             <%= share_fields.label :amount, user_display_name(user), class: "form-label" %>
             <div class="flex items-center gap-3">
               <span class="text-neutral-600" data-expense-form-target="customAmountPrefix"><%= initial_currency_symbol %></span>
-              <%= share_fields.number_field :amount, min: 0, step: 0.01, placeholder: "0.00", class: "form-control flex-1 px-4 py-3", data: { action: "input->expense-form#validateCustomAmounts" } %>
+              <%= share_fields.number_field :amount,
+                                            min: 0,
+                                            step: 0.01,
+                                            placeholder: "0.00",
+                                            value: existing_share&.amount_cents ? (existing_share.amount_cents / 100.0) : nil,
+                                            class: "form-control flex-1 px-4 py-3",
+                                            data: { action: "input->expense-form#validateCustomAmounts" } %>
             </div>
           </div>
         <% end %>

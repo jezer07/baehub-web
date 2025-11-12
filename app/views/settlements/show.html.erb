@@ -1,0 +1,67 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-4xl mx-auto px-4 space-y-6">
+    <div id="flash-messages"></div>
+    <%= link_to "← Back to expenses", expenses_path, class: "text-sm text-neutral-600 hover:text-primary-600 inline-flex items-center gap-1" %>
+
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+      <div id="settlement_header" class="p-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <h1 class="text-3xl font-bold text-neutral-900 mb-3">Settlement Payment</h1>
+        <div class="text-4xl font-bold text-neutral-900 mb-3"><%= @settlement.formatted_amount %></div>
+        <p class="text-neutral-700">Settled on <%= @settlement.settled_on.strftime("%B %d, %Y") %></p>
+      </div>
+
+      <div class="p-8 space-y-6">
+        <% if @settlement.notes.present? %>
+          <div>
+            <h2 class="text-sm font-medium text-neutral-500 mb-2">Notes</h2>
+            <p class="text-neutral-700 leading-relaxed"><%= @settlement.notes %></p>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-neutral-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <div>
+              <div class="text-sm font-medium text-neutral-500">Paid by</div>
+              <div class="text-neutral-900"><%= user_display_name(@settlement.payer) %></div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-neutral-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <div>
+              <div class="text-sm font-medium text-neutral-500">Received by</div>
+              <div class="text-neutral-900"><%= user_display_name(@settlement.payee) %></div>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-neutral-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <div>
+              <div class="text-sm font-medium text-neutral-500">Date settled</div>
+              <div class="text-neutral-900"><%= @settlement.settled_on.strftime("%B %d, %Y") %></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-neutral-100 pt-6 mt-6">
+          <h2 class="text-lg font-semibold text-neutral-900 mb-4">Payment summary</h2>
+          <div class="p-4 rounded-xl border border-neutral-200 bg-neutral-50">
+            <p class="text-neutral-700 text-center"><%= @settlement.description %></p>
+          </div>
+        </div>
+      </div>
+
+      <div id="settlement_actions" class="px-8 py-6 bg-neutral-50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3 sm:justify-between">
+        <%= link_to "Edit settlement", edit_settlement_path(@settlement), class: "btn-secondary justify-center" %>
+        <%= button_to "Delete settlement", settlement_path(@settlement), method: :delete, data: { turbo_confirm: "Are you sure? This will delete the settlement permanently." }, class: "btn-secondary bg-error-600 text-white hover:bg-error-700 justify-center" %>
+      </div>
+    </div>
+  </div>
+</div>

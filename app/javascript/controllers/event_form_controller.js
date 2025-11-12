@@ -1,7 +1,19 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["startTime", "endTime", "allDayCheckbox", "recurrenceFields", "recurringCheckbox"]
+  static targets = [
+    "startTime",
+    "endTime",
+    "startDateOnly",
+    "endDateOnly",
+    "startTimeWrapper",
+    "endTimeWrapper",
+    "startDateWrapper",
+    "endDateWrapper",
+    "allDayCheckbox",
+    "recurrenceFields",
+    "recurringCheckbox"
+  ]
 
   connect() {
     this.toggleAllDay()
@@ -18,27 +30,14 @@ export default class extends Controller {
   }
 
   toggleAllDay() {
-    const allDayCheckbox = this.element.querySelector('input[type="checkbox"][name*="all_day"]')
-    
-    if (!allDayCheckbox) return
-
-    const isAllDay = allDayCheckbox.checked
-    const startTimeField = this.element.querySelector('input[name*="starts_at"]')
-    const endTimeField = this.element.querySelector('input[name*="ends_at"]')
+    const isAllDay = this.hasAllDayCheckboxTarget
+      ? this.allDayCheckboxTarget.checked
+      : this.element.querySelector('input[type="checkbox"][name*="all_day"]')?.checked
 
     if (isAllDay) {
-      if (startTimeField && startTimeField.parentElement) {
-        const helperText = startTimeField.parentElement.querySelector('.all-day-helper')
-        if (!helperText) {
-          const helper = document.createElement('p')
-          helper.className = 'text-xs text-neutral-500 mt-1 all-day-helper'
-          helper.textContent = 'Times will be set to start/end of day'
-          startTimeField.parentElement.appendChild(helper)
-        }
-      }
+      this.showDateOnlyFields()
     } else {
-      const helpers = this.element.querySelectorAll('.all-day-helper')
-      helpers.forEach(helper => helper.remove())
+      this.showDateTimeFields()
     }
   }
 
@@ -57,5 +56,78 @@ export default class extends Controller {
       }
     }
   }
-}
 
+  showDateOnlyFields() {
+    this.storePreviousValue(this.startTimeTarget)
+    this.storePreviousValue(this.endTimeTarget)
+
+    this.toggleWrapper(this.startTimeWrapperTarget, false)
+    this.toggleWrapper(this.endTimeWrapperTarget, false)
+    this.toggleWrapper(this.startDateWrapperTarget, true)
+    this.toggleWrapper(this.endDateWrapperTarget, true)
+
+    this.disableField(this.startTimeTarget, true)
+    this.disableField(this.endTimeTarget, true)
+    this.disableField(this.startDateOnlyTarget, false)
+    this.disableField(this.endDateOnlyTarget, false)
+
+    this.syncDateValue(this.startTimeTarget, this.startDateOnlyTarget)
+    this.syncDateValue(this.endTimeTarget, this.endDateOnlyTarget)
+  }
+
+  showDateTimeFields() {
+    this.toggleWrapper(this.startTimeWrapperTarget, true)
+    this.toggleWrapper(this.endTimeWrapperTarget, true)
+    this.toggleWrapper(this.startDateWrapperTarget, false)
+    this.toggleWrapper(this.endDateWrapperTarget, false)
+
+    this.disableField(this.startTimeTarget, false)
+    this.disableField(this.endTimeTarget, false)
+    this.disableField(this.startDateOnlyTarget, true)
+    this.disableField(this.endDateOnlyTarget, true)
+
+    this.restoreDateTimeValue(this.startTimeTarget, this.startDateOnlyTarget)
+    this.restoreDateTimeValue(this.endTimeTarget, this.endDateOnlyTarget)
+  }
+
+  toggleWrapper(element, shouldShow) {
+    if (!element) return
+    element.classList.toggle('hidden', !shouldShow)
+  }
+
+  disableField(field, shouldDisable) {
+    if (!field) return
+    field.disabled = shouldDisable
+  }
+
+  syncDateValue(datetimeField, dateField) {
+    if (!datetimeField || !dateField || dateField.value) return
+    const value = datetimeField.value
+
+    if (!value) return
+
+    const [datePart] = value.split('T')
+    if (datePart) {
+      dateField.value = datePart
+    }
+  }
+
+  restoreDateTimeValue(datetimeField, dateField) {
+    if (!datetimeField || !dateField) return
+
+    if (datetimeField.dataset.previousValue) {
+      datetimeField.value = datetimeField.dataset.previousValue
+      datetimeField.dataset.previousValue = ""
+      return
+    }
+
+    if (!datetimeField.value && dateField.value) {
+      datetimeField.value = `${dateField.value}T00:00`
+    }
+  }
+
+  storePreviousValue(field) {
+    if (!field) return
+    field.dataset.previousValue = field.value
+  }
+}

@@ -6,7 +6,6 @@ class EventsController < ApplicationController
 
   def index
     @events = current_user.couple.events.includes(:event_responses, :creator)
-    @events = @events.by_category(params[:category]) if params[:category].present?
 
     if params[:start_date].present? && params[:end_date].present?
       begin
@@ -48,6 +47,23 @@ class EventsController < ApplicationController
     else
       Date.today
     end
+
+    events_collection = @events.to_a
+    list_range = list_range_bounds(events_collection)
+    @events = sort_occurrences(EventOccurrenceBuilder.expand(
+      events_collection,
+      range_start: list_range.first,
+      range_end: list_range.last,
+      per_event_limit: 365
+    ))
+
+    calendar_range = calendar_range_bounds(@current_date, params[:view])
+    @calendar_events = EventOccurrenceBuilder.expand(
+      events_collection,
+      range_start: calendar_range.first,
+      range_end: calendar_range.last,
+      per_event_limit: 365
+    )
   end
 
   def show
@@ -155,7 +171,7 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:title, :description, :starts_at, :ends_at, :all_day, :location, :category, :color, :requires_response)
+    params.require(:event).permit(:title, :description, :starts_at, :ends_at, :all_day)
   end
 
   def log_event_activity(action, event)
@@ -211,6 +227,61 @@ class EventsController < ApplicationController
     else
       @recurrence_rule_to_assign = nil
       @event.recurrence_rule = nil if @event
+    end
+  end
+
+  def parse_date_param(key)
+    return nil unless params[key].present?
+
+    Date.parse(params[key])
+  rescue ArgumentError
+    nil
+  end
+
+  def list_range_bounds(events)
+    explicit_start = parse_date_param(:start_date)
+    explicit_end = parse_date_param(:end_date)
+
+    event_starts = events.map { |event| event.starts_at&.to_date }.compact
+    event_ends = events.map { |event| (event.ends_at || event.starts_at)&.to_date }.compact
+
+    min_date = event_starts.min || Date.today
+    max_date = event_ends.max || min_date
+
+    start_date = explicit_start || [min_date, Date.today - 1.year].min
+    end_date = explicit_end || [max_date, Date.today + 1.year].max
+
+    end_date = start_date if end_date < start_date
+
+    [start_date, end_date]
+  end
+
+  def calendar_range_bounds(current_date, view_mode)
+    view = view_mode.presence || "month"
+    case view
+    when "week"
+      [current_date.beginning_of_week, current_date.end_of_week]
+    when "day"
+      [current_date, current_date]
+    else
+      start_date = current_date.beginning_of_month.beginning_of_week(:sunday)
+      end_date = current_date.end_of_month.end_of_week(:sunday)
+      [start_date, end_date]
+    end
+  end
+
+  def sort_occurrences(events)
+    case params[:sort]
+    when "starts_at_desc"
+      events.sort_by(&:starts_at).reverse
+    when "title_asc"
+      events.sort_by { |event| event.title.to_s.downcase }
+    when "title_desc"
+      events.sort_by { |event| event.title.to_s.downcase }.reverse
+    else
+      direction = params[:filter] == "past" ? :desc : :asc
+      sorted = events.sort_by(&:starts_at)
+      direction == :desc ? sorted.reverse : sorted
     end
   end
 end

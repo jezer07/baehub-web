@@ -10,14 +10,10 @@ class Event < ApplicationRecord
   validates :description, length: { maximum: 2000 }, allow_blank: true
   validates :starts_at, presence: true
   validate :ends_after_start
-  validate :valid_color_format
   validate :valid_recurrence_rule_format
-
-  before_validation :normalize_color
 
   scope :future, -> { where("starts_at >= ?", Time.current.beginning_of_day) }
   scope :current_week, -> { where(starts_at: Time.current.beginning_of_week..Time.current.end_of_week) }
-  scope :by_category, ->(category) { where(category: category) if category.present? }
   scope :between_dates, ->(start_date, end_date) { where(starts_at: start_date.beginning_of_day..end_date.end_of_day) if start_date.present? && end_date.present? }
   scope :upcoming, -> { where("starts_at >= ?", Time.current).order(starts_at: :asc) }
   scope :past, -> { where("starts_at < ?", Time.current).order(starts_at: :desc) }
@@ -211,25 +207,6 @@ class Event < ApplicationRecord
     return if ends_at >= starts_at
 
     errors.add(:ends_at, "must occur after the start time")
-  end
-
-  def normalize_color
-    return if color.blank?
-
-    self.color = color.strip
-    self.color = "##{color}" if color.match?(/\A[0-9a-fA-F]{6}\z/)
-  end
-
-  def valid_color_format
-    return if color.blank?
-
-    valid_hex = color.match?(/\A#[0-9a-fA-F]{6}\z/)
-    valid_rgb = color.match?(/\Argb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)\z/)
-    valid_rgba = color.match?(/\Argba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|1|0?\.\d+)\s*\)\z/)
-
-    unless valid_hex || valid_rgb || valid_rgba
-      errors.add(:color, "must be a valid hex color (#RRGGBB), rgb(R, G, B), or rgba(R, G, B, A)")
-    end
   end
 
   def valid_recurrence_rule_format

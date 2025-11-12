@@ -136,12 +136,13 @@ module ApplicationHelper
   end
 
   def safe_event_color(event)
-    return "#e5e7eb" if event.color.blank?
+    color_value = event.respond_to?(:color) ? event.color : nil
+    return "#e5e7eb" if color_value.blank?
 
-    rgb = parse_color_to_rgb(event.color)
+    rgb = parse_color_to_rgb(color_value)
     return "#e5e7eb" if rgb.nil?
 
-    event.color
+    color_value
   end
 
   def expense_split_icon(split_strategy)
