@@ -33,11 +33,11 @@ module ApplicationHelper
     end
   end
 
-  def user_avatar(user, size: 'medium')
+  def user_avatar(user, size: "medium")
     size_classes = {
-      'small' => 'w-8 h-8 text-xs',
-      'medium' => 'w-12 h-12 text-sm',
-      'large' => 'w-24 h-24 text-xl'
+      "small" => "w-8 h-8 text-xs",
+      "medium" => "w-12 h-12 text-sm",
+      "large" => "w-24 h-24 text-xl"
     }
 
     css_classes = "#{size_classes[size]} rounded-full object-cover"
@@ -53,7 +53,7 @@ module ApplicationHelper
   end
 
   def user_display_name(user)
-    user.name.present? ? user.name : user.email.split('@').first
+    user.name.present? ? user.name : user.email.split("@").first
   end
 
   def format_event_datetime(datetime, timezone, format: :long)
@@ -137,10 +137,10 @@ module ApplicationHelper
 
   def safe_event_color(event)
     return "#e5e7eb" if event.color.blank?
-    
+
     rgb = parse_color_to_rgb(event.color)
     return "#e5e7eb" if rgb.nil?
-    
+
     event.color
   end
 
@@ -219,7 +219,7 @@ module ApplicationHelper
     symbol = CurrencyCatalog.symbol_for(currency)
 
     formatted_amount = "#{symbol}#{'%.2f' % amount}"
-    
+
     if impact_cents > 0
       badge_class = "text-xs font-semibold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-200"
       sign = "+"
@@ -240,15 +240,15 @@ module ApplicationHelper
       r = color[1..2].to_i(16)
       g = color[3..4].to_i(16)
       b = color[5..6].to_i(16)
-      [r, g, b]
+      [ r, g, b ]
     elsif color.match?(/\Argba?\(/)
       matches = color.match(/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+\s*)?\)/)
       return nil unless matches
-      
+
       r = matches[1].to_i
       g = matches[2].to_i
       b = matches[3].to_i
-      [r, g, b]
+      [ r, g, b ]
     else
       nil
     end

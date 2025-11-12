@@ -41,17 +41,17 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       amount_cents: 3000,
       settled_on: Date.today - 5
     )
-    
+
     new_settlement = @couple.settlements.create!(
       payer: @partner,
       payee: @user,
       amount_cents: 2000,
       settled_on: Date.today
     )
-    
+
     get settlements_path
     assert_response :success
-    
+
     settlements = assigns(:settlements)
     assert_equal new_settlement.id, settlements.first.id
   end
@@ -63,10 +63,10 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       amount_cents: 3000,
       settled_on: Date.today - 10
     )
-    
+
     get settlements_path, params: { start_date: Date.today - 2, end_date: Date.today + 1 }
     assert_response :success
-    
+
     settlements = assigns(:settlements)
     assert_not_includes settlements, old_settlement
     assert_includes settlements, @settlement
@@ -86,9 +86,9 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     get new_settlement_path, params: {
       payer_id: @partner.id,
       payee_id: @user.id,
-      amount: "50.00",
+      amount: "50.00"
     }
-    
+
     assert_response :success
     settlement = assigns(:settlement)
     assert_equal @partner.id, settlement.payer_id
@@ -98,7 +98,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
 
   test "new action auto-selects partner when only payer is specified" do
     get new_settlement_path, params: { payer_id: @user.id }
-    
+
     assert_response :success
     settlement = assigns(:settlement)
     assert_equal @user.id, settlement.payer_id
@@ -107,7 +107,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
 
   test "new action auto-selects partner when only payee is specified" do
     get new_settlement_path, params: { payee_id: @partner.id }
-    
+
     assert_response :success
     settlement = assigns(:settlement)
     assert_equal @user.id, settlement.payer_id
@@ -126,7 +126,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     assert_redirected_to expenses_path
     assert_equal "Settlement recorded successfully.", flash[:notice]
   end
@@ -140,7 +140,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         settled_on: Date.today
       }
     }
-    
+
     settlement = Settlement.last
     assert_equal 12345, settlement.amount_cents
   end
@@ -156,7 +156,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     activity = ActivityLog.last
     assert_includes activity.action, "recorded payment"
   end
@@ -172,7 +172,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     assert_response :unprocessable_entity
     assert_template :new
   end
@@ -188,7 +188,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     assert_response :unprocessable_entity
   end
 
@@ -201,7 +201,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       password_confirmation: "password123",
       couple: other_couple
     )
-    
+
     assert_no_difference "Settlement.count" do
       post settlements_path, params: {
         settlement: {
@@ -212,7 +212,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     assert_response :unprocessable_entity
   end
 
@@ -231,10 +231,10 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         notes: "Updated notes"
       }
     }
-    
+
     assert_redirected_to expenses_path
     assert_equal "Settlement updated successfully.", flash[:notice]
-    
+
     @settlement.reload
     assert_equal 10000, @settlement.amount_cents
     assert_equal "Updated notes", @settlement.notes
@@ -249,7 +249,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
-    
+
     activity = ActivityLog.last
     assert_includes activity.action, "updated settlement"
   end
@@ -260,7 +260,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         amount_dollars: nil
       }
     }
-    
+
     assert_response :unprocessable_entity
     assert_template :edit
   end
@@ -271,7 +271,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
         amount_dollars: 67.89
       }
     }
-    
+
     @settlement.reload
     assert_equal 6789, @settlement.amount_cents
   end
@@ -280,7 +280,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "Settlement.count", -1 do
       delete settlement_path(@settlement)
     end
-    
+
     assert_redirected_to expenses_path
     assert_equal "Settlement was successfully deleted.", flash[:notice]
   end
@@ -289,14 +289,14 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     assert_difference "ActivityLog.count", 1 do
       delete settlement_path(@settlement)
     end
-    
+
     activity = ActivityLog.last
     assert_includes activity.action, "deleted settlement"
   end
 
   test "unauthenticated user is redirected" do
     sign_out @user
-    
+
     get settlements_path
     assert_redirected_to new_user_session_path
   end
@@ -309,7 +309,7 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       password_confirmation: "password123"
     )
     sign_in user_without_couple
-    
+
     get settlements_path
     assert_redirected_to new_pairing_path
   end
@@ -336,11 +336,11 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       amount_cents: 3000,
       settled_on: Date.today
     )
-    
+
     sign_in @user
-    
+
     get settlement_path(other_settlement)
-    
+
     assert_redirected_to expenses_path
     assert_includes flash[:alert], "Settlement not found."
   end
