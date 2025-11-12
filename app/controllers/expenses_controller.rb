@@ -1,3 +1,5 @@
+require "bigdecimal"
+
 class ExpensesController < ApplicationController
   before_action :authenticate_user!
   before_action :ensure_couple!
@@ -169,7 +171,7 @@ class ExpensesController < ApplicationController
     return [] unless shares_hash
 
     shares_hash.values.map do |share|
-      share.permit(:user_id, :amount_cents, :percentage).to_h.symbolize_keys
+      share.permit(:user_id, :amount_cents, :amount, :percentage).to_h.symbolize_keys
     end
   end
 
@@ -203,6 +205,10 @@ class ExpensesController < ApplicationController
       end
     when "custom_amounts"
       shares_data = Array(shares_params).map { |s| s.respond_to?(:to_unsafe_h) ? s.to_unsafe_h : s }.map(&:symbolize_keys)
+      shares_data.each do |share_data|
+        share_data[:amount_cents] = amount_cents_from_share(share_data)
+      end
+
       total_amount = shares_data.sum { |s| s[:amount_cents].to_i }
 
       if total_amount != @expense.amount_cents
@@ -229,5 +235,16 @@ class ExpensesController < ApplicationController
       subject: expense,
       metadata: { origin: "expenses" }
     )
+  end
+
+  def amount_cents_from_share(share_data)
+    return share_data[:amount_cents].to_i if share_data[:amount_cents].present?
+
+    amount_value = share_data[:amount]
+    return 0 if amount_value.blank?
+
+    (BigDecimal(amount_value.to_s) * 100).round
+  rescue ArgumentError
+    0
   end
 end

@@ -104,7 +104,12 @@ export default class extends Controller {
   }
 
   validatePercentages(event) {
-    const percentageInputs = this.percentageFieldsTarget.querySelectorAll('input[type="number"]')
+    const percentageInputs = Array.from(this.percentageFieldsTarget.querySelectorAll('input[type="number"]'))
+
+    if (event) {
+      this.adjustComplementaryPercentage(event.target, percentageInputs)
+    }
+
     let total = 0
 
     percentageInputs.forEach(input => {
@@ -133,7 +138,12 @@ export default class extends Controller {
   }
 
   validateCustomAmounts(event) {
-    const amountInputs = this.customAmountsFieldsTarget.querySelectorAll('input[type="number"]')
+    const amountInputs = Array.from(this.customAmountsFieldsTarget.querySelectorAll('input[type="number"]'))
+
+    if (event) {
+      this.adjustComplementaryCustomAmount(event.target, amountInputs)
+    }
+
     let totalCents = 0
 
     amountInputs.forEach(input => {
@@ -206,5 +216,44 @@ export default class extends Controller {
   hideValidationError(target) {
     if (!target) return
     target.classList.add("hidden")
+  }
+
+  adjustComplementaryPercentage(changedInput, inputs) {
+    if (!changedInput || inputs.length !== 2) return
+    if (!inputs.includes(changedInput)) return
+
+    const otherInput = inputs.find(input => input !== changedInput)
+    const rawValue = parseFloat(changedInput.value)
+
+    if (Number.isNaN(rawValue)) return
+
+    const boundedValue = Math.min(Math.max(rawValue, 0), 100)
+    const complement = Math.max(0, 100 - boundedValue)
+
+    changedInput.value = this.roundToTwoDecimals(boundedValue)
+    otherInput.value = this.roundToTwoDecimals(complement)
+  }
+
+  adjustComplementaryCustomAmount(changedInput, inputs) {
+    if (!changedInput || inputs.length !== 2) return
+    if (!inputs.includes(changedInput)) return
+
+    const totalCents = this.totalAmountValue || 0
+    if (totalCents <= 0) return
+
+    const otherInput = inputs.find(input => input !== changedInput)
+    const rawValue = parseFloat(changedInput.value)
+    if (Number.isNaN(rawValue)) return
+
+    const cents = Math.round(rawValue * 100)
+    const boundedCents = Math.min(Math.max(cents, 0), totalCents)
+    const complementCents = Math.max(0, totalCents - boundedCents)
+
+    changedInput.value = this.roundToTwoDecimals(boundedCents / 100)
+    otherInput.value = this.roundToTwoDecimals(complementCents / 100)
+  }
+
+  roundToTwoDecimals(value) {
+    return (Math.round(value * 100) / 100).toString()
   }
 }
