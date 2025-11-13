@@ -29,30 +29,28 @@
         <div>
           <%= f.select :sort, [["Sort by", ""], ["Status (Asc)", "status_asc"], ["Due date (Earliest)", "due_at_asc"], ["Due date (Latest)", "due_at_desc"], ["Priority (High)", "priority_desc"]], { selected: params[:sort] }, class: "form-control w-full px-4 py-3", name: "sort" %>
         </div>
-        <div class="flex gap-3 md:justify-end md:col-span-1">
-          <%= f.submit "Apply", class: "btn-secondary w-full md:w-auto" %>
-          <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? || params[:sort].present? %>
-            <%= link_to "Clear", tasks_path, class: "btn-secondary w-full md:hidden mt-2" %>
-          <% end %>
+        <div class="md:col-span-1">
+          <%= f.submit "Apply filters", class: "btn-secondary w-full md:w-auto md:self-end" %>
         </div>
       <% end %>
-      <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? %>
-        <div class="mt-4 md:mt-0">
-          <%= link_to "Clear filters", tasks_path, class: "text-sm text-neutral-600 hover:text-primary-600 hidden md:inline-block" %>
-        </div>
+      <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? || params[:sort].present? %>
+        <%= link_to "Clear filters", tasks_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-4 inline-block" %>
       <% end %>
     </section>
 
     <!-- Tasks list section -->
     <section>
       <% if @tasks.any? %>
-        <ul class="space-y-6">
-          <% @tasks.each do |task| %>
-            <%= render "task_item", task: task, compact: false %>
-          <% end %>
-        </ul>
+        <h2 class="text-xl font-semibold text-neutral-900 mb-4">Task List</h2>
+        <div class="bg-white rounded-2xl border border-neutral-200 p-6">
+          <ul class="space-y-3">
+            <% @tasks.each do |task| %>
+              <%= render "task_item", task: task, compact: false %>
+            <% end %>
+          </ul>
+        </div>
       <% else %>
-        <div class="rounded-2xl border border-dashed border-neutral-200 p-12 text-center bg-white">
+        <div class="bg-white rounded-2xl border-2 border-dashed border-neutral-200 p-12 text-center">
           <p class="text-neutral-500">No tasks found. Create your first task to get started!</p>
         </div>
       <% end %>
