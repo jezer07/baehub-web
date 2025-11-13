@@ -1,0 +1,68 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-8">
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <h1 class="text-3xl font-bold text-neutral-900 mb-2">Joint Accounts</h1>
+          <p class="text-neutral-600">Manage shared accounts and track borrowing with your partner</p>
+        </div>
+        <div>
+          <%= link_to "Create Joint Account", new_joint_account_path, class: "btn-primary justify-center" %>
+        </div>
+      </div>
+    </div>
+
+    <% if @joint_accounts.any? %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <% @joint_accounts.each do |joint_account| %>
+          <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-6 hover:shadow-xl transition-shadow">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 class="text-xl font-semibold text-neutral-900 mb-1"><%= joint_account.name %></h3>
+                <p class="text-sm text-neutral-600">Created by <%= joint_account.created_by.name %></p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-medium <%= joint_account.active? ? 'bg-green-100 text-green-800' : 'bg-neutral-100 text-neutral-800' %>">
+                <%= joint_account.status.titleize %>
+              </span>
+            </div>
+
+            <div class="mb-4">
+              <p class="text-sm text-neutral-600 mb-2">Members:</p>
+              <div class="flex gap-2 flex-wrap">
+                <% joint_account.active_members.each do |membership| %>
+                  <span class="px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-xs font-medium">
+                    <%= membership.user.name %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="border-t border-neutral-200 pt-4 mt-4">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-neutral-600">Total Balance:</span>
+                <span class="font-semibold text-neutral-900">
+                  <%= joint_account.currency_symbol %><%= sprintf('%.2f', joint_account.total_outstanding_balance / 100.0) %>
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-4 flex gap-2">
+              <%= link_to "View Details", joint_account_path(joint_account), class: "btn-primary flex-1 justify-center text-sm" %>
+              <%= link_to "Edit", edit_joint_account_path(joint_account), class: "btn-secondary flex-1 justify-center text-sm" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="bg-white rounded-2xl border-2 border-dashed border-neutral-200 p-12 text-center">
+        <svg class="w-16 h-16 mx-auto text-neutral-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-neutral-900 mb-2">No joint accounts yet</h3>
+        <p class="text-neutral-600 mb-6">Create your first joint account to start tracking shared borrowing</p>
+        <%= link_to "Create Joint Account", new_joint_account_path, class: "btn-primary inline-flex" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+

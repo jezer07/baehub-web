@@ -16,6 +16,13 @@ class User < ApplicationRecord
   has_many :reminders_received, class_name: "Reminder", foreign_key: :recipient_id, dependent: :nullify, inverse_of: :recipient
   has_many :expense_shares, dependent: :destroy
   has_many :activity_logs, dependent: :nullify
+  has_many :created_joint_accounts, class_name: "JointAccount", foreign_key: :created_by_id, dependent: :nullify, inverse_of: :created_by
+  has_many :joint_account_memberships, dependent: :destroy
+  has_many :joint_accounts, through: :joint_account_memberships
+  has_many :joint_account_ledger_entries_initiated, class_name: "JointAccountLedgerEntry", foreign_key: :initiator_id, dependent: :nullify, inverse_of: :initiator
+  has_many :joint_account_ledger_entries_as_counterparty, class_name: "JointAccountLedgerEntry", foreign_key: :counterparty_id, dependent: :nullify, inverse_of: :counterparty
+  has_many :joint_account_settlements_made, class_name: "JointAccountSettlement", foreign_key: :settled_by_id, dependent: :nullify, inverse_of: :settled_by
+  has_many :joint_account_balances, dependent: :destroy
 
   enum :role, { partner: "partner", solo: "solo" }, default: :partner, validate: true
 

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #4F46E5; color: white; padding: 20px; text-align: center; }
+      .content { background-color: #f9fafb; padding: 30px; }
+      .account-summary { background-color: white; padding: 20px; border-radius: 8px; margin: 15px 0; }
+      .button { display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px; }
+      .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Weekly Joint Accounts Summary</h1>
+      </div>
+      
+      <div class="content">
+        <p>Hi <%= @user.name %>,</p>
+        
+        <p>Here's your weekly summary for all your joint accounts:</p>
+        
+        <% @joint_accounts_summary.each do |summary| %>
+          <div class="account-summary">
+            <h3><%= summary[:name] %></h3>
+            <p><strong>Your balance:</strong> 
+              <% if summary[:balance_cents] < 0 %>
+                You owe <%= summary[:currency_symbol] %><%= sprintf('%.2f', summary[:balance_cents].abs / 100.0) %>
+              <% elsif summary[:balance_cents] > 0 %>
+                Account owes you <%= summary[:currency_symbol] %><%= sprintf('%.2f', summary[:balance_cents] / 100.0) %>
+              <% else %>
+                Balanced
+              <% end %>
+            </p>
+            <p><strong>New transactions this week:</strong> <%= summary[:new_transactions_count] %></p>
+            <p><strong>Settlements this week:</strong> <%= summary[:settlements_count] %></p>
+          </div>
+        <% end %>
+        
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="<%= joint_accounts_url %>" class="button">View All Joint Accounts</a>
+        </p>
+      </div>
+      
+      <div class="footer">
+        <p>This is an automated digest from Baehub</p>
+      </div>
+    </div>
+  </body>
+</html>
+

@@ -7,6 +7,7 @@ class Couple < ApplicationRecord
   has_many :settlements, dependent: :destroy
   has_many :reminders, dependent: :destroy
   has_many :activity_logs, dependent: :destroy
+  has_many :joint_accounts, dependent: :destroy
 
   validates :name, presence: true, length: { minimum: 2, maximum: 80 }
   validates :slug, presence: true, uniqueness: true

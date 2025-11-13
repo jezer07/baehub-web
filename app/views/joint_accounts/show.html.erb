@@ -1,0 +1,153 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-8">
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <%= link_to joint_accounts_path, class: "text-neutral-400 hover:text-neutral-600" do %>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            <% end %>
+            <h1 class="text-3xl font-bold text-neutral-900"><%= @joint_account.name %></h1>
+            <span class="px-3 py-1 rounded-full text-xs font-medium <%= @joint_account.active? ? 'bg-green-100 text-green-800' : 'bg-neutral-100 text-neutral-800' %>">
+              <%= @joint_account.status.titleize %>
+            </span>
+          </div>
+          <p class="text-neutral-600">Created by <%= @joint_account.created_by.name %></p>
+        </div>
+        <div class="flex gap-2">
+          <%= link_to "Edit", edit_joint_account_path(@joint_account), class: "btn-secondary" %>
+          <%= link_to "Ledger", ledger_joint_account_path(@joint_account), class: "btn-secondary" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-6" data-controller="borrow-form">
+        <h2 class="text-xl font-semibold text-neutral-900 mb-4">Record Borrowing</h2>
+        <%= form_with url: borrow_joint_account_path(@joint_account), method: :post, class: "space-y-4" do |f| %>
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">Direction</label>
+            <select name="direction"
+                    class="form-control w-full px-4 py-3"
+                    required
+                    data-borrow-form-target="direction"
+                    data-action="change->borrow-form#handleDirectionChange">
+              <option value="">Select direction</option>
+              <option value="partner_owes_joint_account">I borrowed from joint account</option>
+              <option value="joint_account_owes_partner">Joint account borrowed from me</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">Amount</label>
+            <div class="flex gap-2">
+              <span class="form-control px-4 py-3 w-16 bg-neutral-50"><%= @joint_account.currency_symbol %></span>
+              <input type="number"
+                     name="amount_cents"
+                     step="0.01"
+                     min="0.01"
+                     class="form-control flex-1 px-4 py-3"
+                     placeholder="0.00"
+                     required
+                     data-borrow-form-target="amountInput"
+                     data-action="input->borrow-form#handleAmountChange change->borrow-form#handleAmountChange">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 mb-2">Description</label>
+            <textarea name="description" rows="3" class="form-control w-full px-4 py-3" placeholder="What was this for?"></textarea>
+          </div>
+
+          <input type="hidden" name="currency" value="<%= @joint_account.currency %>">
+
+          <%= f.submit "Record Transaction", class: "btn-primary w-full justify-center" %>
+        <% end %>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-6">
+        <h2 class="text-xl font-semibold text-neutral-900 mb-4">Current Balances</h2>
+        <% if @balances.any? %>
+          <div class="space-y-3">
+            <% @balances.each do |balance| %>
+              <div class="flex items-center justify-between p-4 rounded-lg <%= balance.balance_cents < 0 ? 'bg-red-50' : balance.balance_cents > 0 ? 'bg-green-50' : 'bg-neutral-50' %>">
+                <div>
+                  <p class="font-medium text-neutral-900"><%= balance.user.name %></p>
+                  <p class="text-xs text-neutral-600">
+                    <% if balance.balance_cents < 0 %>
+                      Owes to joint account
+                    <% elsif balance.balance_cents > 0 %>
+                      Joint account owes them
+                    <% else %>
+                      Balanced
+                    <% end %>
+                  </p>
+                </div>
+                <span class="text-lg font-semibold <%= balance.balance_cents < 0 ? 'text-red-700' : balance.balance_cents > 0 ? 'text-green-700' : 'text-neutral-700' %>">
+                  <%= balance.currency_symbol %><%= sprintf('%.2f', balance.balance_cents.abs / 100.0) %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-neutral-600 text-center py-4">No balances to display</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-6">
+      <h2 class="text-xl font-semibold text-neutral-900 mb-4">Recent Transactions</h2>
+      <% if @recent_entries.any? %>
+        <div class="space-y-3">
+          <% @recent_entries.each do |entry| %>
+            <div class="flex items-center justify-between p-4 rounded-lg border border-neutral-200 hover:border-primary-200 transition-colors">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-medium text-neutral-900"><%= entry.initiator.name %></span>
+                  <span class="text-xs px-2 py-1 rounded-full <%= entry.partner_borrowing? ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' %>">
+                    <%= entry.partner_borrowing? ? 'Borrowed from account' : 'Lent to account' %>
+                  </span>
+                  <% if entry.settled? %>
+                    <span class="text-xs px-2 py-1 rounded-full bg-neutral-100 text-neutral-600">Settled</span>
+                  <% end %>
+                </div>
+                <p class="text-sm text-neutral-600"><%= entry.description || 'No description' %></p>
+                <p class="text-xs text-neutral-400 mt-1"><%= entry.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+              </div>
+              <span class="text-lg font-semibold text-neutral-900 ml-4">
+                <%= entry.currency_symbol %><%= sprintf('%.2f', entry.amount_cents / 100.0) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+        <div class="mt-4 text-center">
+          <%= link_to "View All Transactions", ledger_joint_account_path(@joint_account), class: "text-sm text-primary-600 hover:text-primary-700 font-medium" %>
+        </div>
+      <% else %>
+        <p class="text-neutral-600 text-center py-4">No transactions yet</p>
+      <% end %>
+    </div>
+
+    <% if @recent_settlements.any? %>
+      <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-6">
+        <h2 class="text-xl font-semibold text-neutral-900 mb-4">Recent Settlements</h2>
+        <div class="space-y-3">
+          <% @recent_settlements.each do |settlement| %>
+            <div class="flex items-center justify-between p-4 rounded-lg border border-neutral-200">
+              <div>
+                <p class="font-medium text-neutral-900">Settled by <%= settlement.settled_by.name %></p>
+                <p class="text-sm text-neutral-600"><%= settlement.notes %></p>
+                <p class="text-xs text-neutral-400 mt-1"><%= settlement.settlement_date.strftime("%B %d, %Y") %></p>
+              </div>
+              <span class="text-lg font-semibold text-green-700">
+                <%= settlement.currency_symbol %><%= sprintf('%.2f', settlement.total_amount_cents / 100.0) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

@@ -26,6 +26,14 @@ Rails.application.routes.draw do
     end
     resources :expenses
     resources :settlements, only: [ :index, :new, :create, :show, :edit, :update, :destroy ]
+    resources :joint_accounts do
+      member do
+        get :ledger
+        get :balances
+        post :borrow
+        post :settle
+      end
+    end
     resource :settings, only: [ :show, :update ]
   end
 

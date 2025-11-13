@@ -1,0 +1,16 @@
+one:
+  couple: one
+  created_by: one
+  name: Test Joint Account
+  currency: USD
+  status: active
+  settings: {}
+
+two:
+  couple: one
+  created_by: one
+  name: Another Joint Account
+  currency: USD
+  status: active
+  settings: {}
+

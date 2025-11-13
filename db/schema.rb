@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_13_130005) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -110,6 +110,105 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
     t.index ["sender_id"], name: "index_invitations_on_sender_id"
   end
 
+  create_table "joint_account_balances", force: :cascade do |t|
+    t.integer "balance_cents", default: 0, null: false
+    t.integer "borrowed_from_account_cents", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", limit: 3, null: false
+    t.integer "joint_account_id", null: false
+    t.datetime "last_calculated_at", null: false
+    t.integer "lent_to_account_cents", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["joint_account_id", "last_calculated_at"], name: "idx_on_joint_account_id_last_calculated_at_d77d9c566c"
+    t.index ["joint_account_id", "user_id", "currency"], name: "index_joint_account_balances_uniqueness", unique: true
+    t.index ["joint_account_id"], name: "index_joint_account_balances_on_joint_account_id"
+    t.index ["user_id", "last_calculated_at"], name: "index_joint_account_balances_on_user_id_and_last_calculated_at"
+    t.index ["user_id"], name: "index_joint_account_balances_on_user_id"
+  end
+
+  create_table "joint_account_ledger_entries", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.integer "counterparty_id"
+    t.datetime "created_at", null: false
+    t.string "currency", limit: 3, null: false
+    t.text "description"
+    t.string "direction", limit: 50, null: false
+    t.integer "initiator_id", null: false
+    t.integer "joint_account_id", null: false
+    t.text "metadata", default: "{}", null: false
+    t.datetime "settled_at"
+    t.string "settlement_reference", limit: 100
+    t.datetime "updated_at", null: false
+    t.index ["counterparty_id", "created_at"], name: "idx_on_counterparty_id_created_at_2b8a172d31"
+    t.index ["counterparty_id"], name: "index_joint_account_ledger_entries_on_counterparty_id"
+    t.index ["direction"], name: "index_joint_account_ledger_entries_on_direction"
+    t.index ["initiator_id", "created_at"], name: "idx_on_initiator_id_created_at_10efdd5b95"
+    t.index ["initiator_id"], name: "index_joint_account_ledger_entries_on_initiator_id"
+    t.index ["joint_account_id", "created_at"], name: "idx_on_joint_account_id_created_at_73b68aa1b2"
+    t.index ["joint_account_id", "settled_at"], name: "idx_on_joint_account_id_settled_at_ef8e87b2a5"
+    t.index ["joint_account_id"], name: "index_joint_account_ledger_entries_on_joint_account_id"
+    t.check_constraint "amount_cents > 0", name: "positive_amount_check"
+  end
+
+  create_table "joint_account_memberships", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "joined_at", null: false
+    t.integer "joint_account_id", null: false
+    t.datetime "left_at"
+    t.string "role", limit: 20, default: "member", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["joint_account_id", "active"], name: "index_joint_account_memberships_on_joint_account_id_and_active"
+    t.index ["joint_account_id", "user_id"], name: "index_joint_account_memberships_uniqueness", unique: true
+    t.index ["joint_account_id"], name: "index_joint_account_memberships_on_joint_account_id"
+    t.index ["user_id", "active"], name: "index_joint_account_memberships_on_user_id_and_active"
+    t.index ["user_id"], name: "index_joint_account_memberships_on_user_id"
+  end
+
+  create_table "joint_account_settlement_entries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "joint_account_ledger_entry_id", null: false
+    t.integer "joint_account_settlement_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["joint_account_ledger_entry_id"], name: "index_settlement_entries_on_ledger_entry_id"
+    t.index ["joint_account_settlement_id", "joint_account_ledger_entry_id"], name: "index_settlement_entries_uniqueness", unique: true
+    t.index ["joint_account_settlement_id"], name: "index_settlement_entries_on_settlement_id"
+  end
+
+  create_table "joint_account_settlements", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "currency", limit: 3, null: false
+    t.integer "joint_account_id", null: false
+    t.text "metadata", default: "{}", null: false
+    t.text "notes"
+    t.string "payment_method", limit: 50
+    t.integer "settled_by_id", null: false
+    t.date "settlement_date", null: false
+    t.integer "total_amount_cents", null: false
+    t.datetime "updated_at", null: false
+    t.index ["joint_account_id", "settlement_date"], name: "idx_on_joint_account_id_settlement_date_00e5a31fdf"
+    t.index ["joint_account_id"], name: "index_joint_account_settlements_on_joint_account_id"
+    t.index ["settled_by_id", "created_at"], name: "idx_on_settled_by_id_created_at_af9061f603"
+    t.index ["settled_by_id"], name: "index_joint_account_settlements_on_settled_by_id"
+    t.check_constraint "total_amount_cents > 0", name: "positive_settlement_amount_check"
+  end
+
+  create_table "joint_accounts", force: :cascade do |t|
+    t.integer "couple_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.string "currency", limit: 3, default: "USD", null: false
+    t.string "name", limit: 100, null: false
+    t.text "settings", default: "{}", null: false
+    t.string "status", limit: 20, default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.index ["couple_id", "status"], name: "index_joint_accounts_on_couple_id_and_status"
+    t.index ["couple_id"], name: "index_joint_accounts_on_couple_id"
+    t.index ["created_by_id"], name: "index_joint_accounts_on_created_by_id"
+  end
+
   create_table "reminders", force: :cascade do |t|
     t.string "channel", default: "push", null: false
     t.integer "couple_id", null: false
@@ -203,6 +302,19 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
   add_foreign_key "expenses", "users", column: "spender_id"
   add_foreign_key "invitations", "couples"
   add_foreign_key "invitations", "users", column: "sender_id"
+  add_foreign_key "joint_account_balances", "joint_accounts"
+  add_foreign_key "joint_account_balances", "users"
+  add_foreign_key "joint_account_ledger_entries", "joint_accounts"
+  add_foreign_key "joint_account_ledger_entries", "users", column: "counterparty_id"
+  add_foreign_key "joint_account_ledger_entries", "users", column: "initiator_id"
+  add_foreign_key "joint_account_memberships", "joint_accounts"
+  add_foreign_key "joint_account_memberships", "users"
+  add_foreign_key "joint_account_settlement_entries", "joint_account_ledger_entries"
+  add_foreign_key "joint_account_settlement_entries", "joint_account_settlements"
+  add_foreign_key "joint_account_settlements", "joint_accounts"
+  add_foreign_key "joint_account_settlements", "users", column: "settled_by_id"
+  add_foreign_key "joint_accounts", "couples"
+  add_foreign_key "joint_accounts", "users", column: "created_by_id"
   add_foreign_key "reminders", "couples"
   add_foreign_key "reminders", "users", column: "recipient_id"
   add_foreign_key "reminders", "users", column: "sender_id"

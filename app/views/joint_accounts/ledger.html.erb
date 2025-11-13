@@ -1,0 +1,58 @@
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
+  <div class="max-w-6xl mx-auto px-4 space-y-8">
+    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <%= link_to joint_account_path(@joint_account), class: "text-neutral-400 hover:text-neutral-600" do %>
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            <% end %>
+            <h1 class="text-3xl font-bold text-neutral-900"><%= @joint_account.name %> - Ledger</h1>
+          </div>
+          <p class="text-neutral-600">Complete transaction history</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg border border-neutral-200 p-6">
+      <div class="flex gap-2 mb-6">
+        <%= link_to "All", ledger_joint_account_path(@joint_account), class: "px-4 py-2 rounded-lg #{params[:status].blank? ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'} text-sm font-medium" %>
+        <%= link_to "Unsettled", ledger_joint_account_path(@joint_account, status: 'unsettled'), class: "px-4 py-2 rounded-lg #{params[:status] == 'unsettled' ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'} text-sm font-medium" %>
+        <%= link_to "Settled", ledger_joint_account_path(@joint_account, status: 'settled'), class: "px-4 py-2 rounded-lg #{params[:status] == 'settled' ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-700'} text-sm font-medium" %>
+      </div>
+
+      <% if @ledger_entries.any? %>
+        <div class="space-y-3">
+          <% @ledger_entries.each do |entry| %>
+            <div class="flex items-center justify-between p-4 rounded-lg border border-neutral-200">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-sm font-medium text-neutral-900"><%= entry.initiator.name %></span>
+                  <span class="text-xs px-2 py-1 rounded-full <%= entry.partner_borrowing? ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' %>">
+                    <%= entry.partner_borrowing? ? 'Borrowed from account' : 'Lent to account' %>
+                  </span>
+                  <% if entry.settled? %>
+                    <span class="text-xs px-2 py-1 rounded-full bg-neutral-100 text-neutral-600">Settled</span>
+                  <% end %>
+                </div>
+                <p class="text-sm text-neutral-600"><%= entry.description || 'No description' %></p>
+                <p class="text-xs text-neutral-400 mt-1"><%= entry.created_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+                <% if entry.settled? %>
+                  <p class="text-xs text-green-600 mt-1">Settled on <%= entry.settled_at.strftime("%B %d, %Y") %></p>
+                <% end %>
+              </div>
+              <span class="text-lg font-semibold text-neutral-900 ml-4">
+                <%= entry.currency_symbol %><%= sprintf('%.2f', entry.amount_cents / 100.0) %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-neutral-600 text-center py-8">No transactions found</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+

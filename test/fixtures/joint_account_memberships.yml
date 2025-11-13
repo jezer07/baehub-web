@@ -1,0 +1,14 @@
+one:
+  joint_account: one
+  user: one
+  role: admin
+  joined_at: <%= Time.current %>
+  active: true
+
+two:
+  joint_account: two
+  user: one
+  role: member
+  joined_at: <%= Time.current %>
+  active: true
+
