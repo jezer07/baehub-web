@@ -20,15 +20,7 @@ export default class extends Controller {
     this.currentDateValue = this.currentDateValue || new Date().toISOString().split('T')[0]
     
     const buttons = this.element.querySelectorAll('button[data-view]')
-    buttons.forEach((btn) => {
-      if (btn.dataset.view === this.viewModeValue) {
-        btn.classList.remove('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200')
-        btn.classList.add('bg-primary-600', 'text-white')
-      } else {
-        btn.classList.remove('bg-primary-600', 'text-white')
-        btn.classList.add('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200')
-      }
-    })
+    this.updateViewButtons(buttons, this.viewModeValue)
     
     if (this.viewModeValue === "list") {
       this.showListView()
@@ -39,23 +31,28 @@ export default class extends Controller {
 
   switchView(event) {
     const viewMode = event.currentTarget.dataset.view
-    this.viewModeValue = viewMode
-
+    const previousView = this.viewModeValue
     const buttons = event.currentTarget.parentElement.querySelectorAll('button')
-    buttons.forEach(btn => {
-      if (btn.dataset.view === viewMode) {
-        btn.classList.remove('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200')
-        btn.classList.add('bg-primary-600', 'text-white')
+    this.updateViewButtons(buttons, viewMode)
+
+    if (viewMode === previousView) {
+      if (viewMode === "list") {
+        this.showListView()
+        this.updateUrlParams()
       } else {
-        btn.classList.remove('bg-primary-600', 'text-white')
-        btn.classList.add('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200')
+        this.showCalendarView()
       }
-    })
+      return
+    }
+
+    this.viewModeValue = viewMode
 
     if (viewMode === "list") {
       this.showListView()
+      this.updateUrlParams()
     } else {
       this.showCalendarView()
+      this.navigateToDate()
     }
   }
 
@@ -118,5 +115,23 @@ export default class extends Controller {
     url.searchParams.set('view', this.viewModeValue)
     window.location.href = url.toString()
   }
-}
 
+  updateUrlParams() {
+    const url = new URL(window.location.href)
+    url.searchParams.set('date', this.currentDateValue)
+    url.searchParams.set('view', this.viewModeValue)
+    window.history.replaceState({}, '', url.toString())
+  }
+
+  updateViewButtons(buttons, selectedView) {
+    buttons.forEach(btn => {
+      if (btn.dataset.view === selectedView) {
+        btn.classList.remove('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200')
+        btn.classList.add('bg-primary-600', 'text-white')
+      } else {
+        btn.classList.remove('bg-primary-600', 'text-white')
+        btn.classList.add('bg-neutral-100', 'text-neutral-700', 'hover:bg-neutral-200')
+      }
+    })
+  }
+}
