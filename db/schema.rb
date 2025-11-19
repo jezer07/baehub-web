@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_19_090446) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -110,6 +110,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
     t.index ["sender_id"], name: "index_invitations_on_sender_id"
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth_key", null: false
+    t.datetime "created_at", null: false
+    t.string "endpoint", null: false
+    t.string "p256dh_key", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "reminders", force: :cascade do |t|
     t.string "channel", default: "push", null: false
     t.integer "couple_id", null: false
@@ -167,6 +179,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
 
   create_table "users", force: :cascade do |t|
     t.string "avatar_url"
+    t.datetime "confirmation_sent_at"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
     t.integer "couple_id"
     t.datetime "created_at", null: false
     t.datetime "current_sign_in_at"
@@ -185,7 +200,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
     t.integer "sign_in_count", default: 0, null: false
     t.boolean "solo_mode", default: false, null: false
     t.string "timezone"
+    t.string "unconfirmed_email"
     t.datetime "updated_at", null: false
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["couple_id"], name: "index_users_on_couple_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -203,6 +220,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_13_120000) do
   add_foreign_key "expenses", "users", column: "spender_id"
   add_foreign_key "invitations", "couples"
   add_foreign_key "invitations", "users", column: "sender_id"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "reminders", "couples"
   add_foreign_key "reminders", "users", column: "recipient_id"
   add_foreign_key "reminders", "users", column: "sender_id"

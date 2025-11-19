@@ -40,7 +40,10 @@ Rails.application.configure do
     user_name: "resend",
     password: ENV["RESEND_API_KEY"],
     authentication: :plain,
-    ssl: true
+    ssl: true,
+    enable_starttls_auto: true,
+    openssl_verify_mode: OpenSSL::SSL::VERIFY_NONE,
+    domain: "accounts.baehubapp.com"
   }
 
   # Make template changes take effect immediately.

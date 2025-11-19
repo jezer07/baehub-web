@@ -4,6 +4,7 @@ one:
   encrypted_password: "$2a$04$N4QdHdNE3rGKMa.ZSUQKGO0NhvT3PvLc/nH0zTQRGPQu0R3/N0t6K"
   role: partner
   couple: one
+  confirmed_at: <%= Time.now %>
 
 two:
   email: user_two@example.com
@@ -11,3 +12,4 @@ two:
   encrypted_password: "$2a$04$N4QdHdNE3rGKMa.ZSUQKGO0NhvT3PvLc/nH0zTQRGPQu0R3/N0t6K"
   role: partner
   couple: one
+  confirmed_at: <%= Time.now %>
