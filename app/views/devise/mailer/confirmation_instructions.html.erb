@@ -1,24 +1,15 @@
-<p>Hi <%= @email %>,</p>
-<p>Welcome to BaeHub! We're excited to have you on board.</p>
-<p>Please confirm your email address to get started.</p>
+<h1>Welcome to BaeHub!</h1>
 
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
-  <tbody>
-    <tr>
-      <td align="left">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-          <tbody>
-            <tr>
-              <td>
-                <%= link_to 'Confirm Account', confirmation_url(@resource, confirmation_token: @token), target: "_blank" %>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<p>Hi there,</p>
 
-<p>If you didn't request this, please ignore this email.</p>
-<p>Best regards,<br>The BaeHub Team</p>
+<p>We're thrilled to have you join us! You're just one step away from syncing your life with your partner effortlessly.</p>
+
+<p>Please confirm your email address to unlock your account and start building your shared world.</p>
+
+<div class="btn-container">
+  <%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token), class: "btn", target: "_blank" %>
+</div>
+
+<p style="font-size: 14px; color: #78716c; text-align: center; margin-top: 32px;">
+  If you didn't create this account, you can safely ignore this email.
+</p>

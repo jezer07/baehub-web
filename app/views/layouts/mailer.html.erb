@@ -5,257 +5,162 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <style>
       body {
-        background-color: #f6f6f6;
-        font-family: sans-serif;
+        background-color: #fff1f2;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
-        font-size: 14px;
-        line-height: 1.4;
+        font-size: 16px;
+        line-height: 1.6;
         margin: 0;
         padding: 0;
-        -ms-text-size-adjust: 100%;
-        -webkit-text-size-adjust: 100%;
+        color: #1c1917;
       }
 
-      table {
-        border-collapse: separate;
-        mso-table-lspace: 0pt;
-        mso-table-rspace: 0pt;
+      .body-table {
         width: 100%;
-      }
-
-      table td {
-        font-family: sans-serif;
-        font-size: 14px;
-        vertical-align: top;
-      }
-
-      .body {
-        background-color: #f6f6f6;
-        width: 100%;
+        background-color: #fff1f2;
       }
 
       .container {
-        display: block;
-        margin: 0 auto !important;
-        max-width: 580px;
-        padding: 10px;
-        width: 580px;
+        margin: 0 auto;
+        max-width: 600px;
+        padding: 40px 20px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .header {
+        background-color: #ffffff;
+        padding: 32px 40px 0;
+        text-align: center;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 800;
+        color: #e11d48;
+        text-decoration: none;
+        letter-spacing: -0.5px;
       }
 
       .content {
-        box-sizing: border-box;
-        display: block;
-        margin: 0 auto;
-        max-width: 580px;
-        padding: 10px;
-      }
-
-      .main {
-        background: #ffffff;
-        border-radius: 3px;
-        width: 100%;
-      }
-
-      .wrapper {
-        box-sizing: border-box;
-        padding: 20px;
-      }
-
-      .footer {
-        clear: both;
-        margin-top: 10px;
-        text-align: center;
-        width: 100%;
-      }
-
-      .footer td,
-      .footer p,
-      .footer span,
-      .footer a {
-        color: #999999;
-        font-size: 12px;
-        text-align: center;
-      }
-
-      h1, h2, h3, h4 {
-        color: #000000;
-        font-family: sans-serif;
-        font-weight: 400;
-        line-height: 1.4;
-        margin: 0;
-        margin-bottom: 30px;
+        padding: 32px 40px 40px;
       }
 
       h1 {
-        font-size: 35px;
-        font-weight: 300;
+        color: #1c1917;
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 16px;
         text-align: center;
-        text-transform: capitalize;
       }
 
-      p, ul, ol {
-        font-family: sans-serif;
-        font-size: 14px;
-        font-weight: normal;
-        margin: 0;
-        margin-bottom: 15px;
+      p {
+        margin: 0 0 24px;
+        color: #57534e;
       }
 
-      p li, ul li, ol li {
-        list-style-position: inside;
-        margin-left: 5px;
-      }
-
-      a {
-        color: #ea580c;
-        text-decoration: underline;
+      .btn-container {
+        text-align: center;
+        margin: 32px 0;
       }
 
       .btn {
-        box-sizing: border-box;
+        background-color: #e11d48;
+        border-radius: 12px;
+        color: #ffffff;
+        display: inline-block;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 50px;
+        text-align: center;
+        text-decoration: none;
         width: 100%;
+        max-width: 240px;
+        box-shadow: 0 2px 4px rgba(225, 29, 72, 0.2);
       }
 
-      .btn > tbody > tr > td {
-        padding-bottom: 15px;
-      }
-
-      .btn table {
-        width: auto;
-      }
-
-      .btn table td {
-        background-color: #ffffff;
-        border-radius: 5px;
+      .footer {
+        margin-top: 32px;
         text-align: center;
       }
 
-      .btn a {
-        background-color: #ffffff;
-        border: solid 1px #ea580c;
-        border-radius: 5px;
-        box-sizing: border-box;
-        color: #ea580c;
-        cursor: pointer;
-        display: inline-block;
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        padding: 12px 25px;
-        text-decoration: none;
-        text-transform: capitalize;
+      .footer p {
+        color: #a8a29e;
+        font-size: 12px;
+        margin-bottom: 8px;
       }
 
-      .btn-primary table td {
-        background-color: #ea580c;
-      }
-
-      .btn-primary a {
-        background-color: #ea580c;
-        border-color: #ea580c;
-        color: #ffffff;
+      .footer a {
+        color: #a8a29e;
+        text-decoration: underline;
       }
 
       @media only screen and (max-width: 620px) {
-        table.body h1 {
-          font-size: 28px !important;
-          margin-bottom: 10px !important;
+        .container {
+          padding: 20px 10px;
         }
-
-        table.body p,
-        table.body ul,
-        table.body ol,
-        table.body td,
-        table.body span,
-        table.body a {
-          font-size: 16px !important;
+        .card {
+          border-radius: 12px;
         }
-
-        table.body .wrapper,
-        table.body .article {
-          padding: 10px !important;
+        .content, .header {
+          padding: 24px;
         }
-
-        table.body .content {
-          padding: 0 !important;
+        h1 {
+          font-size: 20px;
         }
-
-        table.body .container {
-          padding: 0 !important;
-          width: 100% !important;
-        }
-
-        table.body .main {
-          border-left-width: 0 !important;
-          border-radius: 0 !important;
-          border-right-width: 0 !important;
-        }
-
-        table.body .btn table {
-          width: 100% !important;
-        }
-
-        table.body .btn a {
-          width: 100% !important;
-        }
-
-        table.body .img-responsive {
-          height: auto !important;
-          max-width: 100% !important;
-          width: auto !important;
+        .btn {
+          width: 100%;
+          max-width: none;
         }
       }
 
       @media (prefers-color-scheme: dark) {
-        body {
-          background-color: #2d2d2d;
+        body, .body-table {
+          background-color: #1c1917 !important;
+          color: #e7e5e4 !important;
         }
-        .main {
-          background-color: #1f1f1f;
-          color: #ffffff;
+        .card {
+          background-color: #292524 !important;
+          box-shadow: none !important;
+          border: 1px solid #44403c;
         }
-        h1, h2, h3, h4, p {
-          color: #ffffff;
+        .header {
+          background-color: #292524 !important;
         }
-        .footer td, .footer p, .footer span, .footer a {
-          color: #999999;
+        h1 {
+          color: #ffffff !important;
+        }
+        p {
+          color: #d6d3d1 !important;
         }
       }
     </style>
   </head>
   <body>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+    <table class="body-table" role="presentation" border="0" cellpadding="0" cellspacing="0">
       <tr>
-        <td>&nbsp;</td>
-        <td class="container">
-          <div class="content">
-            <table role="presentation" class="main">
-              <tr>
-                <td class="wrapper">
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td>
-                        <%= yield %>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-
+        <td>
+          <div class="container">
+            <div class="card">
+              <div class="header">
+                <a href="#" class="logo">BaeHub</a>
+              </div>
+              <div class="content">
+                <%= yield %>
+              </div>
+            </div>
             <div class="footer">
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td class="content-block">
-                    <span class="apple-link">BaeHub, Inc.</span>
-                    <br>
-                  </td>
-                </tr>
-              </table>
+              <p>© <%= Time.current.year %> BaeHub. All rights reserved.</p>
+              <p>Sent with ❤️ for couples everywhere.</p>
             </div>
           </div>
         </td>
-        <td>&nbsp;</td>
       </tr>
     </table>
   </body>
