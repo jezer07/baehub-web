@@ -39,9 +39,20 @@
     </section>
 
     <!-- Tasks list section -->
-    <section>
+    <section data-controller="todo-filter">
       <% if @tasks.any? %>
-        <h2 class="text-xl font-semibold text-neutral-900 mb-4">Task List</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold text-neutral-900">Task List</h2>
+          <button type="button"
+                  class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 hover:border-primary-400 transition-all font-medium text-sm"
+                  data-action="click->todo-filter#toggle"
+                  data-todo-filter-target="toggleButton">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-todo-filter-target="toggleIcon">
+              <!-- Icon will be updated by controller -->
+            </svg>
+            Show TODOs
+          </button>
+        </div>
         <div class="bg-white rounded-2xl border border-neutral-200 p-6">
           <ul class="space-y-3">
             <% @tasks.each do |task| %>

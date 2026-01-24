@@ -39,13 +39,24 @@
     <% end %>
 
     <section class="grid lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8">
+      <div class="lg:col-span-2 bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8" data-controller="todo-filter">
         <div class="flex items-center justify-between mb-6">
           <div>
             <h2 class="text-2xl font-semibold text-neutral-900">Shared focus</h2>
             <p class="text-sm text-neutral-500">Top tasks that keep your rhythm steady</p>
           </div>
-          <button type="button" class="btn-primary" data-action="click->task-modal#open">Add task</button>
+          <div class="flex items-center gap-3">
+            <button type="button"
+                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 hover:border-primary-400 transition-all font-medium text-sm"
+                    data-action="click->todo-filter#toggle"
+                    data-todo-filter-target="toggleButton">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-todo-filter-target="toggleIcon">
+                <!-- Icon will be updated by controller -->
+              </svg>
+              Show TODOs
+            </button>
+            <button type="button" class="btn-primary" data-action="click->task-modal#open">Add task</button>
+          </div>
         </div>
 
         <% if @tasks.any? %>

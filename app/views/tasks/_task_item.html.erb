@@ -3,7 +3,7 @@
   frame_id = local_assigns.fetch(:frame_id, "task_#{task.id}")
 %>
 
-<%= turbo_frame_tag frame_id, class: "block" do %>
+<%= turbo_frame_tag frame_id, class: "block", data: { todo_filter_target: "taskItem", task_status: task.status } do %>
   <%= link_to edit_task_path(task), data: { turbo_frame: frame_id }, class: "block" do %>
     <li class="group flex items-start gap-3 rounded-xl border border-neutral-100 <%= compact ? 'bg-neutral-50 px-4 py-3' : 'bg-white p-4' %> hover:border-primary-200 hover:shadow-md transition-all cursor-pointer">
       <%= button_to toggle_completion_task_path(task), method: :patch, class: "mt-1 flex-shrink-0 p-1 rounded-lg transition-colors #{task.done? ? 'text-success-700 hover:bg-success-50' : 'text-neutral-400 hover:bg-neutral-100'}", onclick: "event.preventDefault(); event.stopPropagation(); this.closest('form').submit();" do %>
