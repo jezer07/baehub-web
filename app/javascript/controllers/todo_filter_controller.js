@@ -7,7 +7,7 @@ export default class extends Controller {
   }
 
   connect() {
-    const savedPreference = localStorage.getItem("hideTodoTasks")
+    const savedPreference = localStorage.getItem("hideCompletedTasks")
     this.hiddenValue = savedPreference !== null ? savedPreference === "true" : true
     this.applyFilter()
     this.updateToggleButton()
@@ -15,15 +15,15 @@ export default class extends Controller {
 
   toggle() {
     this.hiddenValue = !this.hiddenValue
-    localStorage.setItem("hideTodoTasks", this.hiddenValue.toString())
+    localStorage.setItem("hideCompletedTasks", this.hiddenValue.toString())
     this.applyFilter()
     this.updateToggleButton()
   }
 
   applyFilter() {
     this.taskItemTargets.forEach(taskItem => {
-      const isTodo = taskItem.dataset.taskStatus === "todo"
-      if (isTodo && this.hiddenValue) {
+      const isDone = taskItem.dataset.taskStatus === "done"
+      if (isDone && this.hiddenValue) {
         taskItem.classList.add("hidden")
       } else {
         taskItem.classList.remove("hidden")
@@ -33,7 +33,7 @@ export default class extends Controller {
 
   updateToggleButton() {
     if (this.hasToggleButtonTarget) {
-      const buttonText = this.hiddenValue ? "Show TODOs" : "Hide TODOs"
+      const buttonText = this.hiddenValue ? "Show completed" : "Hide completed"
       this.toggleButtonTarget.textContent = buttonText
     }
 
