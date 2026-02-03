@@ -11,6 +11,12 @@ class Event < ApplicationRecord
   validates :starts_at, presence: true
   validate :ends_after_start
   validate :valid_recurrence_rule_format
+  validate :google_calendar_connection_present, if: :sync_to_google?
+
+  attr_accessor :skip_google_sync
+
+  after_commit :enqueue_google_sync, on: [ :create, :update ]
+  after_commit :enqueue_google_delete, on: [ :destroy ]
 
   scope :future, -> { where("starts_at >= ?", Time.current.beginning_of_day) }
   scope :current_week, -> { where(starts_at: Time.current.beginning_of_week..Time.current.end_of_week) }
@@ -202,6 +208,12 @@ class Event < ApplicationRecord
 
   private
 
+  def google_calendar_connection_present
+    return if couple&.google_calendar_connection&.calendar_id.present?
+
+    errors.add(:base, "Connect a shared Google Calendar before enabling sync.")
+  end
+
   def ends_after_start
     return if ends_at.blank? || starts_at.blank?
     return if ends_at >= starts_at
@@ -241,5 +253,37 @@ class Event < ApplicationRecord
     true
   rescue ArgumentError
     false
+  end
+
+  def enqueue_google_sync
+    return if skip_google_sync
+    return unless saved_changes?
+
+    if saved_change_to_sync_to_google? && !sync_to_google?
+      if google_event_id.present?
+        GoogleCalendar::DeleteEventJob.perform_later(google_event_id, couple_id)
+        update_columns(
+          google_event_id: nil,
+          google_event_etag: nil,
+          google_event_updated_at: nil,
+          google_last_synced_at: nil,
+          google_sync_status: nil,
+          google_sync_error: nil
+        )
+      end
+      return
+    end
+
+    return unless sync_to_google?
+    return unless couple&.google_calendar_connection&.calendar_id.present?
+
+    GoogleCalendar::UpsertEventJob.perform_later(id)
+  end
+
+  def enqueue_google_delete
+    return if skip_google_sync
+    return if google_event_id.blank?
+
+    GoogleCalendar::DeleteEventJob.perform_later(google_event_id, couple_id)
   end
 end

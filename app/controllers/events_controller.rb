@@ -171,7 +171,7 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:title, :description, :starts_at, :ends_at, :all_day)
+    params.require(:event).permit(:title, :description, :starts_at, :ends_at, :all_day, :sync_to_google)
   end
 
   def log_event_activity(action, event)

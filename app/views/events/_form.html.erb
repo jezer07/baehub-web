@@ -98,6 +98,24 @@
     </div>
   </div>
 
+  <% if current_user.couple.google_calendar_connection&.calendar_id.present? %>
+    <div class="flex items-center gap-2">
+      <%= f.check_box :sync_to_google, class: "form-checkbox" %>
+      <label class="text-sm font-medium text-neutral-700">
+        Sync to Google Calendar
+      </label>
+    </div>
+    <p class="form-help">This event will stay synced with your shared Google Calendar.</p>
+  <% elsif current_user.couple.google_calendar_connection.present? %>
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      Select a shared calendar in Settings to enable Google sync.
+    </div>
+  <% else %>
+    <div class="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-600">
+      Connect a Google Calendar in Settings to enable sync.
+    </div>
+  <% end %>
+
   <div class="flex justify-end">
     <%= f.submit class: "btn-primary" %>
   </div>
