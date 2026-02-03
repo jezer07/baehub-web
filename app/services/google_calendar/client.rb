@@ -99,6 +99,7 @@ module GoogleCalendar
       request["Authorization"] = "Bearer #{@connection.access_token}"
 
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+        http.ssl_context = GoogleCalendar::TLS.ssl_context
         http.request(request)
       end
 

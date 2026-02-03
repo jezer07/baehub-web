@@ -26,13 +26,20 @@ module GoogleCalendar
 
     def self.exchange_code(code:, redirect_uri:)
       uri = URI(TOKEN_URL)
-      response = Net::HTTP.post_form(uri, {
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.ssl_context = GoogleCalendar::TLS.ssl_context
+
+      request = Net::HTTP::Post.new(uri)
+      request.set_form_data({
         client_id: ENV.fetch("GOOGLE_CLIENT_ID"),
         client_secret: ENV.fetch("GOOGLE_CLIENT_SECRET"),
         code: code,
         grant_type: "authorization_code",
         redirect_uri: redirect_uri
       })
+
+      response = http.request(request)
 
       data = JSON.parse(response.body)
 
