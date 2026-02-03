@@ -13,7 +13,7 @@ class GoogleCalendarConnectionsController < ApplicationController
     state = SecureRandom.hex(16)
     session[:google_oauth_state] = state
 
-    redirect_to GoogleCalendar::OAuth.authorization_url(
+    redirect_to GoogleCalendar::Oauth.authorization_url(
       redirect_uri: callback_url,
       state: state
     ), allow_other_host: true
@@ -36,7 +36,7 @@ class GoogleCalendarConnectionsController < ApplicationController
       return
     end
 
-    tokens = GoogleCalendar::OAuth.exchange_code(code: params[:code], redirect_uri: callback_url)
+    tokens = GoogleCalendar::Oauth.exchange_code(code: params[:code], redirect_uri: callback_url)
     connection = current_user.couple.google_calendar_connection || current_user.couple.build_google_calendar_connection(user: current_user)
 
     connection.assign_attributes(

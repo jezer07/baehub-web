@@ -3,7 +3,8 @@ require "uri"
 require "json"
 
 module GoogleCalendar
-  class OAuth
+  # Zeitwerk maps oauth.rb -> Oauth, so keep the constant name conventional.
+  class Oauth
     AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     TOKEN_URL = "https://oauth2.googleapis.com/token"
     SCOPE = "https://www.googleapis.com/auth/calendar".freeze
