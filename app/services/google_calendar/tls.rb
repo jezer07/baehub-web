@@ -1,7 +1,7 @@
 require "openssl"
 
 module GoogleCalendar
-  module TLS
+  module Tls
     # Some environments (VPNs/proxies/enterprise networks) can break CRL fetching and cause
     # "unable to get certificate CRL" errors. Most clients do not require CRL checks.
     # You can opt back in by setting GOOGLE_TLS_ENABLE_CRL=1.
@@ -31,4 +31,3 @@ module GoogleCalendar
     end
   end
 end
-
