@@ -2,6 +2,8 @@ class GoogleCalendarConnection < ApplicationRecord
   belongs_to :couple
   belongs_to :user
 
+  encrypts :access_token, :refresh_token
+
   validates :access_token, presence: true
 
   def calendar_selected?

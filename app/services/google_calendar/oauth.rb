@@ -28,7 +28,7 @@ module GoogleCalendar
       uri = URI(TOKEN_URL)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
-      http.ssl_context = GoogleCalendar::Tls.ssl_context
+      GoogleCalendar::Tls.configure(http)
 
       request = Net::HTTP::Post.new(uri)
       request.set_form_data({

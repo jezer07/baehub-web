@@ -3,7 +3,9 @@ require "time"
 
 module GoogleCalendar
   class SyncService
-    DEFAULT_TIME_MIN = 1.year.ago.freeze
+    def self.default_time_min
+      1.year.ago
+    end
 
     def initialize(connection)
       @connection = connection
@@ -41,7 +43,7 @@ module GoogleCalendar
       if !full_sync && @connection.sync_token.present?
         params[:syncToken] = @connection.sync_token
       else
-        params[:timeMin] = DEFAULT_TIME_MIN.utc.iso8601
+        params[:timeMin] = self.class.default_time_min.utc.iso8601
       end
 
       loop do
@@ -106,9 +108,11 @@ module GoogleCalendar
       end
 
       channel_id = SecureRandom.uuid
-      response = @client.watch_events(calendar_id, webhook_url, channel_id)
+      channel_token = SecureRandom.hex(32)
+      response = @client.watch_events(calendar_id, webhook_url, channel_id, channel_token: channel_token)
       @connection.update!(
         channel_id: channel_id,
+        channel_token: channel_token,
         channel_resource_id: response["resourceId"],
         channel_expires_at: parse_channel_expiration(response["expiration"])
       )
@@ -122,6 +126,7 @@ module GoogleCalendar
     ensure
       @connection.update!(
         channel_id: nil,
+        channel_token: nil,
         channel_resource_id: nil,
         channel_expires_at: nil
       )
@@ -180,7 +185,14 @@ module GoogleCalendar
     end
 
     def webhook_url
-      host = ENV.fetch("APP_HOST", ENV.fetch("MAILER_HOST", "localhost:3000"))
+      host = ENV["APP_HOST"].presence || ENV["MAILER_HOST"].presence
+      if host.blank?
+        if Rails.env.production?
+          raise "APP_HOST environment variable is required for Google Calendar webhooks"
+        end
+        host = "localhost:3000"
+      end
+
       return "#{host}/google_calendar/webhook" if host.start_with?("http")
 
       protocol = ENV.fetch("APP_PROTOCOL", host.start_with?("localhost") ? "http" : "https")

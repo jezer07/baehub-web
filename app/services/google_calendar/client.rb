@@ -32,12 +32,13 @@ module GoogleCalendar
       delete_json("/calendars/#{escape(calendar_id)}/events/#{escape(event_id)}")
     end
 
-    def watch_events(calendar_id, webhook_url, channel_id)
+    def watch_events(calendar_id, webhook_url, channel_id, channel_token: nil)
       body = {
         id: channel_id,
         type: "web_hook",
         address: webhook_url
       }
+      body[:token] = channel_token if channel_token.present?
       post_json("/calendars/#{escape(calendar_id)}/events/watch", body)
     end
 
@@ -49,12 +50,20 @@ module GoogleCalendar
     def refresh_access_token!
       return if @connection.refresh_token.blank?
 
-      response = Net::HTTP.post_form(URI(TOKEN_URL), {
+      uri = URI(TOKEN_URL)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      GoogleCalendar::Tls.configure(http)
+
+      request = Net::HTTP::Post.new(uri)
+      request.set_form_data({
         client_id: ENV.fetch("GOOGLE_CLIENT_ID"),
         client_secret: ENV.fetch("GOOGLE_CLIENT_SECRET"),
         refresh_token: @connection.refresh_token,
         grant_type: "refresh_token"
       })
+
+      response = http.request(request)
       data = JSON.parse(response.body)
       unless response.is_a?(Net::HTTPSuccess)
         error = data["error_description"] || data["error"] || "OAuth refresh failed"
@@ -98,10 +107,10 @@ module GoogleCalendar
       request = build_request(method, uri, body)
       request["Authorization"] = "Bearer #{@connection.access_token}"
 
-      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-        http.ssl_context = GoogleCalendar::Tls.ssl_context
-        http.request(request)
-      end
+      http = Net::HTTP.new(uri.hostname, uri.port)
+      http.use_ssl = true
+      GoogleCalendar::Tls.configure(http)
+      response = http.request(request)
 
       if response.code.to_i == 401 && !retried
         refresh_access_token!

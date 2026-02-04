@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_03_130100) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_000000) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -108,6 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_130100) do
     t.datetime "channel_expires_at"
     t.string "channel_id"
     t.string "channel_resource_id"
+    t.string "channel_token"
     t.integer "couple_id", null: false
     t.datetime "created_at", null: false
     t.datetime "expires_at"
@@ -116,6 +117,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_03_130100) do
     t.string "sync_token"
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["channel_id"], name: "index_google_calendar_connections_on_channel_id"
     t.index ["couple_id"], name: "index_google_calendar_connections_on_couple_id", unique: true
     t.index ["user_id"], name: "index_google_calendar_connections_on_user_id"
   end
