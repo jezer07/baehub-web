@@ -2,7 +2,8 @@ class GoogleCalendarConnection < ApplicationRecord
   belongs_to :couple
   belongs_to :user
 
-  encrypts :access_token, :refresh_token
+  # TODO: Enable after adding active_record_encryption keys to credentials
+  # encrypts :access_token, :refresh_token
 
   validates :access_token, presence: true
 
