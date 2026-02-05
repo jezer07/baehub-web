@@ -62,8 +62,8 @@ class ApplicationHelperTest < ActionView::TestCase
   test "transaction_impact_for_user with expense transaction type" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
     couple.update!(default_currency: "PHP")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     expense = couple.expenses.create!(spender: user_a, title: "Test", amount_cents: 10_000, incurred_on: Date.today, split_strategy: :equal)
     expense.expense_shares.create!(user: user_a, percentage: 50)
@@ -79,8 +79,8 @@ class ApplicationHelperTest < ActionView::TestCase
   test "transaction_impact_for_user with settlement transaction type" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
     couple.update!(default_currency: "EUR")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     settlement = couple.settlements.create!(payer: user_a, payee: user_b, amount_cents: 5_000, settled_on: Date.today)
 
@@ -93,7 +93,7 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "transaction_impact_for_user with unknown transaction type returns zero impact" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
+    user = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     transaction = { type: :unknown, object: nil }
 
@@ -104,8 +104,8 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "expense_impact_for_user when user is the spender positive impact" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     expense = couple.expenses.create!(spender: user_a, title: "Test", amount_cents: 10_000, incurred_on: Date.today, split_strategy: :equal)
     expense.expense_shares.create!(user: user_a, percentage: 50)
@@ -118,8 +118,8 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "expense_impact_for_user when user is not the spender negative impact" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     expense = couple.expenses.create!(spender: user_a, title: "Test", amount_cents: 10_000, incurred_on: Date.today, split_strategy: :equal)
     expense.expense_shares.create!(user: user_a, percentage: 50)
@@ -132,8 +132,8 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "expense_impact_for_user with percentage split" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     expense = couple.expenses.create!(spender: user_a, title: "Test", amount_cents: 10_000, incurred_on: Date.today, split_strategy: :percentage)
     expense.expense_shares.create!(user: user_a, percentage: 70)
@@ -145,8 +145,8 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "expense_impact_for_user with custom amount split" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     expense = couple.expenses.create!(spender: user_a, title: "Test", amount_cents: 10_000, incurred_on: Date.today, split_strategy: :custom_amounts)
     expense.expense_shares.create!(user: user_a, amount_cents: 6_000)
@@ -159,8 +159,8 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "settlement_impact_for_user when user is the payer negative impact" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     settlement = couple.settlements.create!(payer: user_a, payee: user_b, amount_cents: 5_000, settled_on: Date.today)
 
@@ -171,8 +171,8 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "settlement_impact_for_user when user is the payee positive impact" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
 
     settlement = couple.settlements.create!(payer: user_a, payee: user_b, amount_cents: 5_000, settled_on: Date.today)
 
@@ -183,9 +183,9 @@ class ApplicationHelperTest < ActionView::TestCase
 
   test "settlement_impact_for_user when user is neither payer nor payee zero impact" do
     couple = Couple.create!(name: "Test Couple", slug: "test#{rand(10000)}", timezone: "UTC")
-    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple)
-    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple)
-    user_c = User.create!(email: "c@test.com", name: "User C", password: "password123", password_confirmation: "password123")
+    user_a = User.create!(email: "a@test.com", name: "User A", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_b = User.create!(email: "b@test.com", name: "User B", password: "password123", password_confirmation: "password123", couple: couple, confirmed_at: Time.current)
+    user_c = User.create!(email: "c@test.com", name: "User C", password: "password123", password_confirmation: "password123", confirmed_at: Time.current)
 
     settlement = couple.settlements.create!(payer: user_a, payee: user_b, amount_cents: 5_000, settled_on: Date.today)
 

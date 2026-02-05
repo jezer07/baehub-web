@@ -296,7 +296,8 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       email: "nocouple@example.com",
       name: "No Couple User",
       password: "password123",
-      password_confirmation: "password123"
+      password_confirmation: "password123",
+      confirmed_at: Time.current
     )
     sign_in user_without_couple
 
@@ -311,7 +312,8 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
       name: "Other User",
       password: "password123",
       password_confirmation: "password123",
-      couple: other_couple
+      couple: other_couple,
+      confirmed_at: Time.current
     )
     other_partner = User.create!(
       email: "otherpartner@example.com",

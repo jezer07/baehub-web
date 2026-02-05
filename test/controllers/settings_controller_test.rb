@@ -43,7 +43,8 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
       email: "solo-settings@example.com",
       name: "Solo User",
       password: "password123",
-      password_confirmation: "password123"
+      password_confirmation: "password123",
+      confirmed_at: Time.current
     )
 
     sign_in solo_user

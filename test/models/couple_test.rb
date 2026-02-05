@@ -8,14 +8,16 @@ class CoupleTest < ActiveSupport::TestCase
       name: "User A",
       password: "password123",
       password_confirmation: "password123",
-      couple: @couple
+      couple: @couple,
+      confirmed_at: Time.current
     )
     @user_b = User.create!(
       email: "userb@example.com",
       name: "User B",
       password: "password123",
       password_confirmation: "password123",
-      couple: @couple
+      couple: @couple,
+      confirmed_at: Time.current
     )
   end
 
@@ -278,7 +280,8 @@ class CoupleTest < ActiveSupport::TestCase
       name: "Single User",
       password: "password123",
       password_confirmation: "password123",
-      couple: single_couple
+      couple: single_couple,
+      confirmed_at: Time.current
     )
 
     balance_data = single_couple.calculate_balance

@@ -8,14 +8,16 @@ class SettlementsTest < ApplicationSystemTestCase
       name: "User A",
       password: "password123",
       password_confirmation: "password123",
-      couple: @couple
+      couple: @couple,
+      confirmed_at: Time.current
     )
     @user_b = User.create!(
       email: "userb@system.test",
       name: "User B",
       password: "password123",
       password_confirmation: "password123",
-      couple: @couple
+      couple: @couple,
+      confirmed_at: Time.current
     )
 
     expense = @couple.expenses.create!(

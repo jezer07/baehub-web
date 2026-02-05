@@ -3,5 +3,13 @@ require "test_helper"
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
 
-  include Devise::Test::IntegrationHelpers
+  include Warden::Test::Helpers
+
+  def sign_in(user)
+    login_as(user, scope: :user)
+  end
+
+  teardown do
+    Warden.test_reset!
+  end
 end

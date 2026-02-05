@@ -8,14 +8,16 @@ class SettlementTest < ActiveSupport::TestCase
       name: "Test User One",
       password: "password123",
       password_confirmation: "password123",
-      couple: @couple
+      couple: @couple,
+      confirmed_at: Time.current
     )
     @user_two = User.create!(
       email: "test2@example.com",
       name: "Test User Two",
       password: "password123",
       password_confirmation: "password123",
-      couple: @couple
+      couple: @couple,
+      confirmed_at: Time.current
     )
   end
 
@@ -153,7 +155,8 @@ class SettlementTest < ActiveSupport::TestCase
       name: "Other User",
       password: "password123",
       password_confirmation: "password123",
-      couple: other_couple
+      couple: other_couple,
+      confirmed_at: Time.current
     )
 
     settlement = Settlement.new(
@@ -175,7 +178,8 @@ class SettlementTest < ActiveSupport::TestCase
       name: "Other User",
       password: "password123",
       password_confirmation: "password123",
-      couple: other_couple
+      couple: other_couple,
+      confirmed_at: Time.current
     )
 
     settlement = Settlement.new(
