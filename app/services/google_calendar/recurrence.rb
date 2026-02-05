@@ -36,7 +36,7 @@ module GoogleCalendar
         rule += ";BYMONTH=#{start_time.month};BYMONTHDAY=#{start_time.day}"
       end
 
-      [rule]
+      [ rule ]
     rescue ArgumentError
       []
     end

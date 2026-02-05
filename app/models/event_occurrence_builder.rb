@@ -21,7 +21,7 @@ class EventOccurrenceBuilder
       overlaps_range = event_overlaps_range?(event, start_date:, end_date:)
 
       if overlaps_range
-        [EventOccurrence.new(event, starts_at: event.starts_at, ends_at: event.ends_at)]
+        [ EventOccurrence.new(event, starts_at: event.starts_at, ends_at: event.ends_at) ]
       else
         []
       end
