@@ -4,7 +4,7 @@ class GoogleCalendarConnection < ApplicationRecord
 
   # Encryption disabled - existing data was stored unencrypted
   # To enable: clear existing connections, then uncomment below
-  # encrypts :access_token, :refresh_token
+  encrypts :access_token, :refresh_token
 
   validates :access_token, presence: true
 
