@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_19_090446) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_05_000000) do
   create_table "activity_logs", force: :cascade do |t|
     t.string "action", null: false
     t.integer "couple_id", null: false
@@ -57,10 +57,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_090446) do
     t.integer "creator_id", null: false
     t.text "description"
     t.datetime "ends_at"
+    t.string "google_event_etag"
+    t.string "google_event_id"
+    t.datetime "google_event_updated_at"
+    t.datetime "google_last_synced_at"
+    t.text "google_sync_error"
+    t.string "google_sync_status"
     t.string "recurrence_rule"
     t.datetime "starts_at", null: false
+    t.boolean "sync_to_google", default: false, null: false
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["couple_id", "google_event_id"], name: "index_events_on_couple_id_and_google_event_id", unique: true
     t.index ["couple_id", "starts_at"], name: "index_events_on_couple_id_and_starts_at"
     t.index ["couple_id"], name: "index_events_on_couple_id"
     t.index ["creator_id"], name: "index_events_on_creator_id"
@@ -91,6 +99,27 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_090446) do
     t.index ["couple_id", "incurred_on"], name: "index_expenses_on_couple_id_and_incurred_on"
     t.index ["couple_id"], name: "index_expenses_on_couple_id"
     t.index ["spender_id"], name: "index_expenses_on_spender_id"
+  end
+
+  create_table "google_calendar_connections", force: :cascade do |t|
+    t.string "access_token"
+    t.string "calendar_id"
+    t.string "calendar_summary"
+    t.datetime "channel_expires_at"
+    t.string "channel_id"
+    t.string "channel_resource_id"
+    t.string "channel_token"
+    t.integer "couple_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at"
+    t.datetime "last_synced_at"
+    t.string "refresh_token"
+    t.string "sync_token"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["channel_id"], name: "index_google_calendar_connections_on_channel_id"
+    t.index ["couple_id"], name: "index_google_calendar_connections_on_couple_id", unique: true
+    t.index ["user_id"], name: "index_google_calendar_connections_on_user_id"
   end
 
   create_table "invitations", force: :cascade do |t|
@@ -218,6 +247,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_19_090446) do
   add_foreign_key "expense_shares", "users"
   add_foreign_key "expenses", "couples"
   add_foreign_key "expenses", "users", column: "spender_id"
+  add_foreign_key "google_calendar_connections", "couples"
+  add_foreign_key "google_calendar_connections", "users"
   add_foreign_key "invitations", "couples"
   add_foreign_key "invitations", "users", column: "sender_id"
   add_foreign_key "push_subscriptions", "users"

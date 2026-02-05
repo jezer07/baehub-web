@@ -18,7 +18,7 @@ class EventOccurrenceBuilderTest < ActiveSupport::TestCase
     )
 
     occurrences = EventOccurrenceBuilder.expand(
-      [event],
+      [ event ],
       range_start: Date.new(2024, 11, 1),
       range_end: Date.new(2024, 11, 30)
     )
@@ -41,7 +41,7 @@ class EventOccurrenceBuilderTest < ActiveSupport::TestCase
     )
 
     occurrences = EventOccurrenceBuilder.expand(
-      [event],
+      [ event ],
       range_start: Date.new(2024, 11, 1),
       range_end: Date.new(2024, 11, 29),
       per_event_limit: 10

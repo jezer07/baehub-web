@@ -31,6 +31,13 @@ class SettingsController < ApplicationController
   def prepare_form_objects
     @couple = current_user.couple
     @user = current_user
+    @google_connection = @couple.google_calendar_connection
+
+    if @google_connection
+      @google_calendars = GoogleCalendar::SyncService.new(@google_connection).available_calendars
+    end
+  rescue GoogleCalendar::RequestError => e
+    @google_calendar_error = e.message
   end
 
   def update_couple_preferences

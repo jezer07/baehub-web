@@ -55,6 +55,18 @@
             <p class="text-neutral-600"><%= @event.creator.email %> on <%= @event.created_at.strftime("%b %d, %Y") %></p>
           </div>
 
+          <% if @event.sync_to_google? %>
+            <div>
+              <h3 class="text-sm font-semibold text-neutral-700 mb-2">Google Calendar</h3>
+              <p class="text-neutral-600">
+                <%= @event.google_sync_status.presence || "Syncing" %>
+              </p>
+              <% if @event.google_sync_error.present? %>
+                <p class="text-sm text-red-600 mt-1"><%= @event.google_sync_error %></p>
+              <% end %>
+            </div>
+          <% end %>
+
           <% if @event.recurring? %>
             <div>
               <h3 class="text-sm font-semibold text-neutral-700 mb-2">Recurrence</h3>

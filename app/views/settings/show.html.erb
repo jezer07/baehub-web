@@ -6,6 +6,62 @@
     <p class="text-sm text-neutral-500 mt-2">Adjust your shared preferences and explore upcoming features.</p>
   </div>
 
+  <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+    <div class="px-6 py-5 border-b border-neutral-100 bg-neutral-50">
+      <h2 class="text-xl font-semibold text-neutral-900">Calendar sync</h2>
+      <p class="text-sm text-neutral-500 mt-1">Connect a shared Google Calendar so both partners stay in sync.</p>
+    </div>
+    <div class="p-6 space-y-4">
+      <% if @google_calendar_error.present? %>
+        <div class="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Google Calendar error: <%= @google_calendar_error %>
+        </div>
+      <% end %>
+
+      <% if @google_connection.present? %>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p class="text-sm font-medium text-neutral-900">Google account connected</p>
+            <p class="text-sm text-neutral-500">
+              <% if @google_connection.calendar_selected? %>
+                Shared calendar: <%= @google_connection.calendar_summary %>
+              <% else %>
+                No shared calendar selected yet.
+              <% end %>
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <%= button_to "Disconnect", google_calendar_disconnect_path, method: :delete, class: "btn-secondary", data: { turbo_confirm: "Disconnect Google Calendar?" } %>
+          </div>
+        </div>
+
+        <% if @google_calendars.present? %>
+          <%= form_with url: google_calendar_select_path, method: :post, class: "grid grid-cols-1 md:grid-cols-3 gap-4" do |calendar_form| %>
+            <div class="md:col-span-2">
+              <%= calendar_form.label :calendar_id, "Choose shared calendar", class: "form-label" %>
+              <%= calendar_form.select :calendar_id,
+                    options_for_select(@google_calendars.map { |item| ["#{item[:summary]}#{item[:primary] ? ' (Primary)' : ''}", item[:id]] }, @google_connection.calendar_id),
+                    { include_blank: "Select a calendar" },
+                    class: "form-control w-full px-4 py-3" %>
+              <p class="form-help">Pick the calendar that is already shared with your partner.</p>
+            </div>
+            <div class="flex items-end">
+              <%= calendar_form.submit "Save calendar", class: "btn-primary w-full md:w-auto" %>
+            </div>
+          <% end %>
+        <% end %>
+      <% else %>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p class="text-sm font-medium text-neutral-900">No Google account connected</p>
+            <p class="text-sm text-neutral-500">Connect once, then select the shared calendar you already use.</p>
+          </div>
+          <%= link_to "Connect Google Calendar", google_calendar_connect_path, class: "btn-primary", data: { turbo: false } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <%= form_with url: settings_path, method: :patch, scope: :settings, class: "space-y-8" do |form| %>
     <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 overflow-hidden">
       <div class="px-6 py-5 border-b border-neutral-100 bg-neutral-50">

@@ -171,7 +171,7 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:title, :description, :starts_at, :ends_at, :all_day)
+    params.require(:event).permit(:title, :description, :starts_at, :ends_at, :all_day, :sync_to_google)
   end
 
   def log_event_activity(action, event)
@@ -248,25 +248,25 @@ class EventsController < ApplicationController
     min_date = event_starts.min || Date.today
     max_date = event_ends.max || min_date
 
-    start_date = explicit_start || [min_date, Date.today - 1.year].min
-    end_date = explicit_end || [max_date, Date.today + 1.year].max
+    start_date = explicit_start || [ min_date, Date.today - 1.year ].min
+    end_date = explicit_end || [ max_date, Date.today + 1.year ].max
 
     end_date = start_date if end_date < start_date
 
-    [start_date, end_date]
+    [ start_date, end_date ]
   end
 
   def calendar_range_bounds(current_date, view_mode)
     view = view_mode.presence || "month"
     case view
     when "week"
-      [current_date.beginning_of_week, current_date.end_of_week]
+      [ current_date.beginning_of_week, current_date.end_of_week ]
     when "day"
-      [current_date, current_date]
+      [ current_date, current_date ]
     else
       start_date = current_date.beginning_of_month.beginning_of_week(:sunday)
       end_date = current_date.end_of_month.end_of_week(:sunday)
-      [start_date, end_date]
+      [ start_date, end_date ]
     end
   end
 

@@ -6,6 +6,12 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
+  get "/auth/google_oauth2", to: "google_calendar_connections#connect", as: :google_calendar_connect
+  get "/auth/google_oauth2/callback", to: "google_calendar_connections#callback"
+  post "/google_calendar/select", to: "google_calendar_connections#select_calendar", as: :google_calendar_select
+  delete "/google_calendar/disconnect", to: "google_calendar_connections#disconnect", as: :google_calendar_disconnect
+  post "/google_calendar/webhook", to: "google_calendar_webhooks#create"
+
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker

@@ -29,7 +29,7 @@ class ExpenseShare < ApplicationRecord
   private
 
   def value_presence
-    return if amount_cents.present? || percentage.present?
+    return if !amount_cents.nil? || !percentage.nil?
 
     errors.add(:base, "amount or percentage must be provided")
   end
