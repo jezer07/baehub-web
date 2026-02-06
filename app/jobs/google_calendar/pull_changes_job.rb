@@ -6,7 +6,9 @@ module GoogleCalendar
       connection = GoogleCalendarConnection.find_by(id: connection_id)
       return if connection.blank? || connection.calendar_id.blank?
 
-      SyncService.new(connection).pull_changes
+      sync_service = SyncService.new(connection)
+      sync_service.pull_changes
+      sync_service.ensure_watch!
     end
   end
 end
