@@ -103,9 +103,15 @@ module GoogleCalendar
       calendar_id = @connection.calendar_id
       return if calendar_id.blank?
 
-      if @connection.channel_expires_at.present? && @connection.channel_expires_at > 1.day.from_now
+      if @connection.channel_id.present? &&
+          @connection.channel_resource_id.present? &&
+          @connection.channel_token.present? &&
+          @connection.channel_expires_at.present? &&
+          @connection.channel_expires_at > 1.day.from_now
         return
       end
+
+      stop_watch! if @connection.channel_id.present? && @connection.channel_resource_id.present?
 
       channel_id = SecureRandom.uuid
       channel_token = SecureRandom.hex(32)

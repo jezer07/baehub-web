@@ -13,7 +13,7 @@ class GoogleCalendarWebhooksController < ApplicationController
       return
     end
 
-    if %w[exists sync].include?(resource_state)
+    if %w[exists sync not_exists].include?(resource_state)
       GoogleCalendar::PullChangesJob.perform_later(connection.id)
     end
 
@@ -23,7 +23,9 @@ class GoogleCalendarWebhooksController < ApplicationController
   private
 
   def valid_channel_token?(connection, token)
-    return false if connection.channel_token.blank? || token.blank?
+    # Legacy watches may exist without tokens; allow by channel ID until the watch is rotated.
+    return true if connection.channel_token.blank?
+    return false if token.blank?
 
     ActiveSupport::SecurityUtils.secure_compare(connection.channel_token, token)
   end
