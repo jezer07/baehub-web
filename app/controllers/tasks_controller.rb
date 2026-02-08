@@ -141,7 +141,15 @@ class TasksController < ApplicationController
   end
 
   def safe_redirect_target(target)
-    url_from(target)
+    return nil if target.blank?
+
+    return url_from(target) if respond_to?(:url_from, true)
+
+    parsed = URI.parse(target)
+    return nil unless parsed.scheme.nil? && parsed.host.nil?
+    return nil unless target.start_with?("/")
+
+    target
   rescue URI::InvalidURIError
     nil
   end

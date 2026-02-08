@@ -50,7 +50,7 @@ class GoogleCalendarConnectionsController < ApplicationController
     redirect_to settings_path, notice: "Google account connected. Choose a shared calendar to sync."
   rescue GoogleCalendar::RequestError => e
     log_exception(e, context: "google_calendar_connections#callback")
-    redirect_to settings_path, alert: "Google connection failed. Please try again."
+    redirect_to settings_path, alert: generic_error_message
   end
 
   def select_calendar
@@ -82,7 +82,7 @@ class GoogleCalendarConnectionsController < ApplicationController
     redirect_to settings_path, notice: "Shared calendar linked. Initial sync is running."
   rescue GoogleCalendar::RequestError => e
     log_exception(e, context: "google_calendar_connections#select_calendar")
-    redirect_to settings_path, alert: "Google Calendar sync failed. Please try again."
+    redirect_to settings_path, alert: generic_error_message
   end
 
   def disconnect
