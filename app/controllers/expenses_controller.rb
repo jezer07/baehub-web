@@ -94,7 +94,8 @@ class ExpensesController < ApplicationController
         render :new, status: :unprocessable_entity
       end
     rescue StandardError => e
-      @expense.errors.add(:base, e.message)
+      log_exception(e, context: "expenses#create")
+      @expense.errors.add(:base, generic_error_message)
       @couple_users = current_user.couple.users.to_a
       flash.now[:alert] = @expense.errors.full_messages.join(", ")
       render :new, status: :unprocessable_entity
@@ -127,7 +128,8 @@ class ExpensesController < ApplicationController
         render :edit, status: :unprocessable_entity
       end
     rescue StandardError => e
-      @expense.errors.add(:base, e.message)
+      log_exception(e, context: "expenses#update")
+      @expense.errors.add(:base, generic_error_message)
       @couple_users = current_user.couple.users.to_a
       flash.now[:alert] = @expense.errors.full_messages.join(", ")
       render :edit, status: :unprocessable_entity
@@ -144,7 +146,8 @@ class ExpensesController < ApplicationController
       end
       redirect_to expenses_path, notice: "Expense was successfully deleted."
     rescue StandardError => e
-      redirect_to expenses_path, alert: "Error deleting expense: #{e.message}"
+      log_exception(e, context: "expenses#destroy")
+      redirect_to expenses_path, alert: generic_error_message
     end
   end
 

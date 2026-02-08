@@ -35,9 +35,10 @@ class EventResponsesController < ApplicationController
       end
     end
   rescue StandardError => e
+    log_exception(e, context: "event_responses#create")
     respond_to do |format|
-      format.html { redirect_to event_path(@event), alert: "Error updating RSVP: #{e.message}" }
-      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error updating RSVP: #{e.message}" }) }
+      format.html { redirect_to event_path(@event), alert: generic_error_message }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: generic_error_message }) }
     end
   end
 
@@ -71,9 +72,10 @@ class EventResponsesController < ApplicationController
       end
     end
   rescue StandardError => e
+    log_exception(e, context: "event_responses#update")
     respond_to do |format|
-      format.html { redirect_to event_path(@event), alert: "Error changing RSVP: #{e.message}" }
-      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error changing RSVP: #{e.message}" }) }
+      format.html { redirect_to event_path(@event), alert: generic_error_message }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: generic_error_message }) }
     end
   end
 
