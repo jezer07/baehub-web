@@ -1,53 +1,34 @@
-<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12 relative z-0" data-controller="task-modal event-modal expense-modal">
+<div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-6 sm:py-10 relative z-0" data-controller="task-modal event-modal expense-modal">
   <div id="flash-messages"></div>
-  <div class="max-w-6xl mx-auto px-4 space-y-10 relative z-10">
-    <section class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 overflow-hidden">
-      <div class="p-8">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
-            <p class="text-sm font-semibold uppercase tracking-wide text-primary-500 mb-2">Shared home</p>
-            <h1 class="text-3xl sm:text-4xl font-bold text-neutral-900 mb-3"><%= @couple.name %></h1>
-            <p class="text-neutral-600 max-w-2xl">
-              Keep your plans, promises, and payments aligned. This dashboard surfaces what’s next so you can spend more time together.
-            </p>
-          </div>
-        </div>
-      </div>
-      <% if @couple.story.present? %>
-        <div class="px-8 py-6 bg-neutral-50 border-t border-neutral-100">
-          <p class="text-sm text-neutral-600 leading-relaxed"><span class="font-semibold text-neutral-800">Your story:</span> <%= @couple.story %></p>
-        </div>
-      <% end %>
-    </section>
-
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8 relative z-10">
     <% if @couple.users.size < 2 %>
-      <div class="rounded-3xl bg-primary-600 text-white p-6 shadow-lg shadow-primary-500/30 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+      <div class="rounded-3xl bg-primary-600 text-white p-5 sm:p-6 shadow-lg shadow-primary-500/30 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
         <div>
-          <p class="font-semibold text-lg">Still waiting for your person?</p>
-          <p class="text-primary-50">Share the freshest code so they can join — reminders and shared balances work best when you’re both in.</p>
+          <p class="font-semibold text-lg mb-1">Still waiting for your person?</p>
+          <p class="text-primary-50 text-sm sm:text-base">Share the freshest code so they can join. Shared reminders and balances work best when you’re both in.</p>
         </div>
         <% if @active_invitations.any? %>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <% @active_invitations.each do |invitation| %>
               <span class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-white/15 font-mono text-sm tracking-wider"><%= invitation.code %></span>
             <% end %>
           </div>
         <% else %>
-          <%= link_to "Generate invite", new_pairing_path, class: "btn-secondary bg-white text-primary-700 hover:bg-primary-50 hover:text-primary-800" %>
+          <%= link_to "Generate invite", new_pairing_path, class: "btn-secondary w-full sm:w-auto bg-white text-primary-700 hover:bg-primary-50 hover:text-primary-800" %>
         <% end %>
       </div>
     <% end %>
 
-    <section class="grid lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8" data-controller="todo-filter">
-        <div class="flex items-center justify-between mb-6">
+    <section class="grid lg:grid-cols-3 gap-4 sm:gap-6">
+      <div class="lg:col-span-2 bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-5 sm:p-8" data-controller="todo-filter">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 sm:mb-6">
           <div>
-            <h2 class="text-2xl font-semibold text-neutral-900">Shared focus</h2>
+            <h2 class="text-xl sm:text-2xl font-semibold text-neutral-900">Shared focus</h2>
             <p class="text-sm text-neutral-500">Top tasks that keep your rhythm steady</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="grid grid-cols-1 sm:flex items-stretch sm:items-center gap-2 sm:gap-3">
             <button type="button"
-                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 hover:border-primary-400 transition-all font-medium text-sm"
+                    class="inline-flex h-11 items-center justify-center gap-2 px-4 rounded-xl border border-neutral-300 bg-white text-neutral-700 hover:bg-neutral-50 hover:border-primary-400 transition-all font-medium text-sm"
                     data-action="click->todo-filter#toggle"
                     data-todo-filter-target="toggleButton">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-todo-filter-target="toggleIcon">
@@ -55,28 +36,28 @@
               </svg>
               Show completed
             </button>
-            <button type="button" class="btn-primary" data-action="click->task-modal#open">Add task</button>
+            <button type="button" class="btn-primary w-full sm:w-auto h-11 px-4" data-action="click->task-modal#open">Add task</button>
           </div>
         </div>
 
         <% if @tasks.any? %>
-          <ul class="space-y-6">
+          <ul class="space-y-3 sm:space-y-4">
             <% @tasks.each do |task| %>
               <%= render "tasks/task_item", task: task, compact: false, frame_id: "dashboard_task_#{task.id}" %>
             <% end %>
           </ul>
         <% else %>
-          <div class="rounded-2xl border border-dashed border-neutral-200 p-8 text-center">
-            <p class="text-neutral-500">No shared tasks yet—add your first to-do and watch the timeline come alive.</p>
+          <div class="rounded-2xl border border-dashed border-neutral-200 p-6 sm:p-8 text-center">
+            <p class="text-sm sm:text-base text-neutral-500">No shared tasks yet. Add your first to-do and watch the timeline come alive.</p>
           </div>
         <% end %>
       </div>
 
-      <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8 space-y-8">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-neutral-900">Upcoming moments</h2>
-            <button type="button" class="btn-primary px-3 py-2" data-action="click->event-modal#open">Add event</button>
+      <div class="space-y-4 sm:space-y-6">
+        <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 class="text-lg sm:text-xl font-semibold text-neutral-900">Upcoming moments</h2>
+            <button type="button" class="btn-primary w-full sm:w-auto h-11 px-4 text-sm sm:text-base" data-action="click->event-modal#open">Add event</button>
           </div>
           <% if @events.any? %>
             <ul class="space-y-4">
@@ -89,14 +70,14 @@
           <% end %>
         </div>
 
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold text-neutral-900">Bills & balances</h2>
-            <button type="button" class="btn-primary px-3 py-2" data-action="click->expense-modal#open">Log expense</button>
+        <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h2 class="text-lg sm:text-xl font-semibold text-neutral-900">Bills & balances</h2>
+            <button type="button" class="btn-primary w-full sm:w-auto h-11 px-4 text-sm sm:text-base" data-action="click->expense-modal#open">Log expense</button>
           </div>
           <%= render "expenses/balance_summary", balance_data: @balance_data, couple: @couple %>
           <% if @expenses.any? %>
-            <div class="max-h-80 overflow-y-auto">
+            <div class="max-h-80 overflow-y-auto pr-1">
               <% @expenses.each do |expense| %>
                 <%= render "expenses/expense_item", expense: expense, show_link: true, compact: true %>
               <% end %>
@@ -108,15 +89,15 @@
       </div>
     </section>
 
-    <section class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-8">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-semibold text-neutral-900">Recent story beats</h2>
-        <button type="button" class="btn-secondary opacity-70 cursor-not-allowed px-3 py-2">View full history</button>
+    <section class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-5 sm:p-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 sm:mb-6">
+        <h2 class="text-xl sm:text-2xl font-semibold text-neutral-900">Recent story beats</h2>
+        <button type="button" class="btn-secondary w-full sm:w-auto h-11 opacity-70 cursor-not-allowed px-4 py-2 text-sm">View full history</button>
       </div>
       <% if @activity_logs.any? %>
         <ul class="space-y-4">
           <% @activity_logs.each do |log| %>
-            <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3">
+            <li class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-neutral-100 bg-neutral-50 px-4 py-3.5 sm:px-5">
               <div class="flex items-start gap-3">
                 <% if log.subject_type == 'Task' %>
                   <svg class="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

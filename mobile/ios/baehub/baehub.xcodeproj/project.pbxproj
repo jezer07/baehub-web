@@ -133,17 +133,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		FEA7A0032F386A000051CDEE /* XCRemoteSwiftPackageReference "hotwire-native-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/hotwired/hotwire-native-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.2.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCBuildConfiguration section */
 		FE9CC5192F3855D50051CDEE /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -332,14 +321,6 @@
 		};
 /* End XCBuildConfiguration section */
 
-/* Begin XCSwiftPackageProductDependency section */
-		FEA7A0022F386A000051CDEE /* HotwireNative */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FEA7A0032F386A000051CDEE /* XCRemoteSwiftPackageReference "hotwire-native-ios" */;
-			productName = HotwireNative;
-		};
-/* End XCSwiftPackageProductDependency section */
-
 /* Begin XCConfigurationList section */
 		FE9CC50B2F3855D40051CDEE /* Build configuration list for PBXProject "baehub" */ = {
 			isa = XCConfigurationList;
@@ -360,6 +341,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FEA7A0032F386A000051CDEE /* XCRemoteSwiftPackageReference "hotwire-native-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hotwired/hotwire-native-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FEA7A0022F386A000051CDEE /* HotwireNative */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FEA7A0032F386A000051CDEE /* XCRemoteSwiftPackageReference "hotwire-native-ios" */;
+			productName = HotwireNative;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FE9CC5082F3855D40051CDEE /* Project object */;
 }

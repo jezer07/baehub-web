@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import HotwireNative
+import WebKit
 
 final class RootHostViewController: UIViewController {
     private var contentViewController: UIViewController?
@@ -39,13 +40,14 @@ final class RootHostViewController: UIViewController {
     }
 }
 
-final class HotwireCoordinator: NSObject, NavigatorDelegate {
+final class HotwireCoordinator: NSObject, NavigatorDelegate, UITabBarControllerDelegate {
     enum AppShell {
         case authentication
         case tabbed
     }
 
     static let shared = HotwireCoordinator()
+    private static let hasAuthenticatedSessionDefaultsKey = "has_authenticated_session"
 
     let rootURL: URL
     let signInURL: URL
@@ -54,7 +56,15 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
     private var started = false
     private var activeShell: AppShell = .authentication
     private var authNavigator: Navigator?
+    private var authWebViewObservation: NSKeyValueObservation?
+    private var tabWebViewObservation: NSKeyValueObservation?
     private var tabBarController: HotwireTabBarController?
+    private var pendingQuickAddURL: URL?
+    private lazy var quickAddBarButtonItem = UIBarButtonItem(
+        barButtonSystemItem: .add,
+        target: self,
+        action: #selector(handleQuickAddTapped)
+    )
 
     private override init() {
         // Optional override in Info.plist: BAEHUB_BASE_URL
@@ -73,7 +83,12 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
     func rootViewController() -> UIViewController {
         if !started {
             started = true
-            showAuthenticationShell(animated: false)
+            if Self.storedHasAuthenticatedSession {
+                let dashboardURL = URL(string: "/dashboard", relativeTo: rootURL)!.absoluteURL
+                showTabbedShell(initialURL: dashboardURL, animated: false)
+            } else {
+                showAuthenticationShell(animated: false)
+            }
         }
 
         return rootHost
@@ -87,6 +102,26 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
         updateShell(for: url)
     }
 
+    func handle(proposal: VisitProposal, from navigator: Navigator) -> ProposalResult {
+        let destinationURL = proposal.url
+
+        if activeShell == .authentication, !isAuthenticationPath(destinationURL.path) {
+            DispatchQueue.main.async {
+                self.showTabbedShell(initialURL: destinationURL, animated: true)
+            }
+            return .reject
+        }
+
+        if activeShell == .tabbed, isAuthenticationPath(destinationURL.path), navigator !== authNavigator {
+            DispatchQueue.main.async {
+                self.showAuthenticationShell(animated: true)
+            }
+            return .reject
+        }
+
+        return .accept
+    }
+
     private func makeNavigator(name: String, startLocation: URL) -> Navigator {
         Navigator(
             configuration: .init(name: name, startLocation: startLocation),
@@ -97,9 +132,14 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
     private func showAuthenticationShell(animated: Bool) {
         activeShell = .authentication
         tabBarController = nil
+        pendingQuickAddURL = nil
+        tabWebViewObservation?.invalidate()
+        tabWebViewObservation = nil
+        Self.storedHasAuthenticatedSession = false
 
         let navigator = makeNavigator(name: "auth", startLocation: signInURL)
         authNavigator = navigator
+        observeAuthenticationWebView(navigator.activeWebView)
         navigator.start()
         rootHost.setContent(navigator.rootViewController, animated: animated)
     }
@@ -107,8 +147,12 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
     private func showTabbedShell(initialURL: URL, animated: Bool) {
         activeShell = .tabbed
         authNavigator = nil
+        authWebViewObservation?.invalidate()
+        authWebViewObservation = nil
+        Self.storedHasAuthenticatedSession = true
 
         let tabBarController = HotwireTabBarController(navigatorDelegate: self)
+        tabBarController.delegate = self
         tabBarController.load(makeTabs())
         configureTabBarAppearance(tabBarController.tabBar)
 
@@ -118,7 +162,9 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
         }
 
         self.tabBarController = tabBarController
+        observeTabbedWebView(tabBarController.activeNavigator.activeWebView)
         rootHost.setContent(tabBarController, animated: animated)
+        updateQuickAddButton(for: initialURL)
     }
 
     private func makeTabs() -> [HotwireTab] {
@@ -203,19 +249,204 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate {
             path.hasPrefix("/users/unlock")
     }
 
+    private func isAppOrigin(_ url: URL) -> Bool {
+        guard let candidate = URLComponents(url: url, resolvingAgainstBaseURL: true),
+              let root = URLComponents(url: rootURL, resolvingAgainstBaseURL: true)
+        else {
+            return false
+        }
+
+        let candidateScheme = candidate.scheme?.lowercased()
+        let rootScheme = root.scheme?.lowercased()
+        let candidateHost = candidate.host?.lowercased()
+        let rootHost = root.host?.lowercased()
+
+        return candidateScheme == rootScheme &&
+            candidateHost == rootHost &&
+            effectivePort(for: candidate) == effectivePort(for: root)
+    }
+
+    private func effectivePort(for components: URLComponents) -> Int? {
+        if let port = components.port {
+            return port
+        }
+
+        switch components.scheme?.lowercased() {
+        case "https":
+            return 443
+        case "http":
+            return 80
+        default:
+            return nil
+        }
+    }
+
+    private func observeAuthenticationWebView(_ webView: WKWebView) {
+        authWebViewObservation?.invalidate()
+        authWebViewObservation = webView.observe(\.url, options: [.initial, .new]) { [weak self] webView, _ in
+            guard let self,
+                  let currentURL = webView.url,
+                  self.isAppOrigin(currentURL)
+            else { return }
+
+            DispatchQueue.main.async {
+                guard self.activeShell == .authentication else { return }
+
+                if self.activeShell == .authentication, !self.isAuthenticationPath(currentURL.path) {
+                    self.showTabbedShell(initialURL: currentURL, animated: true)
+                    return
+                }
+
+                self.updateShell(for: currentURL)
+            }
+        }
+    }
+
+    private func observeTabbedWebView(_ webView: WKWebView) {
+        tabWebViewObservation?.invalidate()
+        tabWebViewObservation = webView.observe(\.url, options: [.initial, .new]) { [weak self] webView, _ in
+            guard let self,
+                  let currentURL = webView.url,
+                  self.isAppOrigin(currentURL)
+            else { return }
+
+            DispatchQueue.main.async {
+                guard self.activeShell == .tabbed else { return }
+
+                if self.activeShell == .tabbed, self.isAuthenticationPath(currentURL.path) {
+                    self.showAuthenticationShell(animated: true)
+                    return
+                }
+
+                self.updateQuickAddButton(for: currentURL)
+            }
+        }
+    }
+
+    private func tabRootURL(for index: Int) -> URL? {
+        switch index {
+        case 1:
+            return URL(string: "/tasks", relativeTo: rootURL)?.absoluteURL
+        case 2:
+            return URL(string: "/events", relativeTo: rootURL)?.absoluteURL
+        case 3:
+            return URL(string: "/expenses", relativeTo: rootURL)?.absoluteURL
+        default:
+            return nil
+        }
+    }
+
+    private func nativeAddURL(for url: URL) -> URL? {
+        switch url.path {
+        case "/tasks":
+            return URL(string: "/tasks/new", relativeTo: rootURL)?.absoluteURL
+        case "/events":
+            return URL(string: "/events/new", relativeTo: rootURL)?.absoluteURL
+        case "/expenses":
+            return URL(string: "/expenses/new", relativeTo: rootURL)?.absoluteURL
+        default:
+            return nil
+        }
+    }
+
+    private func currentVisitableURLForActiveTab() -> URL? {
+        guard let tabBarController else { return nil }
+
+        if let topVisitable = tabBarController.activeNavigator.activeNavigationController.topViewController as? VisitableViewController {
+            return topVisitable.currentVisitableURL
+        }
+
+        return nil
+    }
+
+    private func currentVisitableURLForAuthShell() -> URL? {
+        if let topVisitable = authNavigator?.activeNavigationController.topViewController as? VisitableViewController {
+            return topVisitable.currentVisitableURL
+        }
+
+        return authNavigator?.activeWebView.url
+    }
+
+    private func effectiveURL(from callbackURL: URL) -> URL {
+        switch activeShell {
+        case .authentication:
+            return currentVisitableURLForAuthShell() ?? callbackURL
+        case .tabbed:
+            return currentVisitableURLForActiveTab() ?? callbackURL
+        }
+    }
+
+    private func updateQuickAddButton(for url: URL?) {
+        guard activeShell == .tabbed, let tabBarController else { return }
+
+        let topController = tabBarController.activeNavigator.activeNavigationController.topViewController
+        guard let url, let addURL = nativeAddURL(for: url) else {
+            pendingQuickAddURL = nil
+            topController?.navigationItem.rightBarButtonItem = nil
+            return
+        }
+
+        pendingQuickAddURL = addURL
+        topController?.navigationItem.rightBarButtonItem = quickAddBarButtonItem
+    }
+
+    @objc private func handleQuickAddTapped() {
+        guard activeShell == .tabbed,
+              let tabBarController,
+              let addURL = pendingQuickAddURL
+        else { return }
+
+        tabBarController.activeNavigator.route(addURL)
+    }
+
+    private func shouldSwitchToAuthenticationShell(for callbackURL: URL) -> Bool {
+        guard activeShell == .tabbed else { return true }
+        guard isAuthenticationPath(callbackURL.path) else { return false }
+
+        guard let activeURL = currentVisitableURLForActiveTab() else {
+            return false
+        }
+
+        return isAuthenticationPath(activeURL.path)
+    }
+
     private func updateShell(for url: URL) {
         DispatchQueue.main.async {
-            if self.isAuthenticationPath(url.path) {
-                if self.activeShell != .authentication {
+            let observedURL = self.effectiveURL(from: url)
+            guard self.isAppOrigin(observedURL) else { return }
+
+            if self.isAuthenticationPath(observedURL.path) {
+                if self.activeShell == .authentication {
+                    return
+                }
+
+                if self.shouldSwitchToAuthenticationShell(for: observedURL) {
                     self.showAuthenticationShell(animated: true)
                 }
                 return
             }
 
             if self.activeShell != .tabbed {
-                self.showTabbedShell(initialURL: url, animated: true)
+                self.showTabbedShell(initialURL: observedURL, animated: true)
+            } else {
+                self.updateQuickAddButton(for: observedURL)
             }
         }
+    }
+
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        guard activeShell == .tabbed,
+              let hotwireTabBarController = tabBarController as? HotwireTabBarController
+        else { return }
+
+        observeTabbedWebView(hotwireTabBarController.activeNavigator.activeWebView)
+        let currentURL = currentVisitableURLForActiveTab() ?? tabRootURL(for: tabBarController.selectedIndex)
+        updateQuickAddButton(for: currentURL)
+    }
+
+    private static var storedHasAuthenticatedSession: Bool {
+        get { UserDefaults.standard.bool(forKey: hasAuthenticatedSessionDefaultsKey) }
+        set { UserDefaults.standard.set(newValue, forKey: hasAuthenticatedSessionDefaultsKey) }
     }
 }
 

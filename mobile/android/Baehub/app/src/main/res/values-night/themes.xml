@@ -12,5 +12,12 @@
         <item name="colorOnSurface">@color/baehub_on_surface</item>
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="toolbarStyle">@style/Widget.Baehub.Toolbar</item>
+    </style>
+
+    <style name="Widget.Baehub.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="titleTextColor">@color/baehub_on_surface</item>
+        <item name="subtitleTextColor">@color/baehub_on_surface</item>
+        <item name="navigationIconTint">@color/baehub_on_surface</item>
     </style>
 </resources>

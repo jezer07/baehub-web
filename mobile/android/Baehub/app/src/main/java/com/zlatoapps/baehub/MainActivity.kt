@@ -3,7 +3,10 @@ package com.zlatoapps.baehub
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.navigation.NavController
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import dev.hotwire.core.turbo.visit.VisitAction
 import dev.hotwire.core.turbo.visit.VisitOptions
 import dev.hotwire.navigation.activities.HotwireActivity
@@ -90,7 +93,10 @@ class MainActivity : HotwireActivity() {
     }
 
     private lateinit var bottomNavigationController: HotwireBottomNavigationController
+    private lateinit var bottomNavigationView: BottomNavigationView
+    private lateinit var quickAddFab: FloatingActionButton
     private val observedNavigatorHostIds = mutableSetOf<Int>()
+    private val pendingRootRoutes = mutableSetOf<Int>()
     private var isAuthenticated = false
     private var tabsPrimedForSession = false
 
@@ -98,23 +104,55 @@ class MainActivity : HotwireActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
+        quickAddFab = findViewById(R.id.quick_add_fab)
 
         bottomNavigationController = HotwireBottomNavigationController(
             activity = this,
-            view = findViewById(R.id.bottom_navigation),
+            view = bottomNavigationView,
             initialVisibility = HotwireBottomNavigationController.Visibility.HIDDEN
         )
         bottomNavigationController.load(tabDefinitions.map { it.tab })
         bottomNavigationController.setOnTabSelectedListener { _, tab ->
             if (!isAuthenticated) return@setOnTabSelectedListener
 
-            val location = delegate.findNavigatorHost(tab.configuration.navigatorHostId)
-                ?.navigator
-                ?.location
+            val hostId = tab.configuration.navigatorHostId
+            val tabRootLocation = tabDefinitions.firstOrNull {
+                it.tab.configuration.navigatorHostId == hostId
+            }?.rootLocation
+
+            val navigatorHost = delegate.findNavigatorHost(hostId)
+            if (navigatorHost == null) {
+                pendingRootRoutes.add(hostId)
+                updateQuickAddVisibility(null)
+                return@setOnTabSelectedListener
+            }
+
+            val location = navigatorHost.navigator.location
 
             if (location == null || isAuthenticationLocation(location)) {
-                routeTabToRoot(tab.configuration.navigatorHostId)
+                routeTabToRoot(hostId)
+                updateQuickAddVisibility(null)
+                return@setOnTabSelectedListener
             }
+
+            updateQuickAddVisibility(location)
+        }
+
+        quickAddFab.setOnClickListener {
+            if (!isAuthenticated) return@setOnClickListener
+
+            val activeHostId = delegate.currentNavigator?.host?.id ?: return@setOnClickListener
+            val activeNavigator = delegate.findNavigatorHost(activeHostId)?.navigator ?: return@setOnClickListener
+            val addLocation = nativeAddLocation(activeNavigator.location ?: return@setOnClickListener)
+                ?: return@setOnClickListener
+
+            activeNavigator.route(addLocation)
+        }
+
+        adjustQuickAddFabPosition()
+        bottomNavigationView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            adjustQuickAddFabPosition()
         }
     }
 
@@ -123,6 +161,10 @@ class MainActivity : HotwireActivity() {
     override fun onNavigatorReady(navigator: Navigator) {
         val hostId = navigator.host.id
         if (!observedNavigatorHostIds.add(hostId)) return
+
+        if (pendingRootRoutes.remove(hostId)) {
+            routeTabToRoot(hostId)
+        }
 
         navigator.host.navController.addOnDestinationChangedListener { controller: NavController, _, arguments ->
             val location = arguments?.getString("location") ?: return@addOnDestinationChangedListener
@@ -137,11 +179,13 @@ class MainActivity : HotwireActivity() {
             isAuthenticated = false
             tabsPrimedForSession = false
             bottomNavigationController.visibility = HotwireBottomNavigationController.Visibility.HIDDEN
+            quickAddFab.hide()
             return
         }
 
         isAuthenticated = true
         bottomNavigationController.visibility = HotwireBottomNavigationController.Visibility.DEFAULT
+        updateQuickAddVisibility(location)
 
         if (!tabsPrimedForSession) {
             tabsPrimedForSession = true
@@ -163,9 +207,44 @@ class MainActivity : HotwireActivity() {
             it.tab.configuration.navigatorHostId == navigatorHostId
         } ?: return
 
-        delegate.findNavigatorHost(navigatorHostId)
-            ?.navigator
-            ?.route(definition.rootLocation, VisitOptions(action = VisitAction.REPLACE))
+        val navigatorHost = delegate.findNavigatorHost(navigatorHostId)
+        if (navigatorHost == null) {
+            pendingRootRoutes.add(navigatorHostId)
+            return
+        }
+
+        navigatorHost.navigator.route(definition.rootLocation, VisitOptions(action = VisitAction.REPLACE))
+    }
+
+    private fun updateQuickAddVisibility(location: String?) {
+        if (location == null || nativeAddLocation(location) == null) {
+            quickAddFab.hide()
+            return
+        }
+
+        quickAddFab.show()
+    }
+
+    private fun nativeAddLocation(location: String): String? {
+        val path = Uri.parse(location).path ?: return null
+        val normalizedPath = if (path.length > 1) path.trimEnd('/') else path
+
+        return when (normalizedPath) {
+            "/tasks" -> "$ROOT_URL/tasks/new"
+            "/events" -> "$ROOT_URL/events/new"
+            "/expenses" -> "$ROOT_URL/expenses/new"
+            else -> null
+        }
+    }
+
+    private fun adjustQuickAddFabPosition() {
+        bottomNavigationView.post {
+            val layoutParams = quickAddFab.layoutParams as? CoordinatorLayout.LayoutParams ?: return@post
+            val density = resources.displayMetrics.density
+            val extraSpacingPx = (16f * density).toInt()
+            layoutParams.bottomMargin = bottomNavigationView.height + extraSpacingPx
+            quickAddFab.layoutParams = layoutParams
+        }
     }
 
     private fun isAuthenticationLocation(location: String): Boolean {

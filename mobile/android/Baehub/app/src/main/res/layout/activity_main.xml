@@ -53,4 +53,17 @@
         app:itemIconTint="@color/bottom_nav_item_colors"
         app:itemTextColor="@color/bottom_nav_item_colors"
         app:labelVisibilityMode="labeled" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/quick_add_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/quick_add"
+        android:src="@android:drawable/ic_input_add"
+        android:tint="@color/white"
+        android:visibility="gone"
+        app:backgroundTint="@color/baehub_primary" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

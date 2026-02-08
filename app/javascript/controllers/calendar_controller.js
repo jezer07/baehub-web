@@ -113,7 +113,11 @@ export default class extends Controller {
     const url = new URL(window.location.href)
     url.searchParams.set('date', this.currentDateValue)
     url.searchParams.set('view', this.viewModeValue)
-    window.location.href = url.toString()
+    if (window.Turbo) {
+      window.Turbo.visit(url.toString())
+    } else {
+      window.location.href = url.toString()
+    }
   }
 
   updateUrlParams() {

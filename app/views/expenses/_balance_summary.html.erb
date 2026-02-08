@@ -3,14 +3,14 @@
   couple ||= local_assigns[:couple]
 %>
 
-<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-6 mb-6">
-  <div class="mb-4">
-    <h3 class="text-lg font-semibold text-blue-900">Current Balance</h3>
+<div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 p-4 sm:p-5 mb-4 sm:mb-6">
+  <div class="mb-4 sm:mb-5">
+    <h3 class="text-base sm:text-lg font-semibold text-blue-900">Current Balance</h3>
     <p class="text-sm text-blue-700">Your current balance after all expenses and payments</p>
   </div>
 
   <% if balance_data[:summary].any? %>
-    <div class="space-y-3">
+    <div class="space-y-2.5 sm:space-y-3">
       <% balance_data[:summary].each do |summary_item| %>
         <% 
           debtor = summary_item[:debtor]
@@ -20,26 +20,26 @@
           currency_symbol = CurrencyCatalog.symbol_for(currency_code)
           formatted_amount = "#{currency_symbol}#{'%.2f' % (amount_cents / 100.0)}"
         %>
-        <div class="flex items-center justify-between p-4 bg-white rounded-xl border border-blue-200">
-          <div class="flex items-center gap-3 flex-1">
+        <div class="bg-white rounded-xl border border-blue-200 px-4 py-3">
+          <div class="flex items-start gap-3">
             <%= user_avatar(debtor, size: 'small') %>
-            <div class="flex-1">
-              <div class="font-medium text-neutral-900">
+            <div class="min-w-0">
+              <p class="text-sm font-medium text-neutral-900 leading-snug">
                 <% if debtor == current_user %>
                   You owe <%= user_display_name(creditor) %>
                 <% else %>
                   <%= user_display_name(debtor) %> owes you
                 <% end %>
-                <div class="text-xl font-bold text-blue-900"><%= formatted_amount %></div>
-              </div>
+              </p>
+              <p class="text-xl font-bold text-blue-900 mt-1"><%= formatted_amount %></p>
             </div>
           </div>
-         </div>
+        </div>
       <% end %>
     </div>
     
     <% first_summary = balance_data[:summary].first %>
-    <div class="mt-6 text-center">
+    <div class="mt-5 sm:mt-6 text-center">
       <% 
         debtor = first_summary[:debtor]
         creditor = first_summary[:creditor]
@@ -58,15 +58,15 @@
             payee_id: creditor.id,
             amount: format('%.2f', amount_dollars)
           ),
-          class: "inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg" %>
+          class: "inline-flex w-full sm:w-auto justify-center items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg" %>
       
       <% if balance_data[:summary].count > 1 %>
-        <p class="text-xs text-blue-600 mt-2">Settle your balance</p>
+        <p class="text-xs text-blue-600 mt-2">Multiple balances pending. Start with the largest one.</p>
       <% end %>
     </div>
   <% else %>
     <div class="text-center py-4">
-      <p class="text-success-700 font-medium">All settled up! 🎉</p>
+      <p class="text-success-700 font-medium">All settled up</p>
       <p class="text-sm text-success-600 mt-1">No outstanding balances</p>
     </div>
   <% end %>
