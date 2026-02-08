@@ -23,7 +23,7 @@ class PairingsController < ApplicationController
       log_activity(@couple, "#{current_user.name} created the couple space.")
     end
 
-    redirect_to new_pairing_path, notice: "We created #{@couple.name}. Invite your partner with a fresh code below."
+    recede_or_redirect_to new_pairing_path, notice: "We created #{@couple.name}. Invite your partner with a fresh code below."
   rescue ActiveRecord::RecordInvalid => e
     @invitation = Invitation.new
     flash.now[:alert] = e.record.errors.full_messages.to_sentence
@@ -55,7 +55,7 @@ class PairingsController < ApplicationController
       log_activity(couple, "#{current_user.name} joined the couple space.", subject: @invitation)
     end
 
-    redirect_to dashboard_path, notice: "You're all linked! Time to plan magic together."
+    recede_or_redirect_to dashboard_path, notice: "You're all linked! Time to plan magic together."
   end
 
   private

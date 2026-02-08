@@ -92,7 +92,7 @@ class EventsController < ApplicationController
       if @event.save
         formatted_date = @event.starts_at.in_time_zone(current_user.couple.timezone).strftime("%B %-d, %Y")
         log_event_activity("created event '#{@event.title}' on #{formatted_date}", @event)
-        redirect_to events_path, notice: "Event created successfully."
+        recede_or_redirect_to events_path, notice: "Event created successfully."
       else
         flash.now[:alert] = @event.errors.full_messages.to_sentence
         render :new, status: :unprocessable_entity
@@ -131,7 +131,7 @@ class EventsController < ApplicationController
         end
 
         log_event_activity(activity_message, @event)
-        redirect_to @event, notice: "Event updated successfully."
+        recede_or_redirect_to @event, notice: "Event updated successfully."
       else
         flash.now[:alert] = @event.errors.full_messages.to_sentence
         render :edit, status: :unprocessable_entity
@@ -150,7 +150,7 @@ class EventsController < ApplicationController
     Event.transaction do
       log_event_activity("deleted event '#{event_title}'", @event)
       @event.destroy
-      redirect_to events_path, notice: "Event deleted successfully."
+      recede_or_redirect_to events_path, notice: "Event deleted successfully."
     end
   rescue StandardError => e
     log_exception(e, context: "events#destroy")

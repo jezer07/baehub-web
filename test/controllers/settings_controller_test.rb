@@ -36,6 +36,19 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert @user.reload.prefers_dark_mode
   end
 
+  test "native update redirects to refresh historical location" do
+    patch settings_path,
+      params: {
+        settings: {
+          couple: { default_currency: "EUR" },
+          user: { prefers_dark_mode: "1" }
+        }
+      },
+      headers: { "HTTP_USER_AGENT" => "Hotwire Native iOS" }
+
+    assert_redirected_to turbo_refresh_historical_location_url
+  end
+
   test "redirects users without a couple" do
     sign_out @user
 

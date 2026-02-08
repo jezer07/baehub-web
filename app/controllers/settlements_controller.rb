@@ -36,7 +36,7 @@ class SettlementsController < ApplicationController
           log_settlement_activity("recorded payment of #{@settlement.formatted_amount} from #{@settlement.payer.name} to #{@settlement.payee.name}", @settlement)
 
           respond_to do |format|
-            format.html { redirect_to expenses_path, notice: "Settlement recorded successfully." }
+            format.html { recede_or_redirect_to expenses_path, notice: "Settlement recorded successfully." }
             format.turbo_stream { redirect_to expenses_path, notice: "Settlement recorded successfully." }
           end
         else
@@ -63,7 +63,7 @@ class SettlementsController < ApplicationController
           log_settlement_activity("updated payment to #{@settlement.formatted_amount} from #{@settlement.payer.name} to #{@settlement.payee.name}", @settlement)
 
           respond_to do |format|
-            format.html { redirect_to expenses_path, notice: "Settlement updated successfully." }
+            format.html { recede_or_redirect_to expenses_path, notice: "Settlement updated successfully." }
             format.turbo_stream { redirect_to expenses_path, notice: "Settlement updated successfully." }
           end
         else
@@ -90,7 +90,7 @@ class SettlementsController < ApplicationController
         log_settlement_activity("deleted settlement: #{settlement_description}", @settlement)
         @settlement.destroy
       end
-      redirect_to expenses_path, notice: "Settlement was successfully deleted."
+      recede_or_redirect_to expenses_path, notice: "Settlement was successfully deleted."
     rescue StandardError => e
       log_exception(e, context: "settlements#destroy")
       redirect_to expenses_path, alert: generic_error_message

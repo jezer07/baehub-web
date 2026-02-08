@@ -24,7 +24,7 @@ class EventResponsesController < ApplicationController
         log_event_response_activity(action_message, @event_response)
 
         respond_to do |format|
-          format.html { redirect_to event_path(@event), notice: "RSVP updated successfully." }
+          format.html { refresh_or_redirect_to event_path(@event), notice: "RSVP updated successfully." }
           format.turbo_stream
         end
       else
@@ -61,7 +61,7 @@ class EventResponsesController < ApplicationController
         log_event_response_activity(action_message, @event_response)
 
         respond_to do |format|
-          format.html { redirect_to event_path(@event), notice: "RSVP changed successfully." }
+          format.html { refresh_or_redirect_to event_path(@event), notice: "RSVP changed successfully." }
           format.turbo_stream
         end
       else

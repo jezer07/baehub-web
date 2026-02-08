@@ -13,7 +13,7 @@ class SettingsController < ApplicationController
     user_result = update_user_preferences
 
     if couple_result && user_result
-      redirect_to settings_path, notice: "Settings updated successfully."
+      refresh_or_redirect_to settings_path, notice: "Settings updated successfully."
     else
       flash.now[:alert] = collect_error_messages.presence || "Unable to update settings."
       render :show, status: :unprocessable_entity

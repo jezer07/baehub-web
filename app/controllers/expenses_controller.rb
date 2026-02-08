@@ -87,7 +87,7 @@ class ExpensesController < ApplicationController
       end
 
       if success
-        redirect_to expenses_path, notice: "Expense was successfully created."
+        recede_or_redirect_to expenses_path, notice: "Expense was successfully created."
       else
         @couple_users = current_user.couple.users.to_a
         flash.now[:alert] = @expense.errors.full_messages.join(", ")
@@ -113,7 +113,7 @@ class ExpensesController < ApplicationController
         if @expense.update(expense_params)
           if calculate_and_create_shares
             log_expense_activity("updated expense '#{@expense.title}'", @expense)
-            redirect_to expense_path(@expense), notice: "Expense was successfully updated."
+            recede_or_redirect_to expense_path(@expense), notice: "Expense was successfully updated."
           else
             raise ActiveRecord::Rollback
           end
@@ -144,7 +144,7 @@ class ExpensesController < ApplicationController
         log_expense_activity("deleted expense '#{expense_title}'", @expense)
         @expense.destroy
       end
-      redirect_to expenses_path, notice: "Expense was successfully deleted."
+      recede_or_redirect_to expenses_path, notice: "Expense was successfully deleted."
     rescue StandardError => e
       log_exception(e, context: "expenses#destroy")
       redirect_to expenses_path, alert: generic_error_message

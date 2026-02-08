@@ -25,6 +25,7 @@
   </head>
 
   <body class="flex flex-col min-h-screen">
+    <% unless hotwire_native_app? %>
     <div data-controller="mobile-menu">
       <div class="fixed inset-0 bg-black/50 z-40 hidden opacity-0 transition-opacity duration-300" data-mobile-menu-target="backdrop" data-action="click->mobile-menu#close"></div>
 
@@ -89,6 +90,7 @@
         </div>
       </nav>
     </div>
+    <% end %>
 
     <div id="flash-messages"></div>
 
@@ -118,6 +120,7 @@
       <%= yield %>
     </main>
 
+    <% unless hotwire_native_app? %>
     <footer class="bg-neutral-100 border-t border-neutral-200 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -162,5 +165,6 @@
         </div>
       </div>
     </footer>
+    <% end %>
   </body>
 </html>
