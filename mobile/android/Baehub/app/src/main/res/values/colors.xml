@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="baehub_primary">#FFE11D48</color>
+    <color name="baehub_primary_dark">#FF9F1239</color>
+    <color name="baehub_secondary">#FFF97316</color>
+    <color name="baehub_surface">#FFFFFFFF</color>
+    <color name="baehub_on_surface">#FF1C1917</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
