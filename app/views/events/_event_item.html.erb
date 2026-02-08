@@ -3,70 +3,17 @@
   compact = local_assigns.fetch(:compact, false)
 %>
 
-<% if show_link %>
-  <%= link_to event_path(event), class: "block" do %>
-    <li class="flex flex-col lg:flex-row lg:items-center gap-3 rounded-2xl border border-neutral-100 <%= compact ? 'bg-neutral-50 px-4 py-3.5' : 'bg-white px-5 sm:px-6 py-4 hover:shadow-md transition-shadow cursor-pointer' %>">
-      <div class="flex-1 flex items-start gap-3">
-        <div class="flex-1">
-          <p class="<%= compact ? 'text-base' : 'text-base sm:text-lg' %> font-medium text-neutral-900 leading-snug <%= event.starts_at < Time.current ? 'opacity-70' : '' %>"><%= event.title %></p>
-
-          <p class="text-xs sm:text-sm text-neutral-500 mt-1">
-            <%= format_event_date_range(event, current_user.couple.timezone) %>
-          </p>
-
-        </div>
-      </div>
-
-      <div class="flex flex-wrap gap-1.5 sm:gap-2">
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= event_time_badge_class(event) %>">
-          <% if event.in_progress? %>
-            Now
-          <% elsif event.starts_at < Time.current %>
-            Past
-          <% else %>
-            Upcoming
-          <% end %>
-        </span>
-
-        <% if event.all_day? %>
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-medium">
-            All day
-          </span>
-        <% end %>
-
-        <% if !event.all_day? && event.duration_in_hours %>
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-50 text-gray-700 border border-gray-200 text-xs font-medium">
-            <%= event.duration_in_hours %>h
-          </span>
-        <% end %>
-
-        <% if event.recurring? %>
-          <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-medium" title="<%= event.recurrence_summary %>">
-            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Recurring
-          </span>
-        <% end %>
-
-      </div>
-    </li>
-  <% end %>
-<% else %>
-  <li class="flex flex-col lg:flex-row lg:items-center gap-3 rounded-2xl border border-neutral-100 <%= compact ? 'bg-neutral-50 px-4 py-3.5' : 'bg-white px-5 sm:px-6 py-4 hover:shadow-md transition-shadow' %>">
-    <div class="flex-1 flex items-start gap-3">
-      <div class="flex-1">
-        <p class="<%= compact ? 'text-base' : 'text-base sm:text-lg' %> font-medium text-neutral-900 leading-snug <%= event.starts_at < Time.current ? 'opacity-70' : '' %>"><%= event.title %></p>
-
-        <p class="text-xs sm:text-sm text-neutral-500 mt-1">
-          <%= format_event_date_range(event, current_user.couple.timezone) %>
-        </p>
-
-      </div>
+<% content = capture do %>
+  <li class="flex flex-col sm:flex-row sm:items-center gap-2.5 rounded-xl border border-neutral-200/60 <%= compact ? 'bg-neutral-50/50 px-3.5 py-3' : 'bg-white px-4 py-3.5 hover:shadow-card transition-all cursor-pointer' %>">
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-medium text-neutral-800 leading-snug <%= event.starts_at < Time.current ? 'text-neutral-400' : '' %>"><%= event.title %></p>
+      <p class="text-xs text-neutral-400 mt-0.5">
+        <%= format_event_date_range(event, current_user.couple.timezone) %>
+      </p>
     </div>
 
-    <div class="flex flex-wrap gap-1.5 sm:gap-2">
-      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium <%= event_time_badge_class(event) %>">
+    <div class="flex flex-wrap gap-1.5">
+      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium <%= event_time_badge_class(event) %>">
         <% if event.in_progress? %>
           Now
         <% elsif event.starts_at < Time.current %>
@@ -77,26 +24,29 @@
       </span>
 
       <% if event.all_day? %>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-medium">
-          All day
-        </span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 text-xs font-medium">All day</span>
       <% end %>
 
       <% if !event.all_day? && event.duration_in_hours %>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-50 text-gray-700 border border-gray-200 text-xs font-medium">
-          <%= event.duration_in_hours %>h
-        </span>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-neutral-50 text-neutral-600 border border-neutral-200 text-xs font-medium"><%= event.duration_in_hours %>h</span>
       <% end %>
 
       <% if event.recurring? %>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-medium" title="<%= event.recurrence_summary %>">
-          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-primary-50 text-primary-700 border border-primary-200 text-xs font-medium" title="<%= event.recurrence_summary %>">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M21.015 4.356v4.992" />
           </svg>
           Recurring
         </span>
       <% end %>
-
     </div>
   </li>
+<% end %>
+
+<% if show_link %>
+  <%= link_to event_path(event), class: "block group" do %>
+    <%= content %>
+  <% end %>
+<% else %>
+  <%= content %>
 <% end %>

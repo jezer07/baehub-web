@@ -108,14 +108,14 @@ module ApplicationHelper
   end
 
   def event_time_badge_class(event)
-    base_classes = "inline-flex items-center px-3 py-1 rounded-full border"
+    base_classes = "inline-flex items-center border"
 
     if event.in_progress?
       "#{base_classes} bg-success-50 text-success-700 border-success-200 animate-pulse"
     elsif event.starts_at < Time.current
-      "#{base_classes} bg-gray-50 text-gray-700 border-gray-200"
+      "#{base_classes} bg-neutral-50 text-neutral-500 border-neutral-200"
     else
-      "#{base_classes} bg-blue-50 text-blue-700 border-blue-200"
+      "#{base_classes} bg-secondary-50 text-secondary-700 border-secondary-200"
     end
   end
 
