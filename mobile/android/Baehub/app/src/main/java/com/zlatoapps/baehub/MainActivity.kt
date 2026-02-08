@@ -117,9 +117,6 @@ class MainActivity : HotwireActivity() {
             if (!isAuthenticated) return@setOnTabSelectedListener
 
             val hostId = tab.configuration.navigatorHostId
-            val tabRootLocation = tabDefinitions.firstOrNull {
-                it.tab.configuration.navigatorHostId == hostId
-            }?.rootLocation
 
             val navigatorHost = delegate.findNavigatorHost(hostId)
             if (navigatorHost == null) {
