@@ -4,10 +4,11 @@ class TasksController < ApplicationController
   before_action :set_task, only: [ :show, :edit, :update, :destroy, :toggle_completion ]
 
   def index
-    @tasks = current_user.couple.tasks
+    @tasks = current_user.couple.tasks.includes(:assignee, :creator)
     @tasks = @tasks.by_status(params[:status]) if params[:status].present?
     @tasks = @tasks.assigned_to(params[:assignee_id].to_i) if params[:assignee_id].present?
-    @tasks = @tasks.where("DATE(due_at) = ?", params[:due_on]) if params[:due_on].present?
+    due_on = parse_due_on_param
+    @tasks = @tasks.where(due_at: due_on.all_day) if due_on.present?
 
     # Apply sorting
     case params[:sort]
@@ -18,8 +19,7 @@ class TasksController < ApplicationController
     when "due_at_desc"
       @tasks = @tasks.order(due_at: :desc)
     when "priority_desc"
-      priority_order = Task.priorities.invert.stringify_keys
-      @tasks = @tasks.sort_by { |t| -priority_order[t.priority] }
+      @tasks = @tasks.order(priority: :desc)
     else
       @tasks = @tasks.order(:status).by_due_date
     end
@@ -40,14 +40,15 @@ class TasksController < ApplicationController
     Task.transaction do
       if @task.save
         log_task_activity("created task '#{@task.title}'", @task)
-        redirect_to(params[:redirect_to].presence || tasks_path, notice: "Task created successfully.")
+        redirect_to(safe_redirect_target(params[:redirect_to]) || tasks_path, notice: "Task created successfully.")
       else
         flash.now[:alert] = @task.errors.full_messages.to_sentence
         render :new, status: :unprocessable_entity
       end
     end
   rescue StandardError => e
-    @task.errors.add(:base, e.message)
+    log_exception(e, context: "tasks#create")
+    @task.errors.add(:base, generic_error_message)
     flash.now[:alert] = @task.errors.full_messages.to_sentence
     render :new, status: :unprocessable_entity
   end
@@ -79,7 +80,8 @@ class TasksController < ApplicationController
       end
     end
   rescue StandardError => e
-    @task.errors.add(:base, e.message)
+    log_exception(e, context: "tasks#update")
+    @task.errors.add(:base, generic_error_message)
     render_edit_with_errors
   end
 
@@ -93,9 +95,10 @@ class TasksController < ApplicationController
       end
     end
   rescue StandardError => e
+    log_exception(e, context: "tasks#destroy")
     respond_to do |format|
-      format.html { redirect_to tasks_path, alert: "Error deleting task: #{e.message}" }
-      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error deleting task: #{e.message}" }) }
+      format.html { redirect_to tasks_path, alert: generic_error_message }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: generic_error_message }) }
     end
   end
 
@@ -110,9 +113,10 @@ class TasksController < ApplicationController
       end
     end
   rescue StandardError => e
+    log_exception(e, context: "tasks#toggle_completion")
     respond_to do |format|
-      format.html { redirect_back(fallback_location: tasks_path, alert: "Error updating task: #{e.message}") }
-      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error updating task: #{e.message}" }) }
+      format.html { redirect_back(fallback_location: tasks_path, alert: generic_error_message) }
+      format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: generic_error_message }) }
     end
   end
 
@@ -134,6 +138,28 @@ class TasksController < ApplicationController
 
   def task_params
     params.require(:task).permit(:title, :description, :status, :priority, :due_at, :assignee_id)
+  end
+
+  def safe_redirect_target(target)
+    return nil if target.blank?
+
+    return url_from(target) if respond_to?(:url_from, true)
+
+    parsed = URI.parse(target)
+    return nil unless parsed.scheme.nil? && parsed.host.nil?
+    return nil unless target.start_with?("/")
+
+    target
+  rescue URI::InvalidURIError
+    nil
+  end
+
+  def parse_due_on_param
+    return nil if params[:due_on].blank?
+
+    Date.iso8601(params[:due_on])
+  rescue ArgumentError
+    nil
   end
 
   def log_task_activity(action, task)

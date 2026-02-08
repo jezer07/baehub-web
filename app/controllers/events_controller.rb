@@ -99,7 +99,8 @@ class EventsController < ApplicationController
       end
     end
   rescue StandardError => e
-    @event.errors.add(:base, e.message)
+    log_exception(e, context: "events#create")
+    @event.errors.add(:base, generic_error_message)
     flash.now[:alert] = @event.errors.full_messages.to_sentence
     render :new, status: :unprocessable_entity
   end
@@ -137,7 +138,8 @@ class EventsController < ApplicationController
       end
     end
   rescue StandardError => e
-    @event.errors.add(:base, e.message)
+    log_exception(e, context: "events#update")
+    @event.errors.add(:base, generic_error_message)
     flash.now[:alert] = @event.errors.full_messages.to_sentence
     render :edit, status: :unprocessable_entity
   end
@@ -151,7 +153,8 @@ class EventsController < ApplicationController
       redirect_to events_path, notice: "Event deleted successfully."
     end
   rescue StandardError => e
-    redirect_to events_path, alert: "Error deleting event: #{e.message}"
+    log_exception(e, context: "events#destroy")
+    redirect_to events_path, alert: generic_error_message
   end
 
   private

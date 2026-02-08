@@ -23,8 +23,7 @@ class GoogleCalendarWebhooksController < ApplicationController
   private
 
   def valid_channel_token?(connection, token)
-    # Legacy watches may exist without tokens; allow by channel ID until the watch is rotated.
-    return true if connection.channel_token.blank?
+    return false if connection.channel_token.blank?
     return false if token.blank?
 
     ActiveSupport::SecurityUtils.secure_compare(connection.channel_token, token)

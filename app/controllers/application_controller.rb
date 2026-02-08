@@ -18,4 +18,13 @@ class ApplicationController < ActionController::Base
   def after_sign_out_path_for(resource_or_scope)
     root_path
   end
+
+  def log_exception(error, context:)
+    Rails.logger.error("[#{context}] #{error.class}: #{error.message}")
+    Rails.logger.error(error.backtrace.first(10).join("\n")) if error.backtrace.present?
+  end
+
+  def generic_error_message
+    "Something went wrong. Please try again."
+  end
 end

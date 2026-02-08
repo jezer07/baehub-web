@@ -47,9 +47,10 @@ class SettlementsController < ApplicationController
         end
       end
     rescue StandardError => e
+      log_exception(e, context: "settlements#create")
       respond_to do |format|
-        format.html { redirect_to new_settlement_path, alert: "Error recording settlement: #{e.message}" }
-        format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error recording settlement: #{e.message}" }) }
+        format.html { redirect_to new_settlement_path, alert: generic_error_message }
+        format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: generic_error_message }) }
       end
     end
   end
@@ -73,9 +74,10 @@ class SettlementsController < ApplicationController
         end
       end
     rescue StandardError => e
+      log_exception(e, context: "settlements#update")
       respond_to do |format|
-        format.html { redirect_to edit_settlement_path(@settlement), alert: "Error updating settlement: #{e.message}" }
-        format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: "Error updating settlement: #{e.message}" }) }
+        format.html { redirect_to edit_settlement_path(@settlement), alert: generic_error_message }
+        format.turbo_stream { render turbo_stream: turbo_stream.prepend("flash-messages", partial: "shared/flash", locals: { type: :alert, message: generic_error_message }) }
       end
     end
   end
@@ -90,7 +92,8 @@ class SettlementsController < ApplicationController
       end
       redirect_to expenses_path, notice: "Settlement was successfully deleted."
     rescue StandardError => e
-      redirect_to expenses_path, alert: "Error deleting settlement: #{e.message}"
+      log_exception(e, context: "settlements#destroy")
+      redirect_to expenses_path, alert: generic_error_message
     end
   end
 
