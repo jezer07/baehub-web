@@ -15,8 +15,8 @@ class ApplicationController < ActionController::Base
     dashboard_path
   end
 
-  def after_sign_out_path_for(resource_or_scope)
-    root_path
+  def after_sign_out_path_for(_resource_or_scope)
+    hotwire_native_app? ? new_user_session_path : root_path
   end
 
   def log_exception(error, context:)

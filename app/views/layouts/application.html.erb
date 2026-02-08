@@ -24,7 +24,8 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="flex flex-col min-h-screen">
+  <body class="<%= hotwire_native_app? ? 'flex flex-col min-h-screen bg-neutral-100' : 'flex flex-col min-h-screen' %>">
+    <% unless hotwire_native_app? %>
     <div data-controller="mobile-menu">
       <div class="fixed inset-0 bg-black/50 z-40 hidden opacity-0 transition-opacity duration-300" data-mobile-menu-target="backdrop" data-action="click->mobile-menu#close"></div>
 
@@ -89,11 +90,12 @@
         </div>
       </nav>
     </div>
+    <% end %>
 
     <div id="flash-messages"></div>
 
     <% if flash.any? %>
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+      <div class="<%= hotwire_native_app? ? 'px-4 mt-3' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4' %>">
         <% flash.each do |type, message| %>
           <div class="<%= flash_class(type) %> border rounded-lg p-4 mb-4 flex items-start" data-controller="flash">
             <div class="flex-shrink-0">
@@ -114,11 +116,12 @@
       </div>
     <% end %>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="<%= hotwire_native_app? ? 'flex-1 w-full px-4 py-4' : 'flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8' %>">
       <%= yield %>
     </main>
 
-    <footer class="bg-neutral-100 border-t border-neutral-200 mt-auto">
+    <% unless hotwire_native_app? %>
+    <footer class="hidden md:block bg-neutral-100 border-t border-neutral-200 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
@@ -162,5 +165,6 @@
         </div>
       </div>
     </footer>
+    <% end %>
   </body>
 </html>

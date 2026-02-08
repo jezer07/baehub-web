@@ -6,7 +6,12 @@
     </div>
 
     <div class="card">
-      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-6" }) do |f| %>
+      <%= form_for(
+        resource,
+        as: resource_name,
+        url: session_path(resource_name),
+        html: { class: "space-y-6", data: { turbo_action: "replace" } }
+      ) do |f| %>
         <div>
           <%= f.label :email, class: "form-label" %>
           <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control w-full px-4 py-3" %>

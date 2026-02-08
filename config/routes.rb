@@ -12,6 +12,10 @@ Rails.application.routes.draw do
   delete "/google_calendar/disconnect", to: "google_calendar_connections#disconnect", as: :google_calendar_disconnect
   post "/google_calendar/webhook", to: "google_calendar_webhooks#create"
 
+  # Hotwire Native path configuration (no auth required)
+  get "/configurations/ios_v1", to: "configurations#ios_v1", defaults: { format: :json }
+  get "/configurations/android_v1", to: "configurations#android_v1", defaults: { format: :json }
+
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker

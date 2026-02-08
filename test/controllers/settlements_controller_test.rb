@@ -336,4 +336,26 @@ class SettlementsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to expenses_path
     assert_includes flash[:alert], "Settlement not found."
   end
+
+  test "native create redirects to recede historical location" do
+    post settlements_path,
+      params: {
+        settlement: {
+          payer_id: @user.id,
+          payee_id: @partner.id,
+          amount_dollars: 50.00,
+          settled_on: Date.today
+        }
+      },
+      headers: { "HTTP_USER_AGENT" => "Hotwire Native iOS" }
+
+    assert_redirected_to turbo_recede_historical_location_url
+  end
+
+  test "native destroy redirects to recede historical location" do
+    delete settlement_path(@settlement),
+      headers: { "HTTP_USER_AGENT" => "Hotwire Native iOS" }
+
+    assert_redirected_to turbo_recede_historical_location_url
+  end
 end

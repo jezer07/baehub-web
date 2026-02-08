@@ -40,7 +40,7 @@ class TasksController < ApplicationController
     Task.transaction do
       if @task.save
         log_task_activity("created task '#{@task.title}'", @task)
-        redirect_to(safe_redirect_target(params[:redirect_to]) || tasks_path, notice: "Task created successfully.")
+        recede_or_redirect_to(safe_redirect_target(params[:redirect_to]) || tasks_path, notice: "Task created successfully.")
       else
         flash.now[:alert] = @task.errors.full_messages.to_sentence
         render :new, status: :unprocessable_entity
@@ -72,7 +72,7 @@ class TasksController < ApplicationController
         end
         log_task_activity(activity_message, @task)
         respond_to do |format|
-          format.html { redirect_to @task, notice: "Task updated successfully." }
+          format.html { recede_or_redirect_to @task, notice: "Task updated successfully." }
           format.turbo_stream
         end
       else
@@ -90,7 +90,7 @@ class TasksController < ApplicationController
       @task.destroy
       log_task_activity("deleted task '#{@task.title}'", @task)
       respond_to do |format|
-        format.html { redirect_to tasks_path, notice: "Task deleted successfully." }
+        format.html { recede_or_redirect_to tasks_path, notice: "Task deleted successfully." }
         format.turbo_stream
       end
     end
