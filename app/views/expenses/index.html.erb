@@ -1,17 +1,19 @@
 <div class="bg-gradient-to-br from-white via-primary-50/60 to-purple-50/40 min-h-screen py-12">
   <div id="flash-messages"></div>
   <div class="max-w-6xl mx-auto px-4 space-y-8">
-    <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        <div>
-          <h1 class="text-3xl font-bold text-neutral-900 mb-2">Expenses & Payments</h1>
-          <p class="text-neutral-600">Track your shared expenses and payments</p>
-        </div>
-        <div>
-          <%= link_to "Add new expense", new_expense_path, class: "btn-primary justify-center" %>
+    <% unless hotwire_native_app? %>
+      <div class="bg-white rounded-3xl shadow-xl shadow-primary-900/5 border border-neutral-100 p-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <h1 class="text-3xl font-bold text-neutral-900 mb-2">Expenses & Payments</h1>
+            <p class="text-neutral-600">Track your shared expenses and payments</p>
+          </div>
+          <div>
+            <%= link_to "Add new expense", new_expense_path, class: "btn-primary justify-center" %>
+          </div>
         </div>
       </div>
-    </div>
+    <% end %>
     <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-6">
       <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter transactions</h2>
       <%= form_with url: expenses_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4" do |f| %>
