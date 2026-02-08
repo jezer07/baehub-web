@@ -37,7 +37,7 @@ class SettlementsController < ApplicationController
 
           respond_to do |format|
             format.html { recede_or_redirect_to expenses_path, notice: "Settlement recorded successfully." }
-            format.turbo_stream { redirect_to expenses_path, notice: "Settlement recorded successfully." }
+            format.turbo_stream { recede_or_redirect_to expenses_path, notice: "Settlement recorded successfully." }
           end
         else
           respond_to do |format|
@@ -64,7 +64,7 @@ class SettlementsController < ApplicationController
 
           respond_to do |format|
             format.html { recede_or_redirect_to expenses_path, notice: "Settlement updated successfully." }
-            format.turbo_stream { redirect_to expenses_path, notice: "Settlement updated successfully." }
+            format.turbo_stream { recede_or_redirect_to expenses_path, notice: "Settlement updated successfully." }
           end
         else
           respond_to do |format|

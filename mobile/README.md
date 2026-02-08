@@ -21,11 +21,13 @@ curl http://localhost:3000/configurations/android_v1.json
 
 Project location:
 
-- `mobile/ios/BaehubNative`
+- `mobile/ios/baehub`
 
 Open in Xcode and set your Team/Bundle ID.
 
-Set `ROOT_URL` in `BaehubNative/AppDelegate.swift`:
+Set `ROOT_URL` in:
+- `baehub/ContentView.swift`
+- optionally `BAEHUB_BASE_URL` in Info.plist
 
 - Simulator: `http://localhost:3000`
 - Physical device: `http://<your-lan-ip>:3000`
@@ -34,14 +36,14 @@ Set `ROOT_URL` in `BaehubNative/AppDelegate.swift`:
 
 Project location:
 
-- `mobile/android/BaehubNative`
+- `mobile/android/Baehub`
 
 Open in Android Studio and sync Gradle.
 
 Set `ROOT_URL` in:
 
-- `app/src/main/java/com/baehub/nativeapp/MainActivity.kt`
-- `app/src/main/java/com/baehub/nativeapp/App.kt`
+- `app/src/main/java/com/zlatoapps/baehub/MainActivity.kt`
+- `app/src/main/java/com/zlatoapps/baehub/App.kt`
 
 Use:
 

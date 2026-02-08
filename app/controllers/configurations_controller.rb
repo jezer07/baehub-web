@@ -1,4 +1,4 @@
-class ConfigurationsController < ApplicationController
+class ConfigurationsController < ActionController::Base
   def ios_v1
     render :ios_v1, formats: :json
   end
