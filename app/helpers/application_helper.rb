@@ -109,17 +109,17 @@ module ApplicationHelper
 
   def activity_log_icon(log)
     icon_svg = case log.subject_type
-    when 'Task'
+    when "Task"
       { bg: "bg-primary-100", color: "text-primary-600",
         path: "M4.5 12.75l6 6 9-13.5" }
-    when 'Event'
+    when "Event"
       { bg: "bg-secondary-100", color: "text-secondary-600",
         path: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25" }
-    when 'EventResponse'
+    when "EventResponse"
       { bg: "bg-blue-100", color: "text-blue-600",
         path: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }
-    when 'Expense'
-      if log.action.include?('settled')
+    when "Expense"
+      if log.action.include?("settled")
         { bg: "bg-success-100", color: "text-success-600",
           path: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }
       else
@@ -133,7 +133,7 @@ module ApplicationHelper
 
     content_tag(:div, class: "timeline-dot #{icon_svg[:bg]}") do
       '<svg class="h-3 w-3 %s" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="%s" /></svg>' \
-        .html_safe % [icon_svg[:color], icon_svg[:path]]
+        .html_safe % [ icon_svg[:color], icon_svg[:path] ]
     end
   end
 
