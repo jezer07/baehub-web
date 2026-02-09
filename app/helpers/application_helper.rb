@@ -107,15 +107,43 @@ module ApplicationHelper
     end
   end
 
-  def event_time_badge_class(event)
-    base_classes = "inline-flex items-center border"
-
-    if event.in_progress?
-      "#{base_classes} bg-success-50 text-success-700 border-success-200 animate-pulse"
-    elsif event.starts_at < Time.current
-      "#{base_classes} bg-neutral-50 text-neutral-500 border-neutral-200"
+  def activity_log_icon(log)
+    icon_svg = case log.subject_type
+    when 'Task'
+      { bg: "bg-primary-100", color: "text-primary-600",
+        path: "M4.5 12.75l6 6 9-13.5" }
+    when 'Event'
+      { bg: "bg-secondary-100", color: "text-secondary-600",
+        path: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25" }
+    when 'EventResponse'
+      { bg: "bg-blue-100", color: "text-blue-600",
+        path: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }
+    when 'Expense'
+      if log.action.include?('settled')
+        { bg: "bg-success-100", color: "text-success-600",
+          path: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }
+      else
+        { bg: "bg-accent-100", color: "text-accent-600",
+          path: "M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33" }
+      end
     else
-      "#{base_classes} bg-secondary-50 text-secondary-700 border-secondary-200"
+      { bg: "bg-neutral-100", color: "text-neutral-500",
+        path: "M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" }
+    end
+
+    content_tag(:div, class: "timeline-dot #{icon_svg[:bg]}") do
+      '<svg class="h-3 w-3 %s" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="%s" /></svg>' \
+        .html_safe % [icon_svg[:color], icon_svg[:path]]
+    end
+  end
+
+  def event_time_badge_class(event)
+    if event.in_progress?
+      "bg-success-50 text-success-700 border-success-200 animate-pulse"
+    elsif event.starts_at < Time.current
+      "bg-neutral-50 text-neutral-500 border-neutral-200"
+    else
+      "bg-secondary-50 text-secondary-700 border-secondary-200"
     end
   end
 

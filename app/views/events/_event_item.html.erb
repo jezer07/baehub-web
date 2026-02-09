@@ -13,7 +13,7 @@
     </div>
 
     <div class="flex flex-wrap gap-1.5">
-      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium <%= event_time_badge_class(event) %>">
+      <span class="inline-flex items-center border px-2 py-0.5 rounded-md text-xs font-medium <%= event_time_badge_class(event) %>">
         <% if event.in_progress? %>
           Now
         <% elsif event.starts_at < Time.current %>
