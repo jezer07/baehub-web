@@ -3,6 +3,18 @@ class TasksController < ApplicationController
   before_action :ensure_couple!
   before_action :set_task, only: [ :show, :edit, :update, :destroy, :toggle_completion ]
 
+  def filters
+  end
+
+  def apply_filters
+    redirect_params = {}
+    redirect_params[:status] = params[:status] if params[:status].present?
+    redirect_params[:assignee_id] = params[:assignee_id] if params[:assignee_id].present?
+    redirect_params[:due_on] = params[:due_on] if params[:due_on].present?
+    redirect_params[:sort] = params[:sort] if params[:sort].present?
+    recede_or_redirect_to tasks_path(redirect_params)
+  end
+
   def index
     @tasks = current_user.couple.tasks.includes(:assignee, :creator)
     @tasks = @tasks.by_status(params[:status]) if params[:status].present?

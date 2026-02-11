@@ -5,6 +5,17 @@ class ExpensesController < ApplicationController
   before_action :ensure_couple!
   before_action :set_expense, only: [ :show, :edit, :update, :destroy ]
 
+  def filters
+  end
+
+  def apply_filters
+    redirect_params = {}
+    redirect_params[:start_date] = params[:start_date] if params[:start_date].present?
+    redirect_params[:end_date] = params[:end_date] if params[:end_date].present?
+    redirect_params[:spender_id] = params[:spender_id] if params[:spender_id].present?
+    recede_or_redirect_to expenses_path(redirect_params)
+  end
+
   def index
     @balance_data = current_user.couple.calculate_balance
 

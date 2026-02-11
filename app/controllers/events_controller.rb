@@ -4,6 +4,17 @@ class EventsController < ApplicationController
   before_action :set_event, only: [ :show, :edit, :update, :destroy ]
   before_action :build_recurrence_rule, only: [ :create, :update ]
 
+  def filters
+  end
+
+  def apply_filters
+    redirect_params = {}
+    redirect_params[:filter] = params[:filter] if params[:filter].present?
+    redirect_params[:start_date] = params[:start_date] if params[:start_date].present?
+    redirect_params[:end_date] = params[:end_date] if params[:end_date].present?
+    recede_or_redirect_to events_path(redirect_params)
+  end
+
   def index
     @events = current_user.couple.events.includes(:event_responses, :creator)
 

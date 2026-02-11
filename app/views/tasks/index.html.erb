@@ -15,30 +15,32 @@
       </section>
     <% end %>
 
-    <!-- Filter section -->
-    <section class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-6">
-      <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter tasks</h2>
-      <%= form_with url: tasks_path, method: :get, class: "grid grid-cols-1 md:grid-cols-5 gap-4" do |f| %>
-        <div>
-          <%= f.select :status, [["All statuses", ""]] + Task.statuses.keys.map { |s| [s.humanize, s] }, { selected: params[:status] }, class: "form-control w-full px-4 py-3", name: "status" %>
-        </div>
-        <div>
-          <%= f.collection_select :assignee_id, current_user.couple.users, :id, :name, { include_blank: "All assignees", selected: params[:assignee_id] }, class: "form-control w-full px-4 py-3", name: "assignee_id" %>
-        </div>
-        <div>
-          <%= f.date_field :due_on, class: "form-control w-full px-4 py-3", name: "due_on", placeholder: "Filter by due date" %>
-        </div>
-        <div>
-          <%= f.select :sort, [["Sort by", ""], ["Status (Asc)", "status_asc"], ["Due date (Earliest)", "due_at_asc"], ["Due date (Latest)", "due_at_desc"], ["Priority (High)", "priority_desc"]], { selected: params[:sort] }, class: "form-control w-full px-4 py-3", name: "sort" %>
-        </div>
-        <div class="md:col-span-1">
-          <%= f.submit "Apply filters", class: "btn-secondary w-full md:w-auto md:self-end" %>
-        </div>
-      <% end %>
-      <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? || params[:sort].present? %>
-        <%= link_to "Clear filters", tasks_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-4 inline-block" %>
-      <% end %>
-    </section>
+    <% unless hotwire_native_app? %>
+      <!-- Filter section -->
+      <section class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 p-6">
+        <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter tasks</h2>
+        <%= form_with url: tasks_path, method: :get, class: "grid grid-cols-1 md:grid-cols-5 gap-4" do |f| %>
+          <div>
+            <%= f.select :status, [["All statuses", ""]] + Task.statuses.keys.map { |s| [s.humanize, s] }, { selected: params[:status] }, class: "form-control w-full px-4 py-3", name: "status" %>
+          </div>
+          <div>
+            <%= f.collection_select :assignee_id, current_user.couple.users, :id, :name, { include_blank: "All assignees", selected: params[:assignee_id] }, class: "form-control w-full px-4 py-3", name: "assignee_id" %>
+          </div>
+          <div>
+            <%= f.date_field :due_on, class: "form-control w-full px-4 py-3", name: "due_on", placeholder: "Filter by due date" %>
+          </div>
+          <div>
+            <%= f.select :sort, [["Sort by", ""], ["Status (Asc)", "status_asc"], ["Due date (Earliest)", "due_at_asc"], ["Due date (Latest)", "due_at_desc"], ["Priority (High)", "priority_desc"]], { selected: params[:sort] }, class: "form-control w-full px-4 py-3", name: "sort" %>
+          </div>
+          <div class="md:col-span-1">
+            <%= f.submit "Apply filters", class: "btn-secondary w-full md:w-auto md:self-end" %>
+          </div>
+        <% end %>
+        <% if params[:status].present? || params[:assignee_id].present? || params[:due_on].present? || params[:sort].present? %>
+          <%= link_to "Clear filters", tasks_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-4 inline-block" %>
+        <% end %>
+      </section>
+    <% end %>
 
     <!-- Tasks list section -->
     <section data-controller="todo-filter">
