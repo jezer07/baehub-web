@@ -12,7 +12,7 @@ class TasksController < ApplicationController
     redirect_params[:assignee_id] = params[:assignee_id] if params[:assignee_id].present?
     redirect_params[:due_on] = params[:due_on] if params[:due_on].present?
     redirect_params[:sort] = params[:sort] if params[:sort].present?
-    recede_or_redirect_to tasks_path(redirect_params)
+    redirect_to tasks_path(redirect_params), status: :see_other
   end
 
   def index

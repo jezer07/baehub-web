@@ -13,7 +13,7 @@ class ExpensesController < ApplicationController
     redirect_params[:start_date] = params[:start_date] if params[:start_date].present?
     redirect_params[:end_date] = params[:end_date] if params[:end_date].present?
     redirect_params[:spender_id] = params[:spender_id] if params[:spender_id].present?
-    recede_or_redirect_to expenses_path(redirect_params)
+    redirect_to expenses_path(redirect_params), status: :see_other
   end
 
   def index
