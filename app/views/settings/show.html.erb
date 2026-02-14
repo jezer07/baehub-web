@@ -122,7 +122,7 @@
         <p class="text-base font-medium text-neutral-900">Sign out</p>
         <p class="text-sm text-neutral-500 mt-1">Safely disconnect this device from your account.</p>
       </div>
-      <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200", data: { turbo: false } %>
+      <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200", data: { turbo: false, turbo_confirm: "Are you sure you want to sign out?" } %>
     </div>
   </div>
 </div>
