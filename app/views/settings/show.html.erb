@@ -111,4 +111,18 @@
       <%= form.submit "Save changes", class: "btn-primary" %>
     </div>
   <% end %>
+
+  <div class="bg-white rounded-3xl shadow-lg shadow-primary-900/5 border border-neutral-100 overflow-hidden">
+    <div class="px-6 py-5 border-b border-neutral-100 bg-neutral-50">
+      <h2 class="text-xl font-semibold text-neutral-900">Account</h2>
+      <p class="text-sm text-neutral-500 mt-1">Manage your account access.</p>
+    </div>
+    <div class="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+      <div>
+        <p class="text-base font-medium text-neutral-900">Sign out</p>
+        <p class="text-sm text-neutral-500 mt-1">Safely disconnect this device from your account.</p>
+      </div>
+      <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "btn-secondary text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-200", data: { turbo: false } %>
+    </div>
+  </div>
 </div>
