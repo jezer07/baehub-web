@@ -1,0 +1,9 @@
+# Appfile for Baehub iOS
+# For more details about this file, check out:
+# https://docs.fastlane.tools/advanced/Appfile/
+
+app_identifier("com.zlatoapps.baehub")
+apple_id("jezercrespo@gmail.com") # Update with your Apple ID
+
+# For more information about the available providers:
+# https://docs.fastlane.tools/advanced/provisions/
