@@ -21,6 +21,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            buildConfigField("String", "ROOT_URL", "\"http://10.0.2.2:3000\"")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "ROOT_URL", "\"https://baehubapp.com\"")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

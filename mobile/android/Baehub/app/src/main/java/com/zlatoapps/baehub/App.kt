@@ -10,7 +10,9 @@ import dev.hotwire.navigation.fragments.HotwireWebFragment
 class App : Application() {
     // Emulator: http://10.0.2.2:3000
     // Device: http://<your-lan-ip>:3000
-    private val ROOT_URL = "http://10.0.2.2:3000"
+    // Emulator: http://10.0.2.2:3000
+    // Device: http://<your-lan-ip>:3000
+    private val ROOT_URL = BuildConfig.ROOT_URL
 
     override fun onCreate() {
         super.onCreate()

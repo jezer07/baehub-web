@@ -77,9 +77,13 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate, UITabBarControllerD
            let url = URL(string: configuredURL) {
             rootURL = url
         } else {
-            // Simulator default.
-            // For physical device, set BAEHUB_BASE_URL to your Mac LAN URL, e.g. http://192.168.1.10:3000
-            rootURL = URL(string: "http://localhost:3000")!
+            #if DEBUG
+                // Simulator default.
+                // For physical device, set BAEHUB_BASE_URL to your Mac LAN URL, e.g. http://192.168.1.10:3000
+                rootURL = URL(string: "http://localhost:3000")!
+            #else
+                rootURL = URL(string: "https://baehubapp.com")!
+            #endif
         }
 
         signInURL = URL(string: "/users/sign_in", relativeTo: rootURL)!.absoluteURL

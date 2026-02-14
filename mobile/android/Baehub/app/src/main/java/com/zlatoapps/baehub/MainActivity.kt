@@ -24,7 +24,9 @@ class MainActivity : HotwireActivity() {
 
     // Emulator: http://10.0.2.2:3000
     // Device: http://<your-lan-ip>:3000
-    private val ROOT_URL = "http://10.0.2.2:3000"
+    // Emulator: http://10.0.2.2:3000
+    // Device: http://<your-lan-ip>:3000
+    private val ROOT_URL = BuildConfig.ROOT_URL
     private val SIGN_IN_URL = "$ROOT_URL/users/sign_in"
 
     private val tabDefinitions by lazy {
