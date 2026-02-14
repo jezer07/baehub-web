@@ -216,10 +216,9 @@ class MainActivity : HotwireActivity() {
     private fun updateQuickAddVisibility(location: String?) {
         if (location == null || nativeAddLocation(location) == null) {
             quickAddFab.hide()
-            return
+        } else {
+            quickAddFab.show()
         }
-
-        quickAddFab.show()
     }
 
     private fun nativeAddLocation(location: String): String? {

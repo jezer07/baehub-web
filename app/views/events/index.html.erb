@@ -33,33 +33,35 @@
         </button>
       </div>
 
-      <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter events</h2>
-      <%= form_with url: events_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4" do |f| %>
-        <div>
-          <%= f.select :filter, options_for_select([
-            ["All events", ""],
-            ["Upcoming", "upcoming"],
-            ["Past", "past"],
-            ["This week", "this_week"],
-            ["Future", "future"]
-          ], params[:filter]), {}, class: "form-control w-full px-4 py-3" %>
-        </div>
+      <% unless hotwire_native_app? %>
+        <h2 class="text-lg font-semibold text-neutral-900 mb-4">Filter events</h2>
+        <%= form_with url: events_path, method: :get, class: "grid grid-cols-1 md:grid-cols-4 gap-4" do |f| %>
+          <div>
+            <%= f.select :filter, options_for_select([
+              ["All events", ""],
+              ["Upcoming", "upcoming"],
+              ["Past", "past"],
+              ["This week", "current_week"],
+              ["Future", "future"]
+            ], params[:filter]), {}, class: "form-control w-full px-4 py-3" %>
+          </div>
 
-        <div>
-          <%= f.date_field :start_date, value: params[:start_date], placeholder: "Start date", class: "form-control w-full px-4 py-3" %>
-        </div>
+          <div>
+            <%= f.date_field :start_date, value: params[:start_date], placeholder: "Start date", class: "form-control w-full px-4 py-3" %>
+          </div>
 
-        <div>
-          <%= f.date_field :end_date, value: params[:end_date], placeholder: "End date", class: "form-control w-full px-4 py-3" %>
-        </div>
+          <div>
+            <%= f.date_field :end_date, value: params[:end_date], placeholder: "End date", class: "form-control w-full px-4 py-3" %>
+          </div>
 
-        <div class="md:col-span-1">
-          <%= f.submit "Apply filters", class: "btn-secondary w-full md:w-auto md:self-end" %>
-        </div>
-      <% end %>
+          <div class="md:col-span-1">
+            <%= f.submit "Apply filters", class: "btn-secondary w-full md:w-auto md:self-end" %>
+          </div>
+        <% end %>
 
-      <% if params[:filter].present? || params[:start_date].present? || params[:end_date].present? %>
-        <%= link_to "Clear filters", events_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-4 inline-block" %>
+        <% if params[:filter].present? || params[:start_date].present? || params[:end_date].present? %>
+          <%= link_to "Clear filters", events_path, class: "text-sm text-neutral-600 hover:text-primary-600 mt-4 inline-block" %>
+        <% end %>
       <% end %>
     </div>
 

@@ -29,12 +29,25 @@ Rails.application.routes.draw do
     end
     resources :invitations, only: %i[create destroy]
     resources :tasks do
+      collection do
+        get :filters
+        post :filters, action: :apply_filters
+      end
       patch :toggle_completion, on: :member
     end
     resources :events do
+      collection do
+        get :filters
+        post :filters, action: :apply_filters
+      end
       resources :event_responses, only: [ :create, :update ], path: "responses"
     end
-    resources :expenses
+    resources :expenses do
+      collection do
+        get :filters
+        post :filters, action: :apply_filters
+      end
+    end
     resources :settlements, only: [ :index, :new, :create, :show, :edit, :update, :destroy ]
     resource :settings, only: [ :show, :update ]
   end

@@ -18,7 +18,10 @@
         "/expenses/\\d+/edit$",
         "/settlements/new$",
         "/settlements/\\d+/edit$",
-        "/pairing/new$"
+        "/pairing/new$",
+        "/tasks/filters$",
+        "/events/filters$",
+        "/expenses/filters$"
       ],
       "properties": {
         "context": "modal",

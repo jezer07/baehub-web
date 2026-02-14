@@ -65,6 +65,11 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate, UITabBarControllerD
         target: self,
         action: #selector(handleQuickAddTapped)
     )
+    private lazy var filterBarButtonItem: UIBarButtonItem = {
+        let image = UIImage(systemName: "line.3.horizontal.decrease.circle")
+        return UIBarButtonItem(image: image, style: .plain, target: self, action: #selector(handleFilterTapped))
+    }()
+    private var pendingFilterURL: URL?
 
     private override init() {
         // Optional override in Info.plist: BAEHUB_BASE_URL
@@ -349,6 +354,32 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate, UITabBarControllerD
         }
     }
 
+    private func nativeFilterURL(for url: URL) -> URL? {
+        let path = url.path
+        let basePath: String?
+
+        switch path {
+        case "/tasks":
+            basePath = "/tasks/filters"
+        case "/events":
+            basePath = "/events/filters"
+        case "/expenses":
+            basePath = "/expenses/filters"
+        default:
+            basePath = nil
+        }
+
+        guard let basePath else { return nil }
+
+        // Preserve query params so filters pre-populate
+        var components = URLComponents(url: rootURL.appendingPathComponent(basePath), resolvingAgainstBaseURL: true)
+        if let query = URLComponents(url: url, resolvingAgainstBaseURL: true)?.queryItems, !query.isEmpty {
+            components?.queryItems = query
+        }
+
+        return components?.url
+    }
+
     private func currentVisitableURLForActiveTab() -> URL? {
         guard let tabBarController else { return nil }
 
@@ -380,14 +411,25 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate, UITabBarControllerD
         guard activeShell == .tabbed, let tabBarController else { return }
 
         let topController = tabBarController.activeNavigator.activeNavigationController.topViewController
-        guard let url, let addURL = nativeAddURL(for: url) else {
+
+        guard let url else {
             pendingQuickAddURL = nil
-            topController?.navigationItem.rightBarButtonItem = nil
+            pendingFilterURL = nil
+            topController?.navigationItem.rightBarButtonItems = nil
             return
         }
 
+        let addURL = nativeAddURL(for: url)
+        let filterURL = nativeFilterURL(for: url)
+
         pendingQuickAddURL = addURL
-        topController?.navigationItem.rightBarButtonItem = quickAddBarButtonItem
+        pendingFilterURL = filterURL
+
+        var items: [UIBarButtonItem] = []
+        if addURL != nil { items.append(quickAddBarButtonItem) }
+        if filterURL != nil { items.append(filterBarButtonItem) }
+
+        topController?.navigationItem.rightBarButtonItems = items.isEmpty ? nil : items
     }
 
     @objc private func handleQuickAddTapped() {
@@ -397,6 +439,15 @@ final class HotwireCoordinator: NSObject, NavigatorDelegate, UITabBarControllerD
         else { return }
 
         tabBarController.activeNavigator.route(addURL)
+    }
+
+    @objc private func handleFilterTapped() {
+        guard activeShell == .tabbed,
+              let tabBarController,
+              let filterURL = pendingFilterURL
+        else { return }
+
+        tabBarController.activeNavigator.route(filterURL)
     }
 
     private func shouldSwitchToAuthenticationShell(for callbackURL: URL) -> Bool {
